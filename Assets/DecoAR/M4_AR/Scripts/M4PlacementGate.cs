@@ -9,22 +9,23 @@ namespace DecoAR.AR
         [Header("Test (sera fourni par M3 plus tard)")]
         [SerializeField] GameObject productPrefab;
         [SerializeField] PlacementType placementType = PlacementType.Sol;
-        [Tooltip("Cocher si le tableau apparait a l'envers (face tournee vers le mur)")]
+        [SerializeField] Vector3 sizeCm = new Vector3(50, 50, 50); // x=largeur, y=HAUTEUR, z=profondeur
         [SerializeField] bool flipFront = false;
 
         GameObject placed;
 
-        // Appelee par l'evenement "Object Spawn Triggered (Vector3, Vector3)"
         public void OnSpawnTriggered(Vector3 position, Vector3 normal)
         {
+            Debug.Log($"[M4] OnSpawnTriggered appele | type={placementType} | prefab={(productPrefab != null ? productPrefab.name : "VIDE")} | sizeCm={sizeCm}");
+
+            if (productPrefab == null) return;
+
             bool isWall = Mathf.Abs(normal.y) < 0.3f;
             bool isHorizontalUp = normal.y > 0.7f;
-
             bool valid = placementType == PlacementType.Mur ? isWall : isHorizontalUp;
             if (!valid)
             {
                 Debug.Log($"[M4] Placement refuse : {placementType} sur une surface incompatible");
-                // TODO : afficher un message a l'ecran (ex. "Ce produit se pose sur un mur")
                 return;
             }
 
@@ -33,7 +34,6 @@ namespace DecoAR.AR
 
             if (placementType == PlacementType.Mur)
             {
-                // Face du produit tournee vers la piece
                 Vector3 n = new Vector3(normal.x, 0f, normal.z).normalized;
                 if (Vector3.Dot(n, cam.position - position) < 0f) n = -n;
                 if (flipFront) n = -n;
@@ -41,7 +41,6 @@ namespace DecoAR.AR
             }
             else
             {
-                // Produit tourne vers l'utilisateur, reste droit
                 Vector3 toCam = cam.position - position;
                 toCam.y = 0f;
                 if (toCam.sqrMagnitude < 0.001f) toCam = Vector3.forward;
@@ -49,11 +48,20 @@ namespace DecoAR.AR
             }
 
             if (placed == null)
-                placed = Instantiate(productPrefab, position, rot);
-            else
-                placed.transform.SetPositionAndRotation(position, rot);
+            {
+                placed = Instantiate(productPrefab, position, Quaternion.identity);
+                M4Sizing.FitToRealSize(placed, sizeCm);
+            }
 
-            // TODO F4.9 : HapticManager.Instance.Medium();
+            placed.transform.SetPositionAndRotation(position, Quaternion.identity);
+
+            if (placementType != PlacementType.Mur)
+            {
+                float lift = position.y - M4Sizing.GetBounds(placed).min.y;
+                placed.transform.position = position + Vector3.up * lift;
+            }
+
+            placed.transform.rotation = rot;
         }
     }
 }

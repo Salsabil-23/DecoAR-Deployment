@@ -1129,6 +1129,10 @@ PrefabInstance:
       propertyPath: m_PlanePrefab
       value: 
       objectReference: {fileID: 1585201990951412, guid: 886609fc1566e4c27b399f1095d6de18, type: 3}
+    - target: {fileID: 2512387470528047737, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
+      propertyPath: m_DetectionMode
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 2512387470528047738, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
       propertyPath: m_RootOrder
       value: 4
@@ -6343,9 +6347,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e42c96758d70d4182a865950c2f9ef54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DecoAR.AR.M4PlacementGate
-  productPrefab: {fileID: 8986328500875594450, guid: d825bbdf58c379d4290da92e387f71d0, type: 3}
+  productPrefab: {fileID: 3684697465672998746, guid: 41d47ebb3130240019f35c36b9d78860, type: 3}
   placementType: 0
   flipFront: 0
+  sizeCm: {x: 50, y: 50, z: 50}
 --- !u!4 &1780086092
 Transform:
   m_ObjectHideFlags: 0
