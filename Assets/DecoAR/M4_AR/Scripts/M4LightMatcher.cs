@@ -47,7 +47,7 @@ namespace DecoAR.AR
         void Update()
         {
             float t = Time.deltaTime * smoothing;
-            sun.intensity = Mathf.Lerp(sun.intensity, targetIntensity, t);
+            sun.intensity = Mathf.Lerp(sun.intensity, Mathf.Max(targetIntensity, 0.2f), t);
             sun.colorTemperature = Mathf.Lerp(sun.colorTemperature, targetTemperature, t);
         }
     }
