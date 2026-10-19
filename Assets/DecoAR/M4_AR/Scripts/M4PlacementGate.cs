@@ -68,7 +68,7 @@ namespace DecoAR.AR
             return false;
         }
 
-        void ShowTemporary(string msg, float seconds = 2.5f)
+        public void ShowTemporary(string msg, float seconds = 2.5f)
         {
             if (messageText == null) return;
             messageText.text = msg;
@@ -125,7 +125,7 @@ namespace DecoAR.AR
             }
             placed.transform.SetPositionAndRotation(position, rot);
 
-            // TODO F4.9 : vibration moyenne (HapticManager de M5)
+            M4Haptics.Medium();
         }
 
         GameObject BuildProduct()
