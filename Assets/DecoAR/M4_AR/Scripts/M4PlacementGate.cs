@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
+using TMPro;
 
 namespace DecoAR.AR
 {
@@ -20,11 +23,69 @@ namespace DecoAR.AR
         [Header("Ombre")]
         [SerializeField] Material shadowCatcherMaterial;
 
-        GameObject placed;
+        [Header("Interface (messages en francais)")]
+        [SerializeField] TMP_Text messageText;
+        [SerializeField] GameObject resetButton;
 
+        GameObject placed;
+        ARPlaneManager planeManager;
+        float tempMessageUntil;
+
+        void Awake()
+        {
+            planeManager = FindFirstObjectByType<ARPlaneManager>();
+            if (resetButton != null) resetButton.SetActive(false);
+            if (messageText != null) messageText.text = "";
+        }
+
+        void Update()
+        {
+            if (messageText == null) return;
+            if (Time.time < tempMessageUntil) return; // un message temporaire est affiche
+
+            if (placed != null)
+            {
+                messageText.text = "";
+                return;
+            }
+
+            if (HasMatchingPlane())
+                messageText.text = "Touchez la surface pour poser le produit";
+            else
+                messageText.text = placementType == PlacementType.Mur
+                    ? "Balayez lentement le mur"
+                    : "Balayez lentement le sol";
+        }
+
+        bool HasMatchingPlane()
+        {
+            if (planeManager == null) return true;
+            PlaneAlignment wanted = placementType == PlacementType.Mur
+                ? PlaneAlignment.Vertical
+                : PlaneAlignment.HorizontalUp;
+            foreach (var plane in planeManager.trackables)
+                if (plane.alignment == wanted) return true;
+            return false;
+        }
+
+        void ShowTemporary(string msg, float seconds = 2.5f)
+        {
+            if (messageText == null) return;
+            messageText.text = msg;
+            tempMessageUntil = Time.time + seconds;
+        }
+
+        // Appelee par le bouton "Taille réelle"
+        public void ResetToRealSize()
+        {
+            if (placed == null) return;
+            placed.transform.localScale = Vector3.one; // le modele enfant est deja a sa taille reelle
+            ShowTemporary("Taille réelle");
+        }
+
+        // Appelee par l'evenement "Object Spawn Triggered (Vector3, Vector3)"
         public void OnSpawnTriggered(Vector3 position, Vector3 normal)
         {
-            Debug.Log($"[M4] OnSpawnTriggered | type={placementType} | produit={(productPrefab != null ? productPrefab.name : "VIDE")}");
             if (productPrefab == null) return;
 
             bool isWall = Mathf.Abs(normal.y) < 0.3f;
@@ -33,6 +94,9 @@ namespace DecoAR.AR
             if (!valid)
             {
                 Debug.Log($"[M4] Placement refuse : {placementType} sur une surface incompatible");
+                ShowTemporary(placementType == PlacementType.Mur
+                    ? "Ce produit se pose sur un mur"
+                    : "Ce produit se pose sur le sol ou une table");
                 return;
             }
 
@@ -57,22 +121,12 @@ namespace DecoAR.AR
             {
                 placed = BuildProduct();
                 if (placed == null) return;
+                if (resetButton != null) resetButton.SetActive(true);
             }
             placed.transform.SetPositionAndRotation(position, rot);
+
+            // TODO F4.9 : vibration moyenne (HapticManager de M5)
         }
-
-
-        float lastLoggedScale = -1f;
-
-        void Update()
-        {
-            if (placed == null) return;
-            float s = placed.transform.localScale.x;
-            if (Mathf.Abs(s - lastLoggedScale) < 0.01f) return;   // log seulement quand ça change
-            lastLoggedScale = s;
-            Debug.Log($"[M4] Echelle={s:F2} | taille ~ {s * sizeCm.y:F0} cm");
-        }
-        
 
         GameObject BuildProduct()
         {
@@ -83,9 +137,14 @@ namespace DecoAR.AR
                 return null;
             }
 
-            // 1. Le produit, actif et a l'origine, a sa taille reelle
+            // 1. Le produit, a l'origine, a sa taille reelle
             GameObject model = Instantiate(productPrefab, Vector3.zero, Quaternion.identity);
             M4Sizing.FitToRealSize(model, sizeCm);
+
+            // Avertissement si les proportions du modele different du catalogue
+            Vector3 got = M4Sizing.GetBounds(model).size * 100f;
+            if (Mathf.Abs(got.x - sizeCm.x) > sizeCm.x * 0.15f || Mathf.Abs(got.z - sizeCm.z) > sizeCm.z * 0.15f)
+                Debug.LogWarning($"[M4] Proportions differentes du catalogue : modele {got.x:F0}x{got.y:F0}x{got.z:F0} cm, catalogue {sizeCm.x:F0}x{sizeCm.y:F0}x{sizeCm.z:F0} cm");
 
             // 2. On cale le produit sur le pivot du porte-produit
             Bounds b = M4Sizing.GetBounds(model);
@@ -95,7 +154,7 @@ namespace DecoAR.AR
             model.transform.position += offset;
             b.center += offset;
 
-            // 3. Porte-produit prepare sous un parent INACTIF : les composants XR ne demarrent pas encore
+            // 3. Porte-produit prepare sous un parent INACTIF
             GameObject staging = new GameObject("M4_Staging");
             staging.SetActive(false);
 
@@ -104,11 +163,10 @@ namespace DecoAR.AR
             holder.transform.localRotation = Quaternion.identity;
             holder.transform.localScale = Vector3.one;
 
-            // On cache le cube du template et on retire ses colliders
             foreach (var r in holder.GetComponentsInChildren<Renderer>(true)) r.enabled = false;
             foreach (var c in holder.GetComponentsInChildren<Collider>(true)) DestroyImmediate(c);
 
-            // 4. Le modele devient enfant, avec un collider a sa taille pour le toucher
+            // 4. Le modele devient enfant, avec un collider a sa taille
             model.transform.SetParent(holder.transform, true);
             var box = holder.AddComponent<BoxCollider>();
             box.center = b.center;
@@ -116,7 +174,7 @@ namespace DecoAR.AR
 
             if (placementType != PlacementType.Mur) AddShadowCatcher(holder, b);
 
-            // 5. On libere le porte-produit : Awake/OnEnable s'executent maintenant, avec le bon collider
+            // 5. On libere le porte-produit
             holder.transform.SetParent(null, true);
             Destroy(staging);
 
