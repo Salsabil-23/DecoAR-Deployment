@@ -7132,8 +7132,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DecoAR.AR.M4PlacementGate
   holderFloorPrefab: {fileID: 8986328500875594450, guid: deefda4e2fcc54f76922670353061ee4, type: 3}
   holderWallPrefab: {fileID: 8986328500875594450, guid: ec269dac6294c495e95e7274275a7404, type: 3}
-  productPrefab: {fileID: 1530027786321554536, guid: 54b3807d46a644de5aa4150845e7a707, type: 3}
-  placementType: 1
+  productPrefab: {fileID: 3684697465672998746, guid: 41d47ebb3130240019f35c36b9d78860, type: 3}
+  placementType: 0
   sizeCm: {x: 60, y: 80, z: 3}
   flipFront: 0
   shadowCatcherMaterial: {fileID: 2100000, guid: 12609a1b6e4494281a026be4dccbfc3d, type: 2}
