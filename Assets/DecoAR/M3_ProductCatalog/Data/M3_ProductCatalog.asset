@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2deeb71eb1645219a34ac759e6153b, type: 3}
+  m_Name: M3_ProductCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::DecoAR.M3.M3ProductCatalog
+  products:
+  - id: vase_01
+    displayName: "Vase en c\xE9ramique"
+    category: "D\xE9coration"
+    price: 45
+    sizeCm: {x: 25, y: 35, z: 25}
+    prefab: {fileID: 6399039864602184043, guid: f48513468753148a5a76e8026f2d744c, type: 3}
+    description: "Vase d\xE9coratif minimaliste"
+    thumbnail: {fileID: 0}
+  - id: lampe_01
+    displayName: Lampe en laiton
+    category: "D\xE9coration"
+    price: 120
+    sizeCm: {x: 30, y: 55, z: 30}
+    prefab: {fileID: 5253245717944665207, guid: 808b1290fb37a4019821e96db98dc843, type: 3}
+    description: Lampe de table
+    thumbnail: {fileID: 0}
+  - id: tableau_01
+    displayName: Tableau abstrait
+    category: "D\xE9coration"
+    price: 80
+    sizeCm: {x: 50, y: 70, z: 5}
+    prefab: {fileID: 4677110098514483428, guid: 6396634d5d0674206a667b4c5cd55ac2, type: 3}
+    description: Tableau mural
+    thumbnail: {fileID: 0}

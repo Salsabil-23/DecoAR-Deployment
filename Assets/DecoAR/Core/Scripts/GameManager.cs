@@ -19,6 +19,12 @@ namespace DecoAR.Core
         public bool HapticsEnabled { get; private set; } = true;
         public bool IsNight { get; set; }
 
+        // Produit courant selectionne dans le catalogue M3 ; transmis a M4 lors du placement AR.
+        public string SelectedProductId { get; private set; } = "";
+        public GameObject SelectedProductPrefab { get; private set; }
+        public Vector3 SelectedProductSizeCm { get; private set; } = new Vector3(50f, 50f, 50f);
+        public bool HasSelectedProduct => SelectedProductPrefab != null;
+
         // Panier : M5 met a jour le nombre d'articles, le HUD (M1) l'affiche
         public int CartCount { get; private set; }
 
@@ -85,6 +91,20 @@ namespace DecoAR.Core
             PlayerPrefs.SetInt(KeyHaptics, enabled ? 1 : 0);
             PlayerPrefs.Save();
             HapticsChanged?.Invoke(enabled);
+        }
+
+        public void SelectProduct(string productId, GameObject prefab, Vector3 sizeCm)
+        {
+            SelectedProductId = productId ?? string.Empty;
+            SelectedProductPrefab = prefab;
+            SelectedProductSizeCm = sizeCm;
+        }
+
+        public void ClearSelectedProduct()
+        {
+            SelectedProductId = string.Empty;
+            SelectedProductPrefab = null;
+            SelectedProductSizeCm = new Vector3(50f, 50f, 50f);
         }
 
         public void SetCartCount(int count)

@@ -36,6 +36,13 @@ namespace DecoAR.AR
             planeManager = FindFirstObjectByType<ARPlaneManager>();
             if (resetButton != null) resetButton.SetActive(false);
             if (messageText != null) messageText.text = "";
+
+            var gm = DecoAR.Core.GameManager.Instance;
+            if (gm != null && gm.HasSelectedProduct)
+            {
+                productPrefab = gm.SelectedProductPrefab;
+                sizeCm = gm.SelectedProductSizeCm;
+            }
         }
 
         void Update()
@@ -55,6 +62,12 @@ namespace DecoAR.AR
                 messageText.text = placementType == PlacementType.Mur
                     ? "Balayez lentement le mur"
                     : "Balayez lentement le sol";
+        }
+
+        public void SetProductPrefab(GameObject prefab, Vector3 productSizeCm)
+        {
+            productPrefab = prefab;
+            sizeCm = productSizeCm;
         }
 
         bool HasMatchingPlane()
