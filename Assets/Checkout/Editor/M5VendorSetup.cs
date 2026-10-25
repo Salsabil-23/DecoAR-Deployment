@@ -21,6 +21,7 @@ namespace DecoAR.M5
         {
             var vendor = M5EditorUtil.FindVendor();
             if (!vendor) return;
+            if (M5AjSetup.IsAj(vendor)) { Debug.Log("[M5] Le vendeur est Aj → menu 5."); M5AjSetup.Run(); return; }
 
             // 1. FBX du vendeur + FBX d'animation
             var src = PrefabUtility.GetCorrespondingObjectFromOriginalSource(vendor);

@@ -102,5 +102,14 @@ namespace DecoAR.M5
             Run();
             Debug.Log("[M5] ✅ Installation complète — pensez à sauvegarder la scène (Ctrl/Cmd+S).");
         }
+
+        [MenuItem("DecoAR/M5/Installer les nouveautés (5 → 7)")]
+        public static void New()
+        {
+            M5AjSetup.Run();
+            M5TVSetup.Run();
+            M5AmbianceSetup.Run();
+            Debug.Log("[M5] ✅ Aj, télévision et ambiance installés — sauvegardez la scène (Cmd+S) puis Play.");
+        }
     }
 }
