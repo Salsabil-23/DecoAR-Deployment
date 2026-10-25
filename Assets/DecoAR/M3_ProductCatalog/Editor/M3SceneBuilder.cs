@@ -16,7 +16,7 @@ namespace DecoAR.M3.EditorTools
 {
     // Menu DecoAR > M3 : genere les modeles des produits, le catalogue (3 zones x 5 produits x 2 variantes),
     // les prefabs de boutons et la scene du rayon M3, sans rien construire a la main.
-    public static class M3SceneBuilder
+    public static partial class M3SceneBuilder
     {
         const string Root = "Assets/DecoAR/M3_ProductCatalog";
         const string DataFolder = Root + "/Data";
@@ -111,6 +111,8 @@ namespace DecoAR.M3.EditorTools
                     "Sculpture en résine aux courbes douces.", "statue sculpture statuette",
                     V("Pierre", 0.80f, 0.78f, 0.72f), V("Bronze", 0.55f, 0.38f, 0.22f)),
             };
+
+            catalog.products.AddRange(RoomProducts());
 
             foreach (var p in catalog.products)
                 p.prefab = BuildProductPrefab(p);
@@ -236,7 +238,8 @@ namespace DecoAR.M3.EditorTools
                     break;
 
                 default:
-                    Part(root, "VariantCorps", PrimitiveType.Cube, new Vector3(0, s.y / 2, 0), s, v0);
+                    if (!BuildFurniture(p.id, root, s, v0))   // meubles des pieces : M3SceneBuilder.Furniture.cs
+                        Part(root, "VariantCorps", PrimitiveType.Cube, new Vector3(0, s.y / 2, 0), s, v0);
                     break;
             }
 
@@ -370,14 +373,39 @@ namespace DecoAR.M3.EditorTools
             var top = Stretch("Barre", ct, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -60), new Vector2(0, 120));
             top.gameObject.AddComponent<Image>().color = Dark;
             var back = MakeButton(top, "M3_BackButton", "‹ Boutique", new Vector2(0, 0.5f), new Vector2(150, 0), new Vector2(260, 90), Cream, Ink, out _);
-            var zoneRow = Stretch("M3_ZoneTabs", top, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1000, 90));
-            var zoneLayout = zoneRow.gameObject.AddComponent<HorizontalLayoutGroup>();
-            zoneLayout.spacing = 16;
-            zoneLayout.childForceExpandWidth = true;
+            // 7 zones : rangee d'onglets defilante (glisser horizontalement)
+            var zoneRow = Stretch("M3_ZoneTabs", top, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1280, 96));
+            zoneRow.gameObject.AddComponent<RectMask2D>();
+            var zoneScroll = zoneRow.gameObject.AddComponent<ScrollRect>();
+            zoneScroll.horizontal = true;
+            zoneScroll.vertical = false;
+            zoneScroll.movementType = ScrollRect.MovementType.Clamped;
+            var zoneContent = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
+            zoneContent.gameObject.layer = LayerMask.NameToLayer("UI");
+            zoneContent.SetParent(zoneRow, false);
+            zoneContent.anchorMin = new Vector2(0, 0);
+            zoneContent.anchorMax = new Vector2(0, 1);
+            zoneContent.pivot = new Vector2(0, 0.5f);
+            zoneContent.offsetMin = zoneContent.offsetMax = Vector2.zero;
+            var zoneLayout = zoneContent.gameObject.AddComponent<HorizontalLayoutGroup>();
+            zoneLayout.spacing = 12;
+            zoneLayout.padding = new RectOffset(0, 0, 3, 3);
+            zoneLayout.childAlignment = TextAnchor.MiddleLeft;
             zoneLayout.childControlWidth = zoneLayout.childControlHeight = true;
+            zoneLayout.childForceExpandWidth = zoneLayout.childForceExpandHeight = false;
+            zoneContent.gameObject.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            zoneScroll.viewport = zoneRow;
+            zoneScroll.content = zoneContent;
             var zoneButtons = new List<Object>();
             foreach (var zone in M3Categories.All)
-                zoneButtons.Add(MakeButton(zoneRow, "Zone " + zone, zone, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(300, 90), Cream, Ink, out _));
+            {
+                var zb = MakeButton(zoneContent, "Zone " + zone, zone, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(240, 90), Cream, Ink, out var zl);
+                var le = zb.gameObject.AddComponent<LayoutElement>();
+                le.preferredWidth = le.minWidth = 240;
+                le.preferredHeight = le.minHeight = 90;
+                zl.fontSize = 32;
+                zoneButtons.Add(zb);
+            }
             var cart = MakeText(top, "M3_CartLabel", "Panier (0)", new Vector2(1, 0.5f), new Vector2(-170, 0), new Vector2(300, 90), 36, Cream);
             cart.alignment = TextAlignmentOptions.Right;
 
@@ -396,7 +424,7 @@ namespace DecoAR.M3.EditorTools
             irt.offsetMax = new Vector2(-380, 0);
             var field = input.GetComponent<TMP_InputField>();
             field.pointSize = 36;
-            ((TMP_Text)field.placeholder).text = "Rechercher : lampe, vase, miroir…";
+            ((TMP_Text)field.placeholder).text = "Rechercher : canapé, lit, lampe…";
             field.textComponent.color = Ink;
             var searchBtn = MakeButton(searchRow, "M3_SearchButton", "OK", new Vector2(1, 0.5f), new Vector2(-300, 0), new Vector2(140, 90), Brass, Color.white, out _);
             var micBtn = MakeButton(searchRow, "M3_MicButton", "Micro", new Vector2(1, 0.5f), new Vector2(-105, 0), new Vector2(200, 90), Sage, Color.white, out var micLabel);

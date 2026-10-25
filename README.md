@@ -37,7 +37,7 @@ Le périmètre exclut le paiement réel, le back-office marchand ainsi que les c
 | --- | --- |
 | M1 — Personnage et contrôles | Socle disponible : sélection et personnalisation d'avatar, déplacement, caméra à la troisième personne et scènes de test. |
 | M2 — Boutique et zones | À développer : seule une scène de test M1 avec un environnement et des éléments interactifs simples est présente ; les trois zones et l'ambiance complètes ne sont pas intégrées. |
-| M3 — Bibliothèque de produits | Disponible : catalogue partagé (15 produits, 3 zones, 2 variantes chacun), étagère 3D par zone, sortie animée du produit, inspection 360° et zoom par pincement, variantes en direct, fiche produit, « Voir en AR » et « Ajouter au panier », recherche texte et vocale (iOS), secousse pour reposer, vibrations légères. |
+| M3 — Bibliothèque de produits | Disponible : catalogue partagé (39 produits en 7 zones : Tableaux, Luminaires, Objets déco, Salon, Chambre, Cuisine, Salle de bain ; au moins 2 variantes chacun), étagère 3D par zone, sortie animée du produit, inspection 360° et zoom par pincement, variantes en direct, fiche produit, « Voir en AR » et « Ajouter au panier », recherche texte et vocale (iOS), secousse pour reposer, vibrations légères. |
 | M4 — Réalité augmentée | Disponible : produit et variante reçus de M3, placement selon le type (mur, sol, sol ou table), taille réelle et retour à la taille réelle, ombre, estimation de lumière, changement de variante, photo vers la galerie, « Ajouter au panier », retour au rayon ou à la boutique, vibration à la pose. |
 | M5 — Caisse et commande | À développer : panier persistant, formulaire de livraison et historique des commandes ne sont pas encore intégrés. |
 
