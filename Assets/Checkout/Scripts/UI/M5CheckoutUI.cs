@@ -63,7 +63,21 @@ namespace DecoAR.M5
             if (!vendor) vendor = VendorNPC.Instance;
             EnsureEventSystem();
             BuildUI();
+            ImportSharedCart();
             Refresh();
+        }
+
+        // Articles ajoutes depuis le catalogue M3 ou l'AR M4 (GameManager)
+        void ImportSharedCart()
+        {
+            var gm = DecoAR.Core.GameManager.Instance;
+            if (gm == null) return;
+            foreach (var item in gm.TakeCartItems())
+            {
+                string label = string.IsNullOrEmpty(item.variantName) ? item.name : $"{item.name} ({item.variantName})";
+                var p = catalog.Find(x => x.name == label) ?? new Product(label, item.price, item.color) { prefab = item.prefab };
+                for (int i = 0; i < Mathf.Max(1, item.quantity); i++) AddProduct(p);
+            }
         }
 
         // ---------- Logique panier ----------
@@ -96,6 +110,7 @@ namespace DecoAR.M5
             if (parcel) parcel.Play(); // vendeur + vibration + son + vide le panier 3D
             else { if (vendor) vendor.PlayConfirm(); M5Haptics.Strong(); if (basket) basket.Clear(); }
             lines.Clear();
+            if (DecoAR.Core.GameManager.Instance != null) DecoAR.Core.GameManager.Instance.SetCartCount(0);
             Refresh();
             Toast($"Commande confirmée ! Total payé : {Money(total)}", 3.5f);
             OnOrderConfirmed?.Invoke(total);

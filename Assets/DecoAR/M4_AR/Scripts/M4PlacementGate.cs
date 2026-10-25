@@ -1,3 +1,5 @@
+using DecoAR.Core;
+using DecoAR.M3;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.XR.ARFoundation;
@@ -14,35 +16,61 @@ namespace DecoAR.AR
         [SerializeField] GameObject holderFloorPrefab;
         [SerializeField] GameObject holderWallPrefab;
 
-        [Header("Produit (sera fourni par M3 plus tard)")]
+        [Header("Produit (fourni par M3 via le GameManager ; valeurs ci-dessous = test sans M3)")]
+        [SerializeField] M3ProductCatalog catalog;
+        [SerializeField] string testProductId = "TAB-01";   // scene lancee seule, sans passer par M3
         [SerializeField] GameObject productPrefab;
         [SerializeField] PlacementType placementType = PlacementType.Sol;
         [SerializeField] Vector3 sizeCm = new Vector3(50, 50, 50); // x=largeur, y=HAUTEUR, z=profondeur
         [SerializeField] bool flipFront = false;
+        [SerializeField] float floorTolerance = 0.25f;   // m au-dessus du sol encore consideres comme "sol"
 
         [Header("Ombre")]
         [SerializeField] Material shadowCatcherMaterial;
 
         [Header("Interface (messages en francais)")]
         [SerializeField] TMP_Text messageText;
+        [SerializeField] GameObject messageBackground;      // masque quand il n'y a pas de message
         [SerializeField] GameObject resetButton;
+        [SerializeField] GameObject variantButton;
+        [SerializeField] TMP_Text productLabel;
 
         GameObject placed;
+        GameObject placedModel;
         ARPlaneManager planeManager;
         float tempMessageUntil;
 
+        public ProductOption Product { get; private set; }
+        public int VariantIndex { get; private set; }
+        public ProductVariant CurrentVariant => Product?.GetVariant(VariantIndex);
+        public bool IsPlaced => placed != null;
+
         void Awake()
         {
-            planeManager = FindFirstObjectByType<ARPlaneManager>();
+            planeManager = FindAnyObjectByType<ARPlaneManager>();
             if (resetButton != null) resetButton.SetActive(false);
             if (messageText != null) messageText.text = "";
 
-            var gm = DecoAR.Core.GameManager.Instance;
+            var gm = GameManager.Instance;
             if (gm != null && gm.HasSelectedProduct)
             {
                 productPrefab = gm.SelectedProductPrefab;
                 sizeCm = gm.SelectedProductSizeCm;
+                placementType = (PlacementType)(int)gm.SelectedProductPlacement;
+                VariantIndex = gm.SelectedVariantIndex;
+                if (catalog != null) Product = catalog.Get(gm.SelectedProductId);
             }
+            else if (catalog != null && catalog.Get(testProductId) is ProductOption test)
+            {
+                SetProduct(test, 0);
+            }
+            RefreshProductUI();
+        }
+
+        void LateUpdate()
+        {
+            if (messageBackground != null && messageText != null)
+                messageBackground.SetActive(!string.IsNullOrEmpty(messageText.text));
         }
 
         void Update()
@@ -70,6 +98,38 @@ namespace DecoAR.AR
             sizeCm = productSizeCm;
         }
 
+        public void SetProduct(ProductOption product, int variantIndex)
+        {
+            if (product == null) return;
+            Product = product;
+            VariantIndex = variantIndex;
+            productPrefab = product.prefab;
+            sizeCm = product.sizeCm;
+            placementType = (PlacementType)(int)product.placement;
+            if (placed != null) { Destroy(placed); placed = null; placedModel = null; }
+            if (resetButton != null) resetButton.SetActive(false);
+            RefreshProductUI();
+        }
+
+        // Appelee par le bouton "Variante" : variante suivante sans quitter l'AR (F4.6)
+        public void NextVariant()
+        {
+            if (Product == null || Product.variants == null || Product.variants.Count < 2) return;
+            VariantIndex = (VariantIndex + 1) % Product.variants.Count;
+            if (placedModel != null) M3VariantApplier.Apply(placedModel, CurrentVariant);
+            var gm = GameManager.Instance;
+            if (gm != null) gm.SetSelectedVariant(VariantIndex);
+            RefreshProductUI();
+            ShowTemporary("Variante : " + CurrentVariant.name);
+        }
+
+        void RefreshProductUI()
+        {
+            if (variantButton != null) variantButton.SetActive(Product != null && Product.variants != null && Product.variants.Count > 1);
+            if (productLabel != null)
+                productLabel.text = Product == null ? "" : Product.displayName + (CurrentVariant != null ? " • " + CurrentVariant.name : "") + " • " + Product.PriceLabel;
+        }
+
         bool HasMatchingPlane()
         {
             if (planeManager == null) return true;
@@ -79,6 +139,17 @@ namespace DecoAR.AR
             foreach (var plane in planeManager.trackables)
                 if (plane.alignment == wanted) return true;
             return false;
+        }
+
+        // Le sol = plan horizontal le plus bas detecte
+        bool TryGetFloorHeight(out float y)
+        {
+            y = float.MaxValue;
+            if (planeManager == null) return false;
+            foreach (var plane in planeManager.trackables)
+                if (plane.alignment == PlaneAlignment.HorizontalUp && plane.transform.position.y < y)
+                    y = plane.transform.position.y;
+            return y < float.MaxValue;
         }
 
         public void ShowTemporary(string msg, float seconds = 2.5f)
@@ -99,16 +170,23 @@ namespace DecoAR.AR
         // Appelee par l'evenement "Object Spawn Triggered (Vector3, Vector3)"
         public void OnSpawnTriggered(Vector3 position, Vector3 normal)
         {
-            if (productPrefab == null) return;
+            if (productPrefab == null)
+            {
+                ShowTemporary("Aucun produit choisi : revenez au catalogue");
+                return;
+            }
 
             bool isWall = Mathf.Abs(normal.y) < 0.3f;
             bool isHorizontalUp = normal.y > 0.7f;
             bool valid = placementType == PlacementType.Mur ? isWall : isHorizontalUp;
+            // Produit de sol : refuse sur une table (plan horizontal nettement plus haut que le sol detecte)
+            if (valid && placementType == PlacementType.Sol && TryGetFloorHeight(out float floorY) && position.y > floorY + floorTolerance)
+                valid = false;
             if (!valid)
             {
                 Debug.Log($"[M4] Placement refuse : {placementType} sur une surface incompatible");
-                ShowTemporary(placementType == PlacementType.Mur
-                    ? "Ce produit se pose sur un mur"
+                ShowTemporary(placementType == PlacementType.Mur ? "Ce produit se pose sur un mur"
+                    : placementType == PlacementType.Sol ? "Ce produit se pose sur le sol"
                     : "Ce produit se pose sur le sol ou une table");
                 return;
             }
@@ -138,7 +216,7 @@ namespace DecoAR.AR
             }
             placed.transform.SetPositionAndRotation(position, rot);
 
-            M4Haptics.Medium();
+            HapticManager.Vibrate(HapticIntensity.Moyenne);   // produit pose (F4.9)
         }
 
         GameObject BuildProduct()
@@ -152,6 +230,8 @@ namespace DecoAR.AR
 
             // 1. Le produit, a l'origine, a sa taille reelle
             GameObject model = Instantiate(productPrefab, Vector3.zero, Quaternion.identity);
+            foreach (var c in model.GetComponentsInChildren<Collider>(true)) DestroyImmediate(c);
+            if (CurrentVariant != null) M3VariantApplier.Apply(model, CurrentVariant);
             M4Sizing.FitToRealSize(model, sizeCm);
 
             // Avertissement si les proportions du modele different du catalogue
@@ -191,6 +271,7 @@ namespace DecoAR.AR
             holder.transform.SetParent(null, true);
             Destroy(staging);
 
+            placedModel = model;
             Debug.Log($"[M4] Produit pret | taille = {b.size}");
             return holder;
         }

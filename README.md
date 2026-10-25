@@ -4,7 +4,7 @@
 
 Le projet est développé avec **Unity et C#**. Il vise à rendre l'achat de décoration plus concret : découvrir les produits dans un environnement immersif, puis visualiser leur taille et leur apparence chez soi avant de prendre une décision.
 
-> **État du dépôt :** le socle du module M1 (avatar et contrôles) et un prototype du module M4 (réalité augmentée) sont présents. Les modules M2 (boutique), M3 (catalogue de produits) et M5 (caisse et commande) ne sont pas encore intégrés. Le parcours d'achat complet décrit ci-dessous est l'objectif du projet, et non une fonctionnalité actuellement disponible de bout en bout.
+> **État du dépôt :** le socle du module M1 (avatar et contrôles), le module M3 (bibliothèque de produits), le module M4 (réalité augmentée) et une première caisse M5 sont présents. Le module M2 (boutique) n'est pas encore intégré : la scène de test M1 sert de boutique. Le parcours d'achat complet décrit ci-dessous est l'objectif du projet, et non une fonctionnalité actuellement disponible de bout en bout.
 
 ## Sommaire
 
@@ -37,11 +37,11 @@ Le périmètre exclut le paiement réel, le back-office marchand ainsi que les c
 | --- | --- |
 | M1 — Personnage et contrôles | Socle disponible : sélection et personnalisation d'avatar, déplacement, caméra à la troisième personne et scènes de test. |
 | M2 — Boutique et zones | À développer : seule une scène de test M1 avec un environnement et des éléments interactifs simples est présente ; les trois zones et l'ambiance complètes ne sont pas intégrées. |
-| M3 — Bibliothèque de produits | À développer : l'intégration du catalogue et le transfert de produits depuis M3 vers M4 restent à faire. |
-| M4 — Réalité augmentée | Prototype disponible : scène AR, placement conditionné par le type de surface, mise à l'échelle, estimation de lumière, ombre et capture vers la galerie. |
+| M3 — Bibliothèque de produits | Disponible : catalogue partagé (15 produits, 3 zones, 2 variantes chacun), étagère 3D par zone, sortie animée du produit, inspection 360° et zoom par pincement, variantes en direct, fiche produit, « Voir en AR » et « Ajouter au panier », recherche texte et vocale (iOS), secousse pour reposer, vibrations légères. |
+| M4 — Réalité augmentée | Disponible : produit et variante reçus de M3, placement selon le type (mur, sol, sol ou table), taille réelle et retour à la taille réelle, ombre, estimation de lumière, changement de variante, photo vers la galerie, « Ajouter au panier », retour au rayon ou à la boutique, vibration à la pose. |
 | M5 — Caisse et commande | À développer : panier persistant, formulaire de livraison et historique des commandes ne sont pas encore intégrés. |
 
-Le prototype M4 utilise un produit de test configuré dans la scène. Il ne constitue pas encore un flux connecté au catalogue M3. Les vibrations passent par un service commun, mais utilisent actuellement une vibration système unique plutôt que des intensités distinctes.
+M3 transmet le produit choisi (prefab, dimensions, type de pose, variante) à M4 via le `GameManager`. Lancée seule, la scène AR utilise le produit de test `TAB-01`. Les vibrations passent par le `HapticManager` commun : intensités distinctes sur iOS, vibration système unique sur Android.
 
 ## Technologies
 
@@ -86,7 +86,9 @@ Ouvrir ensuite le dossier cloné dans Unity Hub et lancer le projet avec la vers
 3. Choisir un avatar, sélectionner une couleur de tenue et valider pour entrer dans la scène de test `M1_Test`.
 4. Dans l'éditeur, utiliser le joystick affiché à l'écran ou les touches **WASD / flèches** pour déplacer l'avatar. La caméra peut être orientée avec la souris (clic droit) ou par glissement tactile.
 
-Pour essayer le prototype AR, ouvrir `Assets/DecoAR/M4_AR/Scenes/M4_AR.unity` et lancer la scène sur un appareil mobile compatible. Déplacer lentement l'appareil pour détecter les surfaces, puis toucher une surface compatible avec le type de placement configuré dans la scène.
+Pour le rayon M3, ouvrir `Assets/DecoAR/M3_ProductCatalog/Scenes/M3.unity` (ou interagir avec l'étagère de `M1_Test`). Dans l'éditeur : clic pour choisir un produit, glisser pour le tourner, molette pour zoomer, touche **R** pour simuler la secousse. La recherche vocale ne fonctionne que sur iPhone ; ailleurs, utiliser le champ de recherche.
+
+Pour essayer l'AR, choisir un produit dans M3 puis « Voir en AR », ou ouvrir `Assets/DecoAR/M4_AR/Scenes/M4_AR.unity` directement sur un appareil compatible. Déplacer lentement l'appareil pour détecter les surfaces, puis toucher une surface compatible avec le type de pose du produit.
 
 ### Scènes principales
 
@@ -94,7 +96,13 @@ Pour essayer le prototype AR, ouvrir `Assets/DecoAR/M4_AR/Scenes/M4_AR.unity` et
 | --- | --- |
 | Sélection d'avatar | `Assets/DecoAR/M1_Player/Scenes/M1_AvatarSelection.unity` |
 | Scène de test M1 (environnement simplifié) | `Assets/DecoAR/M1_Player/Scenes/M1_Test.unity` |
-| Prototype AR M4 | `Assets/DecoAR/M4_AR/Scenes/M4_AR.unity` |
+| Rayon et catalogue M3 | `Assets/DecoAR/M3_ProductCatalog/Scenes/M3.unity` |
+| Réalité augmentée M4 | `Assets/DecoAR/M4_AR/Scenes/M4_AR.unity` |
+
+### Génération M3 et M4
+
+- **DecoAR > M3 > Tout generer** : regénère les modèles des produits, le catalogue `M3_ProductCatalog.asset`, les prefabs de boutons et la scène `M3` ;
+- **DecoAR > M4 > Reparer et completer la scene AR** : recrée dans `M4_AR` les objets DecoAR (placement, lumière, photo, interface) et rebranche l'événement de placement du template XRI. La commande peut être relancée sans risque.
 
 ### Génération des scènes M1
 

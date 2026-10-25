@@ -18,10 +18,10 @@ namespace DecoAR.M3
 
             var gm = DecoAR.Core.GameManager.Instance;
             if (gm != null)
-                gm.SelectProduct(product.id, product.prefab, product.sizeCm);
+                gm.SelectProduct(product.id, product.prefab, product.sizeCm, product.placement, 0);
 
             if (placementGate != null)
-                placementGate.SetProductPrefab(product.prefab, product.sizeCm);
+                placementGate.SetProduct(product, 0);
         }
     }
 }

@@ -1,25 +1,17 @@
-using System.Runtime.InteropServices;
-using UnityEngine;
+using DecoAR.Core;
 
 namespace DecoAR.AR
 {
+    // Raccourci M4 vers le HapticManager commun (respecte l'interrupteur des parametres du GameManager)
     public static class M4Haptics
     {
         public enum Strength { Light = 0, Medium = 1, Strong = 2 }
 
-#if UNITY_IOS && !UNITY_EDITOR
-        [DllImport("__Internal")] static extern void _DecoARM4_Impact(int style);
-#endif
-
         public static void Play(Strength strength)
         {
-            // Interrupteur des parametres (cle a aligner avec M5)
-            if (PlayerPrefs.GetInt("haptics_enabled", 1) == 0) return;
-#if UNITY_IOS && !UNITY_EDITOR
-            _DecoARM4_Impact((int)strength);
-#elif UNITY_ANDROID && !UNITY_EDITOR
-            Handheld.Vibrate();
-#endif
+            HapticManager.Vibrate(strength == Strength.Strong ? HapticIntensity.Forte
+                : strength == Strength.Medium ? HapticIntensity.Moyenne
+                : HapticIntensity.Legere);
         }
 
         public static void Medium() => Play(Strength.Medium);
