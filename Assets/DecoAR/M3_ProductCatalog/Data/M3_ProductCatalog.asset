@@ -1,0 +1,760 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2deeb71eb1645219a34ac759e6153b, type: 3}
+  m_Name: M3_ProductCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::DecoAR.M3.M3ProductCatalog
+  products:
+  - id: TAB-01
+    displayName: Tableau abstrait
+    category: Tableaux
+    price: 80
+    sizeCm: {x: 50, y: 70, z: 4}
+    prefab: {fileID: 3676757245134173380, guid: efa074813cad54d4d98ce6bae052b478, type: 3}
+    description: "Toile abstraite aux formes organiques, cadre en ch\xEAne clair."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Terracotta
+      color: {r: 0.78, g: 0.45, b: 0.33, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Bleu nuit
+      color: {r: 0.16, g: 0.22, b: 0.38, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: toile peinture art abstrait
+  - id: TAB-02
+    displayName: Paysage du Sahara
+    category: Tableaux
+    price: 150
+    sizeCm: {x: 90, y: 60, z: 4}
+    prefab: {fileID: 5716748122459714913, guid: 7849cda6a4fba4eeaa2e32c069eff014, type: 3}
+    description: Photographie des dunes du Sud tunisien, tirage sur toile.
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: "Sable dor\xE9"
+      color: {r: 0.86, g: 0.7, b: 0.45, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Cr\xE9puscule"
+      color: {r: 0.62, g: 0.36, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: dune desert photo sahara
+  - id: TAB-03
+    displayName: Portrait minimaliste
+    category: Tableaux
+    price: 65
+    sizeCm: {x: 40, y: 50, z: 3}
+    prefab: {fileID: 8045962024367777761, guid: ca94ea6ea97ca478fb54d16960aee50f, type: 3}
+    description: "Dessin au trait d'un visage, encadr\xE9 noir."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: "Cr\xE8me"
+      color: {r: 0.95, g: 0.92, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Gris perle
+      color: {r: 0.78, g: 0.78, b: 0.76, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: visage dessin ligne portrait
+  - id: TAB-04
+    displayName: Affiche botanique
+    category: Tableaux
+    price: 35
+    sizeCm: {x: 30, y: 40, z: 2}
+    prefab: {fileID: 8721867891627792314, guid: 8b7b7b70874234a0095f3cb8f9ef3a56, type: 3}
+    description: Planche de feuilles de palmier, papier mat.
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Sauge
+      color: {r: 0.55, g: 0.65, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Vert for\xEAt"
+      color: {r: 0.2, g: 0.36, b: 0.25, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: plante feuille palmier poster affiche
+  - id: TAB-05
+    displayName: Miroir rond
+    category: Tableaux
+    price: 120
+    sizeCm: {x: 60, y: 60, z: 3}
+    prefab: {fileID: 8066443300253803485, guid: 9a96d932687694d1da261431cec3ae9f, type: 3}
+    description: "Miroir rond au cadre m\xE9tallique fin."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Laiton
+      color: {r: 0.8, g: 0.63, b: 0.3, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Noir mat
+      color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: miroir rond glace
+  - id: LUM-01
+    displayName: Lampe Arc
+    category: Luminaires
+    price: 289
+    sizeCm: {x: 40, y: 180, z: 40}
+    prefab: {fileID: 3916563092756552029, guid: c9b0fa8b2bcd54381b8cd993c5b330c1, type: 3}
+    description: "Lampe sur pied en m\xE9tal bross\xE9, abat-jour orientable."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Noir mat
+      color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Laiton
+      color: {r: 0.8, g: 0.63, b: 0.3, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lampadaire lampe arc pied
+  - id: LUM-02
+    displayName: Lampe en laiton
+    category: Luminaires
+    price: 120
+    sizeCm: {x: 30, y: 55, z: 30}
+    prefab: {fileID: 6765871277004311514, guid: 311b8b9528d62402ca96978c0813a697, type: 3}
+    description: Lampe de table au pied en laiton, abat-jour en lin.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Lin naturel
+      color: {r: 0.9, g: 0.85, b: 0.74, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Vert olive
+      color: {r: 0.45, g: 0.48, b: 0.3, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lampe table chevet laiton
+  - id: LUM-03
+    displayName: Lampadaire tripode
+    category: Luminaires
+    price: 210
+    sizeCm: {x: 50, y: 150, z: 50}
+    prefab: {fileID: 3646548818126836698, guid: e0d5a136fdf9c4938a83dc4cc2becb62, type: 3}
+    description: "Lampadaire \xE0 trois pieds en bois, abat-jour tambour."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Blanc
+      color: {r: 0.95, g: 0.94, b: 0.9, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Terracotta
+      color: {r: 0.78, g: 0.45, b: 0.33, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lampadaire trepied tripode bois
+  - id: LUM-04
+    displayName: Applique murale
+    category: Luminaires
+    price: 95
+    sizeCm: {x: 20, y: 30, z: 15}
+    prefab: {fileID: 8447452997588544802, guid: fead18237a343409ca939c32afc6099a, type: 3}
+    description: "Applique en c\xE9ramique pour \xE9clairage d'ambiance."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: "Blanc cass\xE9"
+      color: {r: 0.93, g: 0.9, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.25, g: 0.25, b: 0.27, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: applique mur murale
+  - id: LUM-05
+    displayName: Lampe champignon
+    category: Luminaires
+    price: 75
+    sizeCm: {x: 25, y: 30, z: 25}
+    prefab: {fileID: 8105703949258897837, guid: 2aae6e72eed5f4647aa120ed93336943, type: 3}
+    description: "Petite lampe \xE0 poser en verre opalin."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Opalin
+      color: {r: 0.97, g: 0.96, b: 0.92, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ambre
+      color: {r: 0.85, g: 0.55, b: 0.22, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lampe champignon poser verre
+  - id: DEC-01
+    displayName: "Vase en c\xE9ramique"
+    category: "Objets d\xE9co"
+    price: 45
+    sizeCm: {x: 25, y: 35, z: 25}
+    prefab: {fileID: 1064294398768336253, guid: 1d638768555ed484b8705e2bc922bbfd, type: 3}
+    description: "Vase d\xE9coratif minimaliste tourn\xE9 \xE0 la main."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Terracotta
+      color: {r: 0.78, g: 0.45, b: 0.33, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Blanc cass\xE9"
+      color: {r: 0.93, g: 0.9, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: vase ceramique fleur
+  - id: DEC-02
+    displayName: "Bougie parfum\xE9e"
+    category: "Objets d\xE9co"
+    price: 25
+    sizeCm: {x: 10, y: 12, z: 10}
+    prefab: {fileID: 4911789810886396723, guid: 72a24155ef8f94269af0fd11f224f8cc, type: 3}
+    description: "Bougie en cire v\xE9g\xE9tale, 40 heures."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Vanille
+      color: {r: 0.97, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Figue
+      color: {r: 0.52, g: 0.33, b: 0.4, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: bougie parfum cire
+  - id: DEC-03
+    displayName: Coussin en lin
+    category: "Objets d\xE9co"
+    price: 60
+    sizeCm: {x: 45, y: 45, z: 15}
+    prefab: {fileID: 4936644704638675577, guid: 2b4ad493ff475461abbea12947538ff9, type: 3}
+    description: "Coussin carr\xE9 en lin lav\xE9, d\xE9houssable."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Sauge
+      color: {r: 0.62, g: 0.69, b: 0.58, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 0.85, g: 0.76, b: 0.62, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: coussin lin canape
+  - id: DEC-04
+    displayName: Plateau en bois
+    category: "Objets d\xE9co"
+    price: 55
+    sizeCm: {x: 40, y: 5, z: 30}
+    prefab: {fileID: 8248034972647631693, guid: cddf7030b516c462d9fbc35146aa7edb, type: 3}
+    description: Plateau de service en bois massif.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Noyer
+      color: {r: 0.4, g: 0.27, b: 0.18, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: plateau bois service
+  - id: DEC-05
+    displayName: Statuette abstraite
+    category: "Objets d\xE9co"
+    price: 70
+    sizeCm: {x: 15, y: 30, z: 15}
+    prefab: {fileID: 1683688932133225786, guid: 7aa431428e3504a7f880c3ec6ec4396e, type: 3}
+    description: "Sculpture en r\xE9sine aux courbes douces."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Pierre
+      color: {r: 0.8, g: 0.78, b: 0.72, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Bronze
+      color: {r: 0.55, g: 0.38, b: 0.22, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: statue sculpture statuette
+  - id: SAL-01
+    displayName: "Canap\xE9 3 places"
+    category: Salon
+    price: 1490
+    sizeCm: {x: 210, y: 85, z: 90}
+    prefab: {fileID: 6393651487880485591, guid: 838a13b5248b142afbe2e3c97db1254b, type: 3}
+    description: "Canap\xE9 droit en velours, pieds en ch\xEAne, assise profonde."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Gris anthracite
+      color: {r: 0.3, g: 0.31, b: 0.33, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Bleu canard
+      color: {r: 0.12, g: 0.36, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Moutarde
+      color: {r: 0.8, g: 0.6, b: 0.2, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: canape sofa salon velours
+  - id: SAL-02
+    displayName: Fauteuil scandinave
+    category: Salon
+    price: 620
+    sizeCm: {x: 75, y: 80, z: 80}
+    prefab: {fileID: 5995914143970549686, guid: eba12753aa8154468bf72bd0de795276, type: 3}
+    description: "Fauteuil enveloppant en tissu boucl\xE9, pieds compas."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: "Beige boucl\xE9"
+      color: {r: 0.88, g: 0.84, b: 0.76, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Vert sauge
+      color: {r: 0.55, g: 0.65, b: 0.52, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: fauteuil chaise siege salon
+  - id: SAL-03
+    displayName: Table basse ronde
+    category: Salon
+    price: 390
+    sizeCm: {x: 80, y: 45, z: 80}
+    prefab: {fileID: 3854845779944525544, guid: 8448224a68f984944b3f60480ec3245b, type: 3}
+    description: Table basse ronde en bois massif.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Noyer
+      color: {r: 0.4, g: 0.27, b: 0.18, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table basse ronde salon
+  - id: SAL-04
+    displayName: Meuble TV
+    category: Salon
+    price: 690
+    sizeCm: {x: 160, y: 50, z: 40}
+    prefab: {fileID: 1523610145500102606, guid: 2aecf64d6d28b4656970a0ee922cf2eb, type: 3}
+    description: "Meuble TV bas \xE0 deux tiroirs et niche centrale."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Blanc
+      color: {r: 0.95, g: 0.94, b: 0.9, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: meuble tele tv television
+  - id: SAL-05
+    displayName: "Tapis berb\xE8re"
+    category: Salon
+    price: 280
+    sizeCm: {x: 160, y: 1, z: 230}
+    prefab: {fileID: 7228213960889771519, guid: ea38a4c006a3c4515ad470d3342a8caf, type: 3}
+    description: "Tapis tiss\xE9 \xE0 la main en laine, motifs g\xE9om\xE9triques."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: "Cr\xE8me"
+      color: {r: 0.93, g: 0.89, b: 0.8, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Terracotta
+      color: {r: 0.78, g: 0.45, b: 0.33, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: tapis berbere laine
+  - id: SAL-06
+    displayName: "Biblioth\xE8que"
+    category: Salon
+    price: 540
+    sizeCm: {x: 80, y: 180, z: 30}
+    prefab: {fileID: 379020507272465614, guid: 63f201fcf07374079a9c124405218456, type: 3}
+    description: "Biblioth\xE8que cinq niveaux pour livres et objets."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Blanc
+      color: {r: 0.95, g: 0.94, b: 0.9, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: bibliotheque etagere livres rangement
+  - id: CHA-01
+    displayName: Lit double
+    category: Chambre
+    price: 1850
+    sizeCm: {x: 160, y: 100, z: 210}
+    prefab: {fileID: 4635701739721663183, guid: 48b732f20c2ab4be882b66462735a268, type: 3}
+    description: "Lit 160 \xD7 200 avec t\xEAte de lit capitonn\xE9e, linge de lit inclus."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Lin gris
+      color: {r: 0.62, g: 0.62, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Bleu nuit
+      color: {r: 0.16, g: 0.22, b: 0.38, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lit double chambre couchage
+  - id: CHA-02
+    displayName: Table de chevet
+    category: Chambre
+    price: 210
+    sizeCm: {x: 45, y: 55, z: 40}
+    prefab: {fileID: 706848127370970516, guid: dad7a2b03324f4c5e8a791687c32ee5f, type: 3}
+    description: "Chevet \xE0 un tiroir et niche ouverte."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Blanc
+      color: {r: 0.95, g: 0.94, b: 0.9, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: chevet table nuit chambre
+  - id: CHA-03
+    displayName: Armoire 2 portes
+    category: Chambre
+    price: 1290
+    sizeCm: {x: 100, y: 200, z: 55}
+    prefab: {fileID: 2081185888618526156, guid: 04ee880d09dcb472b91c7b73e7a843ad, type: 3}
+    description: "Armoire penderie avec \xE9tag\xE8re haute."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Blanc
+      color: {r: 0.95, g: 0.94, b: 0.9, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: armoire penderie dressing vetements
+  - id: CHA-04
+    displayName: Commode 3 tiroirs
+    category: Chambre
+    price: 760
+    sizeCm: {x: 90, y: 80, z: 45}
+    prefab: {fileID: 877390759568339788, guid: de4a2c5f2f8574328b395b4a3786565c, type: 3}
+    description: "Commode trois tiroirs, poign\xE9es en laiton."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Vert sauge
+      color: {r: 0.55, g: 0.65, b: 0.52, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Noyer
+      color: {r: 0.4, g: 0.27, b: 0.18, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: commode tiroirs rangement
+  - id: CHA-05
+    displayName: Miroir sur pied
+    category: Chambre
+    price: 330
+    sizeCm: {x: 50, y: 170, z: 30}
+    prefab: {fileID: 4664720988968135845, guid: 5aa4cd26d7e704789b130c52f740922a, type: 3}
+    description: "Grand miroir psych\xE9 \xE0 poser au sol."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Noir mat
+      color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Laiton
+      color: {r: 0.8, g: 0.63, b: 0.3, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: miroir psyche pied grand
+  - id: CHA-06
+    displayName: Bureau
+    category: Chambre
+    price: 590
+    sizeCm: {x: 120, y: 75, z: 60}
+    prefab: {fileID: 2910179972168801348, guid: cb64f909779c8417d8762798f54e3768, type: 3}
+    description: Bureau compact avec caisson un tiroir.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Blanc
+      color: {r: 0.95, g: 0.94, b: 0.9, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: bureau table travail
+  - id: CUI-01
+    displayName: "Table \xE0 manger"
+    category: Cuisine
+    price: 980
+    sizeCm: {x: 160, y: 75, z: 90}
+    prefab: {fileID: 40439545733578370, guid: 6c68f8eab1b7b44bd828af1d79580e74, type: 3}
+    description: Table six personnes en bois massif.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Noyer
+      color: {r: 0.4, g: 0.27, b: 0.18, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table manger repas salle
+  - id: CUI-02
+    displayName: Chaise en bois
+    category: Cuisine
+    price: 180
+    sizeCm: {x: 45, y: 85, z: 50}
+    prefab: {fileID: 86254539970636939, guid: c3c40c93531224a1fbc55b296a8b2cf5, type: 3}
+    description: "Chaise \xE0 barreaux, assise galb\xE9e."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Naturel
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Noir
+      color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: chaise bois siege
+  - id: CUI-03
+    displayName: Tabouret de bar
+    category: Cuisine
+    price: 150
+    sizeCm: {x: 40, y: 75, z: 40}
+    prefab: {fileID: 3262247343077244287, guid: 883abb20adccb4333b579b3aa3ca1226, type: 3}
+    description: Tabouret haut avec repose-pieds.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Noir
+      color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Laiton
+      color: {r: 0.8, g: 0.63, b: 0.3, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: tabouret bar haut comptoir
+  - id: CUI-04
+    displayName: "\xCElot central"
+    category: Cuisine
+    price: 1650
+    sizeCm: {x: 140, y: 90, z: 70}
+    prefab: {fileID: 6828730669704916425, guid: e242d0f120205453590c98b99ffa3d96, type: 3}
+    description: "\xCElot de cuisine avec plan en marbre et rangements."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Blanc
+      color: {r: 0.95, g: 0.94, b: 0.9, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Vert sauge
+      color: {r: 0.55, g: 0.65, b: 0.52, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: ilot cuisine plan travail
+  - id: CUI-05
+    displayName: "\xC9tag\xE8re \xE0 \xE9pices"
+    category: Cuisine
+    price: 85
+    sizeCm: {x: 60, y: 40, z: 15}
+    prefab: {fileID: 217100865500309542, guid: b4e83b59e947a4c2998d5728427abf96, type: 3}
+    description: "\xC9tag\xE8re murale deux niveaux avec bocaux."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Noir
+      color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: etagere epices murale bocaux
+  - id: CUI-06
+    displayName: "Corbeille \xE0 fruits"
+    category: Cuisine
+    price: 40
+    sizeCm: {x: 30, y: 14, z: 30}
+    prefab: {fileID: 8465193843800858684, guid: 444bf11ab98654b8a8cd05de123b8548, type: 3}
+    description: "Corbeille en rotin tress\xE9."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Rotin
+      color: {r: 0.76, g: 0.6, b: 0.38, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "C\xE9ramique"
+      color: {r: 0.93, g: 0.9, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: corbeille fruits panier
+  - id: SDB-01
+    displayName: Meuble vasque
+    category: Salle de bain
+    price: 890
+    sizeCm: {x: 80, y: 85, z: 46}
+    prefab: {fileID: 4068637968285295969, guid: 18e4e842746bf4d56ab78d0d330bfadb, type: 3}
+    description: "Meuble sous vasque deux portes, vasque en c\xE9ramique."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Blanc
+      color: {r: 0.95, g: 0.94, b: 0.9, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: vasque lavabo meuble salle bain
+  - id: SDB-02
+    displayName: Miroir de salle de bain
+    category: Salle de bain
+    price: 160
+    sizeCm: {x: 60, y: 80, z: 3}
+    prefab: {fileID: 1914228786630715792, guid: 47b3dc1ae1c1e4e16b7dcf80a01e8bcf, type: 3}
+    description: Miroir rectangulaire au cadre fin.
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Noir mat
+      color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Laiton
+      color: {r: 0.8, g: 0.63, b: 0.3, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: miroir salle bain glace
+  - id: SDB-03
+    displayName: Porte-serviettes
+    category: Salle de bain
+    price: 75
+    sizeCm: {x: 60, y: 30, z: 12}
+    prefab: {fileID: 4493805834844834337, guid: d2ce91ae126a04bb1b7c137b7e30722e, type: 3}
+    description: Porte-serviettes mural double barre.
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: "Chrom\xE9"
+      color: {r: 0.78, g: 0.8, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Noir
+      color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: porte serviette barre
+  - id: SDB-04
+    displayName: Colonne de rangement
+    category: Salle de bain
+    price: 420
+    sizeCm: {x: 35, y: 170, z: 30}
+    prefab: {fileID: 5319499287763750274, guid: 4a0804fa574634ec8a2658b936334505, type: 3}
+    description: "Colonne haute \xE0 deux portes."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Blanc
+      color: {r: 0.95, g: 0.94, b: 0.9, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne"
+      color: {r: 0.72, g: 0.55, b: 0.36, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: colonne rangement armoire salle bain
+  - id: SDB-05
+    displayName: Tapis de bain
+    category: Salle de bain
+    price: 45
+    sizeCm: {x: 50, y: 2, z: 80}
+    prefab: {fileID: 5859831516496743439, guid: 058545727510c4d91849b5a3ed411d6e, type: 3}
+    description: "Tapis de bain en coton \xE9pais."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Gris perle
+      color: {r: 0.78, g: 0.78, b: 0.76, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sauge
+      color: {r: 0.62, g: 0.69, b: 0.58, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: tapis bain coton
+  - id: SDB-06
+    displayName: "Panier \xE0 linge"
+    category: Salle de bain
+    price: 65
+    sizeCm: {x: 40, y: 55, z: 40}
+    prefab: {fileID: 3180444261763335191, guid: 6be476570897841f0a18523555fcbae7, type: 3}
+    description: "Panier \xE0 linge avec couvercle."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Rotin
+      color: {r: 0.76, g: 0.6, b: 0.38, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Gris
+      color: {r: 0.55, g: 0.56, b: 0.58, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: panier linge corbeille

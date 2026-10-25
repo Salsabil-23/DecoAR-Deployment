@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DecoAR.Core
@@ -19,8 +20,21 @@ namespace DecoAR.Core
         public bool HapticsEnabled { get; private set; } = true;
         public bool IsNight { get; set; }
 
-        // Panier : M5 met a jour le nombre d'articles, le HUD (M1) l'affiche
+        // Produit courant selectionne dans le catalogue M3 ; transmis a M4 lors du placement AR.
+        public string SelectedProductId { get; private set; } = "";
+        public GameObject SelectedProductPrefab { get; private set; }
+        public Vector3 SelectedProductSizeCm { get; private set; } = new Vector3(50f, 50f, 50f);
+        public ProductPlacement SelectedProductPlacement { get; private set; } = ProductPlacement.Sol;
+        public int SelectedVariantIndex { get; private set; }
+        public bool HasSelectedProduct => SelectedProductPrefab != null;
+
+        // Zone (categorie) ouverte dans le catalogue M3 ; vide = premiere zone
+        public string CurrentCategory { get; set; } = "";
+
+        // Panier : M3 et M4 ajoutent des articles, M5 les recupere ; le HUD (M1) affiche le nombre
         public int CartCount { get; private set; }
+        readonly List<CartItem> cartItems = new List<CartItem>();
+        public IReadOnlyList<CartItem> CartItems => cartItems;
 
         // Position de l'avatar dans la boutique, restauree au retour de l'AR ou de la caisse
         bool hasShopPose;
@@ -30,6 +44,8 @@ namespace DecoAR.Core
         public event Action<int> CartCountChanged;
         public event Action<bool> GyroChanged;
         public event Action<bool> HapticsChanged;
+        public event Action<string, int> ProductSelected;   // id, variante
+        public event Action<CartItem> CartItemAdded;
 
         // Cree automatiquement, quelle que soit la scene lancee
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -84,10 +100,57 @@ namespace DecoAR.Core
             HapticsChanged?.Invoke(enabled);
         }
 
+        public void SelectProduct(string productId, GameObject prefab, Vector3 sizeCm)
+            => SelectProduct(productId, prefab, sizeCm, SelectedProductPlacement, 0);
+
+        public void SelectProduct(string productId, GameObject prefab, Vector3 sizeCm, ProductPlacement placement, int variantIndex)
+        {
+            SelectedProductId = productId ?? string.Empty;
+            SelectedProductPrefab = prefab;
+            SelectedProductSizeCm = sizeCm;
+            SelectedProductPlacement = placement;
+            SelectedVariantIndex = Mathf.Max(0, variantIndex);
+            ProductSelected?.Invoke(SelectedProductId, SelectedVariantIndex);
+        }
+
+        public void SetSelectedVariant(int variantIndex)
+        {
+            SelectedVariantIndex = Mathf.Max(0, variantIndex);
+            ProductSelected?.Invoke(SelectedProductId, SelectedVariantIndex);
+        }
+
+        public void ClearSelectedProduct()
+        {
+            SelectedProductId = string.Empty;
+            SelectedProductPrefab = null;
+            SelectedProductSizeCm = new Vector3(50f, 50f, 50f);
+            SelectedProductPlacement = ProductPlacement.Sol;
+            SelectedVariantIndex = 0;
+        }
+
         public void SetCartCount(int count)
         {
             CartCount = Mathf.Max(0, count);
             CartCountChanged?.Invoke(CartCount);
+        }
+
+        // Meme produit + meme variante = quantite incrementee
+        public void AddToCart(CartItem item)
+        {
+            if (item == null) return;
+            var line = cartItems.Find(x => x.productId == item.productId && x.variantName == item.variantName);
+            if (line != null) line.quantity += Mathf.Max(1, item.quantity);
+            else cartItems.Add(item);
+            SetCartCount(CartCount + Mathf.Max(1, item.quantity));
+            CartItemAdded?.Invoke(item);
+        }
+
+        // M5 recupere les articles en attente pour les afficher dans sa caisse
+        public List<CartItem> TakeCartItems()
+        {
+            var items = new List<CartItem>(cartItems);
+            cartItems.Clear();
+            return items;
         }
 
         public void SaveShopPose(Vector3 position, Quaternion rotation)
