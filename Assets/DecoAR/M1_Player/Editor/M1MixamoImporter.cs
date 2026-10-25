@@ -8,12 +8,17 @@ namespace DecoAR.Player.EditorTools
     {
         public const string MixamoFolder = "Assets/DecoAR/M1_Player/Mixamo";
 
+        // Changer ce numero reimporte les FBX du dossier avec les nouveaux reglages
+        public override uint GetVersion() => 2;
+
         void OnPreprocessModel()
         {
             if (!assetPath.StartsWith(MixamoFolder)) return;
             var importer = (ModelImporter)assetImporter;
             importer.animationType = ModelImporterAnimationType.Human;
             importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+            // Le scan facial lit la geometrie de la tete pour y caler la photo du visage
+            if (assetPath.StartsWith(MixamoFolder + "/Avatars")) importer.isReadable = true;
         }
 
         void OnPreprocessAnimation()
