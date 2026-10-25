@@ -402,6 +402,30 @@ namespace DecoAR.Player.EditorTools
             return prefab;
         }
 
+        // Visage 3D : shader DecoAR/FaceMask (passe devant le visage du personnage, derriere les cheveux)
+        static Material EnsureFaceMaskMaterial()
+        {
+            var shader = Shader.Find("DecoAR/FaceMask");
+            if (shader == null)
+            {
+                Debug.LogError("[M1] Shader DecoAR/FaceMask introuvable");
+                return null;
+            }
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(FaceMaskMaterialPath);
+            if (mat == null)
+            {
+                mat = new Material(shader);
+                AssetDatabase.CreateAsset(mat, FaceMaskMaterialPath);
+            }
+            else if (mat.shader != shader)
+            {
+                mat.shader = shader;
+                EditorUtility.SetDirty(mat);
+            }
+            mat.renderQueue = -1; // celui du shader
+            return mat;
+        }
+
         // Materiau URP transparent (le contour du visage se fond dans la peau du personnage)
         static Material EnsureFaceMaterial(string path, string shaderName, Color color)
         {
@@ -911,7 +935,7 @@ namespace DecoAR.Player.EditorTools
 
             profile.animatorController = controller;
             if (profile.faceDecalMaterial == null) profile.faceDecalMaterial = EnsureFaceDecalMaterial();
-            if (profile.faceMaskMaterial == null) profile.faceMaskMaterial = EnsureFaceMaterial(FaceMaskMaterialPath, "Universal Render Pipeline/Lit", Color.white);
+            profile.faceMaskMaterial = EnsureFaceMaskMaterial();
             EnsureDecalFeature();
 
             // Le personnage : Remy de preference, sinon le premier modele de Mixamo/Avatars

@@ -13,6 +13,7 @@ namespace DecoAR.Player
         public int[] triangles;
         public Vector2[] uv;
         public float height;   // menton -> front, en metres
+        public float width;    // largeur au niveau des pommettes, en metres
     }
 
     // Maillage + texture, uniquement dans le stockage prive de l'application
