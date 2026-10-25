@@ -36,6 +36,8 @@ namespace DecoAR.M5
         public VendorNPC vendor;
         public M5PlayerController player;
         public bool focusBasketOnEnter = true;
+        [Tooltip("Paiement Stripe (vide = commande confirmée sans paiement, mode démo).")]
+        public M5StripePayment payment;
 
         public event Action<float> OnOrderConfirmed;
         public float Total { get { float t = 0; foreach (var l in lines) t += l.p.price * l.qty; return t; } }
@@ -58,6 +60,8 @@ namespace DecoAR.M5
         TMP_InputField addressField;
         TextMeshProUGUI addressStatus, gpsLabel, gyroLabel;
         M5LocationService location;
+        CanvasGroup payGroup;
+        TextMeshProUGUI payStatus;
         RectTransform safeArea;
         Rect lastSafe;
         bool inZone;
@@ -69,6 +73,7 @@ namespace DecoAR.M5
         {
             if (!basket) basket = Basket3D.Instance;
             if (!vendor || !vendor.isActiveAndEnabled) vendor = VendorNPC.Instance;
+            if (!payment) payment = GetComponent<M5StripePayment>();
             EnsureEventSystem();
             BuildUI();
             ImportSharedCart();
@@ -123,12 +128,40 @@ namespace DecoAR.M5
             float total = Total;
             string address = DeliveryAddress;
             PlayerPrefs.SetString(AddressKey, address);
+            if (payment && payment.IsConfigured) { StartPayment(total, address); return; }
+            FinishOrder(total, address, false);
+        }
+
+        // ---------- Paiement Stripe ----------
+        void StartPayment(float total, string address)
+        {
+            if (payment.Busy) { ShowPayment(true); return; }
+            var items = new List<(string, float, int)>();
+            foreach (var l in lines) items.Add((l.p.name, l.p.price, l.qty));
+            ShowPayment(true);
+            payment.Pay(items, address, s => payStatus.text = s, (paid, msg) =>
+            {
+                ShowPayment(false);
+                if (paid) FinishOrder(total, address, true);
+                else Toast(msg, 3f);
+            });
+        }
+
+        void ShowPayment(bool show)
+        {
+            if (!payGroup) return;
+            payGroup.alpha = show ? 1f : 0f;
+            payGroup.interactable = payGroup.blocksRaycasts = show;
+        }
+
+        void FinishOrder(float total, string address, bool paid)
+        {
             if (parcel) parcel.Play(); // vendeur + vibration + son + vide le panier 3D
             else { if (vendor) vendor.PlayConfirm(); M5Haptics.Strong(); if (basket) basket.Clear(); }
             lines.Clear();
             if (DecoAR.Core.GameManager.Instance != null) DecoAR.Core.GameManager.Instance.SetCartCount(0);
             Refresh();
-            Toast($"Commande confirmée ! Total payé : {Money(total)}\n<size=80%>Livraison : {address}</size>", 4.5f);
+            Toast($"{(paid ? "Paiement accepté ! " : "Commande confirmée ! ")}Total : {Money(total)}\n<size=80%>Livraison : {address}</size>", 4.5f);
             OnOrderConfirmed?.Invoke(total);
         }
 
@@ -302,6 +335,18 @@ namespace DecoAR.M5
             var toast = Box("Toast", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 170), new Vector2(980, 80), new Color(0.30f, 0.42f, 0.29f, 0.95f));
             toastGroup = toast.gameObject.AddComponent<CanvasGroup>(); toastGroup.alpha = 0; toastGroup.blocksRaycasts = false;
             toastText = Label(toast, "", 32, Color.white, TextAlignmentOptions.Center);
+
+            // Paiement en cours (Stripe)
+            var dim = Box("Paiement", root, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0, 0, 0, 0.55f));
+            dim.offsetMin = dim.offsetMax = Vector2.zero;
+            payGroup = dim.gameObject.AddComponent<CanvasGroup>();
+            var payBox = Box("Fenetre", dim, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(760, 0), Dark);
+            Stack(payBox, 16, 34);
+            Label(payBox, "<b>Paiement sécurisé</b>  <size=70%><color=#B8A48E>par Stripe</color></size>", 40, Cream, TextAlignmentOptions.Center, 60);
+            payStatus = Label(payBox, "", 28, Cream, TextAlignmentOptions.Center, 90);
+            Btn(payBox, "Rouvrir la page de paiement", new Color(0.33f, 0.45f, 0.55f), () => payment.ReopenPage(), 70, 28, TextAlignmentOptions.Center);
+            Btn(payBox, "Annuler", Muted, () => payment.Cancel(), 60, 28, TextAlignmentOptions.Center);
+            ShowPayment(false);
 
             // Gyroscope (téléphone uniquement)
             if (player && player.GyroAvailable)

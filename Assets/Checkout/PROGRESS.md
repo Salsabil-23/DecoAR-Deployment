@@ -15,3 +15,10 @@
 8. **Téléphone** : build de la caisse seule (Android : installe et lance ; iOS : projet Xcode dans `Builds/`).
 **Mobile** : gyroscope (tourner le téléphone pour regarder, boutons ON/OFF + Recentrer), paysage forcé, 60 FPS, zone sûre (encoche).
 **Paiement** : adresse de livraison obligatoire, bouton « Utiliser ma position (GPS) » → adresse via OpenStreetMap (Nominatim). Dans l'éditeur : position de test (ESPRIT).
+
+## Paiement Stripe (Supabase)
+- Serveur : `supabase/functions/stripe-checkout/index.ts` (racine du dépôt). Secrets Supabase : `STRIPE_SECRET_KEY` (obligatoire), `STRIPE_CURRENCY` (défaut `eur`), `TND_RATE` (défaut 0.30 : 1 TND → devise Stripe).
+- Déploiement : `supabase functions deploy stripe-checkout --no-verify-jwt`.
+- Unity : menu `DecoAR/M5/9. Paiement Stripe (Supabase)` puis, sur M5_CheckoutUI, remplir `Function Url` + `Supabase Anon Key`. Sans URL, la commande est confirmée sans paiement (démo).
+- ⚠️ La clé secrète Stripe (`sk_...`) ne va JAMAIS dans Unity. Démo : les prix viennent de l'app (à vérifier côté serveur en production).
+- Paiement DANS l'app : `Plugins/Android/M5WebView.java` + `Plugins/iOS/M5WebView.mm` (page Stripe plein écran, fermée automatiquement au retour de Stripe, puis vérification serveur et animation). Dans l'éditeur : navigateur externe.

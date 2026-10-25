@@ -1201,7 +1201,7 @@ Transform:
   m_GameObject: {fileID: 190419860}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.005, z: 3.2450867}
+  m_LocalPosition: {x: 0.44, y: -0.34, z: 3.51}
   m_LocalScale: {x: 4.0202956, y: 0.01, z: 1.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3399,6 +3399,10 @@ MonoBehaviour:
   maxPitch: 70
   useGyro: 1
   gyroSmoothing: 20
+  gyroMinCutoff: 0.8
+  gyroSpeedGain: 0.04
+  gyroDeadzone: 0.25
+  levelHorizon: 1
   forceLandscape: 1
   targetFrameRate: 60
 --- !u!4 &542235312
@@ -5958,7 +5962,7 @@ Transform:
   m_GameObject: {fileID: 1150705427}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.51, y: 0, z: -0.69}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8932,6 +8936,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1818503896}
   - component: {fileID: 1818503895}
+  - component: {fileID: 1818503897}
   m_Layer: 0
   m_Name: M5_CheckoutUI
   m_TagString: Untagged
@@ -8980,6 +8985,7 @@ MonoBehaviour:
   vendor: {fileID: 1141331144}
   player: {fileID: 542235311}
   focusBasketOnEnter: 1
+  payment: {fileID: 1818503897}
 --- !u!4 &1818503896
 Transform:
   m_ObjectHideFlags: 0
@@ -8996,6 +9002,22 @@ Transform:
   - {fileID: 1652492097}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1818503897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1818503894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b585d9002b40495790cab8271112ed6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DecoAR.M5.M5StripePayment
+  functionUrl: https://utxbsejpihopfxlizoqd.supabase.co/functions/v1/stripe-checkout
+  supabaseAnonKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0eGJzZWpwaWhvcGZ4bGl6b3FkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NDQ2OTgsImV4cCI6MjEwODUyMDY5OH0.0cU3k0Yltkfhb5-dsjR-UPET6X3NTkmV3aVjNhm6_6Q
+  pollInterval: 2.5
+  timeout: 900
 --- !u!1 &1823020084
 GameObject:
   m_ObjectHideFlags: 0
