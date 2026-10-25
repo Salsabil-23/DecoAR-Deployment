@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6333ab47e8468aa48bc6679594548430, type: 3}
+  m_Name: M1_CharacterProfile
+  m_EditorClassIdentifier: Assembly-CSharp::DecoAR.Player.CharacterProfile
+  prefab: {fileID: 919132149155446097, guid: 05f96172828b186459c6c41b8859cb5e, type: 3}
+  animatorController: {fileID: 9100000, guid: 1c2f19ebb2f5a114396b1d77f745622b, type: 2}
+  height: 1.75
+  skinColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0.97, g: 0.88, b: 0.82, a: 1}
+  - {r: 0.88, g: 0.72, b: 0.6, a: 1}
+  - {r: 0.74, g: 0.56, b: 0.43, a: 1}
+  - {r: 0.56, g: 0.4, b: 0.3, a: 1}
+  - {r: 0.4, g: 0.28, b: 0.21, a: 1}
+  - {r: 0.28, g: 0.2, b: 0.16, a: 1}
+  hairColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0.62, g: 0.45, b: 0.28, a: 1}
+  - {r: 0.38, g: 0.26, b: 0.16, a: 1}
+  - {r: 0.2, g: 0.14, b: 0.1, a: 1}
+  - {r: 0.1, g: 0.09, b: 0.09, a: 1}
+  - {r: 0.85, g: 0.42, b: 0.22, a: 1}
+  - {r: 0.82, g: 0.8, b: 0.78, a: 1}
+  topColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0.95, g: 0.93, b: 0.89, a: 1}
+  - {r: 0.78, g: 0.4, b: 0.29, a: 1}
+  - {r: 0.54, g: 0.6, b: 0.48, a: 1}
+  - {r: 0.85, g: 0.65, b: 0.28, a: 1}
+  - {r: 0.22, g: 0.29, b: 0.45, a: 1}
+  - {r: 0.82, g: 0.56, b: 0.6, a: 1}
+  - {r: 0.2, g: 0.2, b: 0.22, a: 1}
+  bottomColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0.88, g: 0.82, b: 0.72, a: 1}
+  - {r: 0.25, g: 0.33, b: 0.5, a: 1}
+  - {r: 0.38, g: 0.42, b: 0.32, a: 1}
+  - {r: 0.45, g: 0.32, b: 0.24, a: 1}
+  - {r: 0.18, g: 0.18, b: 0.2, a: 1}
+  shoesColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0.96, g: 0.95, b: 0.93, a: 1}
+  - {r: 0.48, g: 0.32, b: 0.22, a: 1}
+  - {r: 0.16, g: 0.16, b: 0.17, a: 1}
+  - {r: 0.78, g: 0.4, b: 0.29, a: 1}
+  - {r: 0.25, g: 0.33, b: 0.5, a: 1}
+  faceMaskMaterial: {fileID: 2100000, guid: 2de6a0b5b278bdb4c8b9fd0d98c679ca, type: 2}
+  faceDecalMaterial: {fileID: 2100000, guid: 6b4a943ed5f57dd409ffe21b11a7c99f, type: 2}
+  faceScale: {x: 1, y: 1}
+  faceLift: 0
+  faceDepth: 0.12
+  faceAngleFadeStart: 40
+  faceAngleFadeEnd: 72
+  textureSkin: {r: 0.86, g: 0.67, b: 0.56, a: 1}
+  textureHair: {r: 0.7, g: 0.55, b: 0.36, a: 1}
