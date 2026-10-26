@@ -43,6 +43,19 @@ def _raster(tri, size, depth=None):
     return face_id, bary, zbuf
 
 
+def _sample(image, points):
+    """Couleur bilineaire aux positions (x, y) en pixels (cv2.remap refuse plus de 32767 points d'un coup)."""
+    h, w = image.shape[:2]
+    x = np.clip(points[:, 0] - 0.5, 0, w - 1.001)
+    y = np.clip(points[:, 1] - 0.5, 0, h - 1.001)
+    x0, y0 = x.astype(int), y.astype(int)
+    fx, fy = (x - x0)[:, None], (y - y0)[:, None]
+    img = image.astype(np.float32)
+    top = img[y0, x0] * (1 - fx) + img[y0, x0 + 1] * fx
+    bottom = img[y0 + 1, x0] * (1 - fx) + img[y0 + 1, x0 + 1] * fx
+    return top * (1 - fy) + bottom * fy
+
+
 def _vertex_normals(v, faces):
     n = np.zeros_like(v)
     fn = np.cross(v[faces[:, 1]] - v[faces[:, 0]], v[faces[:, 2]] - v[faces[:, 0]])
@@ -78,27 +91,40 @@ def measure_colors(view: View):
     return skin, hair, has_hair
 
 
-def bake(flame: Flame, fit_result: Fit, views, size=1024):
+def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
     v = fit_result.vertices
     faces = flame.obj_faces
     normals = _vertex_normals(v, flame.faces)
 
-    # Chaque texel : son triangle et sa position sur ce triangle
+    # Chaque texel : son triangle et sa position sur ce triangle. Interieur de la bouche et des paupieres
+    # tombent au meme endroit de la texture que la peau : la surface la plus exterieure l'emporte.
     uv_px = np.stack([flame.uv[:, 0] * size, (1 - flame.uv[:, 1]) * size], 1)
-    face_id, bary, _ = _raster(uv_px[flame.uv_faces], (size, size))
+    t = flame.v_template
+    radius = np.linalg.norm((t - t.mean(0))[:, [0, 2]], axis=1).astype(np.float32)
+    face_id, bary, _ = _raster(uv_px[flame.uv_faces], (size, size), radius[faces])
     covered = face_id >= 0
     fid, b = face_id[covered], bary[covered]
     corners = faces[fid]                                    # (n, 3) sommets du triangle
 
-    total = np.zeros((covered.sum(), 3), np.float32)
-    weight = np.zeros(covered.sum(), np.float32)
+    # Bas du cou souvent cache par un col sur les photos : couleur de la peau. Le haut du cou (sous la
+    # machoire, ou pousse la barbe) garde la photo.
+    neck = np.zeros(len(v), bool)
+    for key in ("neck", "boundary"):
+        if key in flame.masks:
+            neck[flame.masks[key]] = True
+    face_mask = flame.masks.get("face")
+    chin = v[face_mask, 1].min() if face_mask is not None else v[:, 1].min()
+    low = neck & (v[:, 1] < chin - 0.02)
+    no_photo = low[corners].mean(1) > 0.3
+
+    colors, weights = [], []
     for k, view in enumerate(views):
         img = view.image
         h, w = img.shape[:2]
         xy, depth = project_vertices(fit_result, k)
 
         # Visibilite : z-buffer de la tete vue depuis cette photo (en basse resolution)
-        down = 4
+        down = 2
         zid, _, zbuf = _raster(xy[flame.faces] / down, (h // down + 1, w // down + 1), depth[flame.faces])
 
         p = (xy[corners] * b[:, :, None]).sum(1)
@@ -107,23 +133,55 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024):
         facing = np.clip(n[:, 2], 0, 1)
         qx = np.clip((p[:, 0] / down).astype(int), 0, zbuf.shape[1] - 1)
         qy = np.clip((p[:, 1] / down).astype(int), 0, zbuf.shape[0] - 1)
-        visible = z >= zbuf[qy, qx] - 0.004 * fit_result.scales[k]
+        # tolerance de 8 mm : les surfaces fuyantes (haut du front) ne clignotent pas d'un triangle a l'autre
+        visible = z >= zbuf[qy, qx] - 0.008 * fit_result.scales[k]
         inside = (p[:, 0] >= 0) & (p[:, 0] < w) & (p[:, 1] >= 0) & (p[:, 1] < h)
-        wk = facing ** 4 * visible * inside
-        wk[facing < 0.2] = 0
+        # Seulement a l'interieur du visage detecte (un peu elargi pour les oreilles et le front) :
+        # un leger decalage au bord ne prend pas le fond de la piece
+        hull = cv2.convexHull(view.points[:, :2].astype(np.float32))
+        center = view.points[:, :2].mean(0)
+        hull = ((hull - center) * 1.1 + center).astype(np.int32)
+        face_area = np.zeros((h, w), np.float32)
+        cv2.fillConvexPoly(face_area, hull, 1.0)
+        # bord adouci : pas de marche brusque entre deux photos
+        face_area = cv2.GaussianBlur(face_area, (0, 0), w * 0.015)
+        px = np.clip(p[:, 0].astype(int), 0, w - 1)
+        py = np.clip(p[:, 1].astype(int), 0, h - 1)
+        in_face = face_area[py, px]
+        wk = np.clip((facing - 0.25) / 0.5, 0, 1) ** 2 * visible * inside * in_face
+        wk[no_photo] = 0
 
-        color = cv2.remap(img, p[:, 0].reshape(-1, 1).astype(np.float32), p[:, 1].reshape(-1, 1).astype(np.float32),
-                          cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE).reshape(-1, 3).astype(np.float32)
-        total += color * wk[:, None]
-        weight += wk
+        colors.append(_sample(img, p))
+        weights.append(wk.astype(np.float32))
 
-    # Zones jamais vues : crane -> cheveux, le reste -> peau
+    # La vue de face est la plus nette : les cotes ne completent que la ou elle voit mal (joues, oreilles)
+    for k in range(1, len(views)):
+        weights[k] = weights[k] * np.clip(1 - weights[0] * 1.3, 0, 1)
+
+    # Exposition : chaque vue de cote est ramenee a la luminosite de la vue de face, sur les zones
+    # vues par les deux (sinon le visage ressemble a un patchwork)
+    for k in range(1, len(views)):
+        both = (weights[0] > 0.3) & (weights[k] > 0.3)
+        if both.sum() > 200:
+            gain = np.median(colors[0][both], 0) / np.maximum(np.median(colors[k][both], 0), 1)
+            colors[k] = colors[k] * np.clip(gain, 0.7, 1.4)
+
+    total = sum(c * wt[:, None] for c, wt in zip(colors, weights))
+    weight = sum(weights)
+
+    # Zones jamais vues : sous les cheveux -> couleur des cheveux, le reste -> peau
     skin, hair, _ = measure_colors(views[0])
-    scalp = np.zeros(len(v), bool)
-    for key in ("scalp", "boundary"):
-        if key in flame.masks:
-            scalp[flame.masks[key]] = True
-    fill = np.where((scalp[corners].mean(1) > 0.5)[:, None], hair, skin).astype(np.float32)
+    if hair_zone is not None:
+        scalp = hair_zone > 0.5
+    else:
+        scalp = np.zeros(len(v), bool)
+        if "scalp" in flame.masks:
+            scalp[flame.masks["scalp"]] = True
+    # Frontiere peau / cheveux adoucie (sinon elle suit les triangles en escalier)
+    hair_map = np.zeros((size, size), np.float32)
+    hair_map[covered] = scalp[corners].mean(1)
+    hair_map = cv2.GaussianBlur(hair_map, (0, 0), size / 120)[covered][:, None]
+    fill = (hair * hair_map + skin * (1 - hair_map)).astype(np.float32)
 
     seen = np.clip(weight / 0.25, 0, 1)[:, None]
     baked = total / np.maximum(weight, 1e-6)[:, None]
@@ -132,7 +190,7 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024):
     tex = np.zeros((size, size, 3), np.float32)
     tex[covered] = texels
     # Bords des ilots UV : on deborde un peu pour eviter les coutures noires
-    tex = tex.astype(np.uint8)
+    tex = np.clip(tex, 0, 255).astype(np.uint8)   # l'exposition corrigee peut depasser 255
     mask = (~covered).astype(np.uint8) * 255
     tex = cv2.inpaint(tex, mask, 3, cv2.INPAINT_TELEA)
     return tex, skin, hair

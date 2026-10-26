@@ -41,6 +41,9 @@ namespace DecoAR.Player
             Texture2D face = scan && !head3D && !mask3D ? FaceStore.Load() : null;
             bool hasFace = head3D || mask3D || face != null;
 
+            // Avant les couleurs : les cheveux 3D de la tete scannee se teintent avec l'onglet Cheveux
+            ApplyHead(character, head3D, profile);
+
             foreach (var r in character.GetComponentsInChildren<Renderer>(true))
             {
                 var mats = r.sharedMaterials;
@@ -61,7 +64,7 @@ namespace DecoAR.Player
                         block.SetColor(ColorId, c);
                         // Vetements : couleur unie (le relief du tissu reste grace a la normal map).
                         // Peau et cheveux : on teinte la texture pour garder les details du visage.
-                        if (IsClothing(slot))
+                        if (IsClothing(slot) && !IsOutfit(mats[i].name))
                         {
                             block.SetTexture(BaseMapId, Texture2D.whiteTexture);
                             block.SetTexture(MainTexId, Texture2D.whiteTexture);
@@ -71,7 +74,6 @@ namespace DecoAR.Player
                 }
             }
 
-            ApplyHead(character, head3D, profile);
             ApplyMask(character, mask3D, profile);
             ApplyFace(character, face, profile);
         }
@@ -143,6 +145,37 @@ namespace DecoAR.Player
             existing.localRotation = rot;
             existing.localPosition = local / HiddenHeadScale;
             existing.localScale = Vector3.one * (worldScale / boneScale / HiddenHeadScale);
+
+            ApplyHair(existing, profile);
+        }
+
+        const string HairObjectName = "CheveuxFLAME";
+
+        // Cheveux 3D generes par le serveur : meme repere que la tete, bord decoupe par la transparence
+        static void ApplyHair(Transform headObject, CharacterProfile profile)
+        {
+            Transform hair = headObject.Find(HairObjectName);
+            if (!HeadStore.TryLoadHair(out var texture, out var mesh) || profile == null || profile.hairMaterial == null)
+            {
+                if (hair != null) hair.gameObject.SetActive(false);
+                return;
+            }
+
+            if (hair == null)
+            {
+                var go = new GameObject(HairObjectName);
+                go.transform.SetParent(headObject, false);
+                go.AddComponent<MeshFilter>();
+                var renderer = go.AddComponent<MeshRenderer>();
+                // "Hair" dans le nom : l'onglet Cheveux de la personnalisation le teinte
+                renderer.sharedMaterial = new Material(profile.hairMaterial) { name = "CheveuxFLAME_Hair" };
+                hair = go.transform;
+            }
+            hair.gameObject.SetActive(true);
+            hair.GetComponent<MeshFilter>().sharedMesh = mesh;
+            var mat = hair.GetComponent<MeshRenderer>().sharedMaterial;
+            mat.SetTexture(MaskBaseMapId, texture);
+            mat.SetTexture(MainTexId, texture);
         }
 
         static readonly int DecalBaseMapId = Shader.PropertyToID("Base_Map"); // shader URP "Shader Graphs/Decal"
@@ -337,13 +370,30 @@ namespace DecoAR.Player
 
         static bool IsClothing(LookSlot slot) => slot == LookSlot.Haut || slot == LookSlot.Bas || slot == LookSlot.Chaussures;
 
+        // Tenue d'une seule piece (MetaPerson : "outfit") : on teinte sa texture, une couleur unie effacerait
+        // la difference entre haut, pantalon et chaussures
+        static bool IsOutfit(string materialName) => Has(materialName.ToLowerInvariant(), "outfit", "cloth");
+
+        // Parties que le modele permet vraiment de changer (les cils seuls ne font pas des cheveux)
+        public static bool HasSlot(GameObject character, LookSlot slot)
+        {
+            foreach (var r in character.GetComponentsInChildren<Renderer>(true))
+                foreach (var m in r.sharedMaterials)
+                {
+                    if (m == null || !TryGetSlot(m.name, out var s) || s != slot) continue;
+                    if (slot == LookSlot.Cheveux && m.name.ToLowerInvariant().Contains("eyelash")) continue;
+                    return true;
+                }
+            return false;
+        }
+
         static bool TryGetSlot(string materialName, out LookSlot slot)
         {
             string n = materialName.ToLowerInvariant();
             if (Has(n, "hair", "eyelash", "brow")) slot = LookSlot.Cheveux;
             else if (Has(n, "shoe", "boot", "sneaker")) slot = LookSlot.Chaussures;
             else if (Has(n, "bottom", "pant", "short", "jean", "trouser")) slot = LookSlot.Bas;
-            else if (Has(n, "top", "shirt", "jacket", "hoodie")) slot = LookSlot.Haut;
+            else if (Has(n, "top", "shirt", "jacket", "hoodie", "outfit", "cloth")) slot = LookSlot.Haut;
             else if (Has(n, "body", "skin", "head", "face")) slot = LookSlot.Peau;
             else { slot = LookSlot.Peau; return false; }
             return true;

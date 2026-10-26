@@ -70,15 +70,34 @@ namespace DecoAR.Player
             if (serverField != null)
             {
                 serverField.text = PlayerPrefs.GetString(ServerKey, defaultServer);
-                serverField.onEndEdit.AddListener(s => { PlayerPrefs.SetString(ServerKey, s.Trim()); PlayerPrefs.Save(); });
+                serverField.onEndEdit.AddListener(s =>
+                {
+                    serverField.text = NormalizeServer(s);
+                    PlayerPrefs.SetString(ServerKey, serverField.text);
+                    PlayerPrefs.Save();
+                });
             }
         }
 
-        string ServerUrl => PlayerPrefs.GetString(ServerKey, defaultServer).Trim().TrimEnd('/');
+        string ServerUrl => NormalizeServer(PlayerPrefs.GetString(ServerKey, defaultServer));
+
+        // M1_FaceServer ne parle qu'en HTTP : "https://", "192.168.1.10" ou "192.168.1.10:8000" -> "http://ip:8000"
+        static string NormalizeServer(string s)
+        {
+            s = (s ?? "").Trim().TrimEnd('/');
+            if (s.Length == 0) return s;
+            int scheme = s.IndexOf("://", System.StringComparison.Ordinal);
+            if (scheme >= 0) s = s.Substring(scheme + 3);
+            if (s.IndexOf(':') < 0) s += ":8000";
+            return "http://" + s;
+        }
 
         IEnumerator Begin()
         {
             introGroup.SetActive(false);
+            // Premier contact avec le serveur : sur iPhone, c'est ce qui affiche la demande "Reseau local",
+            // ainsi l'autorisation est deja donnee quand les photos partent
+            if (!string.IsNullOrEmpty(ServerUrl)) UnityWebRequest.Get(ServerUrl + "/").SendWebRequest();
             status.text = "Vérification du suivi 3D du visage…";
 
             if (ARSession.state == ARSessionState.None || ARSession.state == ARSessionState.CheckingAvailability)
@@ -219,8 +238,11 @@ namespace DecoAR.Player
                 var gmHead = GameManager.Instance;
                 var lookHead = gmHead.Look;
                 lookHead.visagePhoto = true;
-                lookHead.Set(LookSlot.Peau, SkinTone.NearestSkin(profile, head.Skin));
-                lookHead.Set(LookSlot.Cheveux, SkinTone.NearestHair(profile, head.Hair));
+                // Peau du corps reglee sur la peau mesuree (et non la teinte de palette la plus proche),
+                // pour que le cou du personnage et la tete scannee aient la meme couleur
+                lookHead.Set(LookSlot.Peau, BodyTint(head.Skin));
+                // Les cheveux 3D portent deja leur vraie couleur (prise sur les photos) : pas de teinte
+                lookHead.Set(LookSlot.Cheveux, Color.white);
                 gmHead.SetLook(lookHead);
 
                 HapticManager.Vibrate(HapticIntensity.Moyenne);
@@ -264,44 +286,64 @@ namespace DecoAR.Player
             Return();
         }
 
+        // Teinte a appliquer a la texture de peau du personnage pour obtenir la couleur mesuree
+        Color BodyTint(Color measured)
+        {
+            Color t = profile.textureSkin;
+            float Channel(float m, float s) => Mathf.Clamp(m / Mathf.Max(s, 0.05f), 0.3f, 1.25f);
+            return new Color(Channel(measured.r, t.r), Channel(measured.g, t.g), Channel(measured.b, t.b));
+        }
+
         // Envoie les photos (face puis cotes) a M1_FaceServer et enregistre la tete renvoyee
         IEnumerator SendToServer(List<View> views, System.Action<bool> done)
         {
             string url = ServerUrl;
             if (string.IsNullOrEmpty(url)) { done(false); yield break; }
 
-            var form = new List<IMultipartFormSection>();
             string[] names = { "front", "left", "right" };
-            for (int i = 0; i < views.Count && i < names.Length; i++)
-                form.Add(new MultipartFormFileSection(names[i], views[i].jpeg, names[i] + ".jpg", "image/jpeg"));
-            form.Add(new MultipartFormDataSection("mirrored", mirroredCamera ? "true" : "false"));
-
-            using (var request = UnityWebRequest.Post(url + "/head", form))
+            for (int attempt = 0; attempt < 2; attempt++)
             {
-                request.timeout = Mathf.CeilToInt(serverTimeout);
-                var op = request.SendWebRequest();
-                float t = 0f;
-                while (!op.isDone)
-                {
-                    t += Time.unscaledDeltaTime;
-                    // Le serveur met environ une minute : la barre avance pour montrer que ca travaille
-                    progressFill.fillAmount = Mathf.Clamp01(t / 60f) * 0.95f;
-                    status.text = t < 3f ? "Envoi des photos au serveur…" : "Création de ta tête 3D… " + Mathf.FloorToInt(t) + " s";
-                    yield return null;
-                }
+                var form = new List<IMultipartFormSection>();
+                for (int i = 0; i < views.Count && i < names.Length; i++)
+                    form.Add(new MultipartFormFileSection(names[i], views[i].jpeg, names[i] + ".jpg", "image/jpeg"));
+                form.Add(new MultipartFormDataSection("mirrored", mirroredCamera ? "true" : "false"));
 
-                if (request.result != UnityWebRequest.Result.Success)
+                using (var request = UnityWebRequest.Post(url + "/head", form))
                 {
-                    Debug.LogWarning($"[M1] Serveur de tete 3D injoignable ({url}) : {request.error}");
-                    status.text = "Serveur injoignable : visage calculé sur le téléphone.";
-                    yield return new WaitForSeconds(1.2f);
-                    done(false);
+                    request.timeout = Mathf.CeilToInt(serverTimeout);
+                    var op = request.SendWebRequest();
+                    float t = 0f;
+                    while (!op.isDone)
+                    {
+                        t += Time.unscaledDeltaTime;
+                        // Le serveur met environ une minute : la barre avance pour montrer que ca travaille
+                        progressFill.fillAmount = Mathf.Clamp01(t / 60f) * 0.95f;
+                        status.text = t < 3f ? "Envoi des photos au serveur…" : "Création de ta tête 3D… " + Mathf.FloorToInt(t) + " s";
+                        yield return null;
+                    }
+
+                    if (request.result != UnityWebRequest.Result.Success)
+                    {
+                        Debug.LogWarning($"[M1] Serveur de tete 3D injoignable ({url}) : {request.error}");
+                        // Refus immediat : souvent la demande "Reseau local" d'iOS encore a l'ecran, on reessaie
+                        if (attempt == 0 && t < 3f)
+                        {
+                            status.text = "Autorise l'accès au réseau local si ton téléphone le demande…";
+                            yield return new WaitForSeconds(4f);
+                            continue;
+                        }
+                        status.text = "Serveur injoignable : visage calculé sur le téléphone.";
+                        yield return new WaitForSeconds(1.2f);
+                        done(false);
+                        yield break;
+                    }
+                    bool saved = HeadStore.Save(request.downloadHandler.text);
+                    if (!saved) Debug.LogWarning("[M1] Reponse du serveur de tete 3D incomplete");
+                    done(saved);
                     yield break;
                 }
-                bool saved = HeadStore.Save(request.downloadHandler.text);
-                if (!saved) Debug.LogWarning("[M1] Reponse du serveur de tete 3D incomplete");
-                done(saved);
             }
+            done(false);
         }
 
         IEnumerator CaptureView(ARFace face, Vector3[] normals, List<View> views)

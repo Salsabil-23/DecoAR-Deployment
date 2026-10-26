@@ -61,6 +61,7 @@ namespace DecoAR.Player
         AvatarLook look;
         LookSlot slot;
         GameObject preview;
+        bool onePieceOutfit;
         readonly List<(Color color, GameObject selection)> swatches = new List<(Color, GameObject)>();
         readonly Dictionary<LookSlot, Color> scanned = new Dictionary<LookSlot, Color>();
 
@@ -72,10 +73,24 @@ namespace DecoAR.Player
             preview = anim != null ? anim.gameObject : null;
             if (preview == null) Debug.LogWarning("[M1] Aucun personnage dans le profil");
 
+            LookSlot first = LookSlot.Peau;
+            bool found = false;
             for (int i = 0; i < tabButtons.Length; i++)
             {
                 var s = (LookSlot)i;
                 tabButtons[i].onClick.AddListener(() => SelectSlot(s));
+                // Un avatar MetaPerson n'a qu'une tenue d'une piece ; les cheveux viennent du scan
+                bool available = preview == null || s == LookSlot.Cheveux || CharacterAppearance.HasSlot(preview, s);
+                tabButtons[i].gameObject.SetActive(available);
+                if (available && !found) { first = s; found = true; }
+            }
+            // Haut seul sans pantalon ni chaussures : c'est la tenue complete
+            onePieceOutfit = preview != null && !CharacterAppearance.HasSlot(preview, LookSlot.Bas)
+                && !CharacterAppearance.HasSlot(preview, LookSlot.Chaussures);
+            if (onePieceOutfit)
+            {
+                var label = tabButtons[(int)LookSlot.Haut].GetComponentInChildren<TMP_Text>();
+                if (label != null) label.text = "Tenue";
             }
             scanButton.onClick.AddListener(OpenFaceScan);
             randomButton.onClick.AddListener(Randomize);
@@ -89,7 +104,7 @@ namespace DecoAR.Player
             // Avatar deja realiste (MetaPerson...) : la carte de scan n'a pas d'objet
             scanButton.transform.parent.gameObject.SetActive(profile.useFaceScan);
             RefreshScanLabel();
-            SelectSlot(LookSlot.Peau);
+            SelectSlot(first);
 
             if (OpenPhotoScanOnStart)
             {
@@ -126,8 +141,9 @@ namespace DecoAR.Player
         void SelectSlot(LookSlot s)
         {
             slot = s;
-            sectionTitle.text = Titles[(int)s];
-            sectionHint.text = Hints[(int)s];
+            bool outfit = onePieceOutfit && s == LookSlot.Haut;
+            sectionTitle.text = outfit ? "Tenue" : Titles[(int)s];
+            sectionHint.text = outfit ? "Le premier rond garde la tenue d'origine." : Hints[(int)s];
 
             for (int i = 0; i < tabButtons.Length; i++)
             {

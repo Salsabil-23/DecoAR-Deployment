@@ -6,6 +6,8 @@ Le telephone envoie POST http://<ip-du-pc>:8000/head avec les photos front, left
 """
 import base64
 import time
+import traceback
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -14,7 +16,8 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
 from fit import View, detect, fit
 from flame_model import Flame
-from texture import bake
+from hair import build_hair, hair_region
+from texture import bake, measure_colors
 
 app = FastAPI(title="DecoAR M1 - tete FLAME")
 flame = Flame()
@@ -38,26 +41,45 @@ def build_head(images):
         raise HTTPException(422, "aucun visage trouve sur les photos")
 
     result = fit(flame, views)
-    texture, skin, hair = bake(flame, result, views, size=2048)
-    return result, texture, skin, hair, len(views)
+    skin, hair, has_hair = measure_colors(views[0])
+    # Zone des cheveux d'apres les photos : sert a la calotte 3D et a la texture de la tete en dessous
+    zone = hair_region(flame, result, views, skin, hair) if has_hair else None
+    texture, skin, hair = bake(flame, result, views, size=2048, hair_zone=zone)
+    hair_mesh = build_hair(flame, result, views, skin, hair, indicator=zone) if has_hair else None
+    return result, texture, skin, hair, len(views), hair_mesh
 
 
-def to_unity(result, texture, skin, hair):
+def _export(v, faces, uv_faces, cut=None):
     """Un sommet par coin (position + UV), repere Unity (main gauche : x inverse, triangles retournes)."""
-    v = result.vertices
     pairs = {}
     vertices, uvs, triangles = [], [], []
-    for tri_v, tri_vt in zip(flame.obj_faces, flame.uv_faces):
+    for tri_v, tri_vt in zip(faces, uv_faces):
+        if cut is not None and v[tri_v, 1].min() < cut:
+            continue
         ids = []
         for vi, ti in zip(tri_v, tri_vt):
             key = (int(vi), int(ti))
             if key not in pairs:
                 pairs[key] = len(vertices)
                 x, y, z = v[vi]
-                vertices.append([-float(x), float(y), float(z)])
-                uvs.append([float(flame.uv[ti, 0]), float(flame.uv[ti, 1])])
+                vertices += [-float(x), float(y), float(z)]
+                uvs += [float(flame.uv[ti, 0]), float(flame.uv[ti, 1])]
             ids.append(pairs[key])
         triangles += [ids[0], ids[2], ids[1]]
+    return vertices, uvs, triangles
+
+
+def _png(image):
+    ok, png = cv2.imencode(".png", image)
+    return base64.b64encode(png.tobytes()).decode("ascii")
+
+
+def to_unity(result, texture, skin, hair, hair_mesh=None):
+    v = result.vertices
+    # Bas du cou coupe : il rentre sous le col du personnage au lieu de deborder sur le t-shirt
+    face_idx = flame.masks.get("face")
+    cut = (v[face_idx, 1].min() if face_idx is not None else v[:, 1].min()) - 0.045
+    vertices, uvs, triangles = _export(v, flame.obj_faces, flame.uv_faces, cut)
 
     neck = flame.joint(v, 1)
     face = flame.masks.get("face")
@@ -66,11 +88,10 @@ def to_unity(result, texture, skin, hair):
     # Bout du nez : point le plus en avant pres du milieu du visage
     mid = fv[np.abs(fv[:, 0]) < 0.01]
     nose = mid[np.argmax(mid[:, 2])]
-    ok, png = cv2.imencode(".png", texture)
     bgr_to_rgb = lambda c: [float(c[2]) / 255, float(c[1]) / 255, float(c[0]) / 255]
-    return {
-        "vertices": sum(vertices, []),
-        "uv": sum(uvs, []),
+    data = {
+        "vertices": vertices,
+        "uv": uvs,
         "triangles": triangles,
         "neck": [-float(neck[0]), float(neck[1]), float(neck[2])],
         "top": float(v[:, 1].max()),
@@ -79,8 +100,13 @@ def to_unity(result, texture, skin, hair):
         "nose": [-float(nose[0]), float(nose[1]), float(nose[2])],
         "skin": bgr_to_rgb(skin),
         "hair": bgr_to_rgb(hair),
-        "texture": base64.b64encode(png.tobytes()).decode("ascii"),
+        "texture": _png(texture),
     }
+    if hair_mesh is not None:
+        hv, huv, ht = _export(hair_mesh["vertices"], hair_mesh["faces"], hair_mesh["uv_faces"])
+        data.update(hairVertices=hv, hairUv=huv, hairTriangles=ht,
+                    hairTexture=_png(hair_mesh["texture"]), hairThickness=hair_mesh["thickness"])
+    return data
 
 
 @app.get("/")
@@ -88,13 +114,27 @@ def status():
     return {"ok": True, "model": "FLAME", "vertices": int(len(flame.v_template))}
 
 
+LAST_REQUEST = Path(__file__).parent / "sortie" / "derniere_requete"
+
+
 @app.post("/head")
 async def head(front: UploadFile = File(...), left: UploadFile = File(None), right: UploadFile = File(None),
                mirrored: bool = Form(True)):
     start = time.time()
     images = [_read(await f.read(), mirrored) for f in (front, left, right) if f is not None]
-    result, texture, skin, hair, used = build_head(images)
-    data = to_unity(result, texture, skin, hair)
+    # Photos gardees sur le PC pour rejouer un probleme : python test_local.py sortie/derniere_requete/*.jpg
+    LAST_REQUEST.mkdir(parents=True, exist_ok=True)
+    for i, image in enumerate(images):
+        cv2.imwrite(str(LAST_REQUEST / f"vue{i}.jpg"), image)
+    print(f"[M1] {len(images)} photo(s) recue(s), {images[0].shape[1]}x{images[0].shape[0]}")
+    try:
+        result, texture, skin, hair, used, hair_mesh = build_head(images)
+        data = to_unity(result, texture, skin, hair, hair_mesh)
+    except HTTPException:
+        raise
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(500, traceback.format_exc(limit=3))
     data["views"] = used
     data["error"] = result.error
     print(f"[M1] tete creee en {time.time() - start:.1f} s, {used} vue(s), erreur {result.error:.3f}")

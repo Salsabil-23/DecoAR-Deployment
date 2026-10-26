@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6333ab47e8468aa48bc6679594548430, type: 3}
   m_Name: M1_CharacterProfile
   m_EditorClassIdentifier: Assembly-CSharp::DecoAR.Player.CharacterProfile
-  prefab: {fileID: 919132149155446097, guid: 05f96172828b186459c6c41b8859cb5e, type: 3}
+  prefab: {fileID: 919132149155446097, guid: 1439f8569cf1dca4eba5b66fe2274b24, type: 3}
   animatorController: {fileID: 9100000, guid: 1c2f19ebb2f5a114396b1d77f745622b, type: 2}
   height: 1.75
   useFaceScan: 1
@@ -65,5 +65,5 @@ MonoBehaviour:
   headMaterial: {fileID: 0}
   headScale: 1
   headOffset: {x: 0, y: 0, z: 0}
-  textureSkin: {r: 0.86, g: 0.67, b: 0.56, a: 1}
+  textureSkin: {r: 0.788, g: 0.608, b: 0.518, a: 1}
   textureHair: {r: 0.7, g: 0.55, b: 0.36, a: 1}
