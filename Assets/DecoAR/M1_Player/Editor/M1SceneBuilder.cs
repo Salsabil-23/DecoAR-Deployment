@@ -1002,8 +1002,13 @@ namespace DecoAR.Player.EditorTools
             mat.SetFloat("_Cutoff", 0.5f);
             mat.EnableKeyword("_ALPHATEST_ON");
             mat.SetFloat("_Cull", (float)CullMode.Off);
-            mat.SetFloat("_Smoothness", 0.3f);
+            // Mat : des cheveux brillants refletent le ciel bleu de l'environnement
+            mat.SetFloat("_Smoothness", 0.08f);
             mat.SetFloat("_Metallic", 0f);
+            mat.SetFloat("_EnvironmentReflections", 0f);
+            mat.SetFloat("_SpecularHighlights", 0f);
+            mat.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
+            mat.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
             mat.renderQueue = (int)RenderQueue.AlphaTest;
             EditorUtility.SetDirty(mat);
             return mat;
