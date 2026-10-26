@@ -114,8 +114,10 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
             neck[flame.masks[key]] = True
     face_mask = flame.masks.get("face")
     chin = v[face_mask, 1].min() if face_mask is not None else v[:, 1].min()
-    low = neck & (v[:, 1] < chin - 0.02)
-    no_photo = low[corners].mean(1) > 0.3
+    # fondu progressif sur 3 cm sous le menton : la barbe se perd dans le cou au lieu de s'arreter net
+    fade_v = np.where(neck, np.clip((v[:, 1] - (chin - 0.02)) / 0.025, 0, 1), 1.0)
+    photo_fade = (fade_v[corners] * b).sum(1)
+    no_photo = photo_fade <= 0
 
     colors, weights = [], []
     for k, view in enumerate(views):
@@ -140,7 +142,7 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
         # un leger decalage au bord ne prend pas le fond de la piece
         hull = cv2.convexHull(view.points[:, :2].astype(np.float32))
         center = view.points[:, :2].mean(0)
-        hull = ((hull - center) * 1.1 + center).astype(np.int32)
+        hull = ((hull - center) * 1.2 + center).astype(np.int32)   # assez large pour la barbe sous la machoire
         face_area = np.zeros((h, w), np.float32)
         cv2.fillConvexPoly(face_area, hull, 1.0)
         # bord adouci : pas de marche brusque entre deux photos
@@ -183,7 +185,8 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
     hair_map = cv2.GaussianBlur(hair_map, (0, 0), size / 120)[covered][:, None]
     fill = (hair * hair_map + skin * (1 - hair_map)).astype(np.float32)
 
-    seen = np.clip(weight / 0.25, 0, 1)[:, None]
+    # Vu par une photo, meme de biais : sa vraie couleur (barbe, ombres), pas un melange avec la peau unie
+    seen = (np.clip(weight / 0.05, 0, 1) * photo_fade)[:, None]
     baked = total / np.maximum(weight, 1e-6)[:, None]
     texels = baked * seen + fill * (1 - seen)
 

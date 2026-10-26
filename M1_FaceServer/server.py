@@ -60,7 +60,7 @@ def _export(v, faces, uv_faces, cut=None):
         for vi, ti in zip(tri_v, tri_vt):
             key = (int(vi), int(ti))
             if key not in pairs:
-                pairs[key] = len(vertices)
+                pairs[key] = len(vertices) // 3   # numero du sommet (la liste est a plat : x, y, z...)
                 x, y, z = v[vi]
                 vertices += [-float(x), float(y), float(z)]
                 uvs += [float(flame.uv[ti, 0]), float(flame.uv[ti, 1])]
