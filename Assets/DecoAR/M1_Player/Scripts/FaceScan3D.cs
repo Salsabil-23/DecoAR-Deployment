@@ -35,7 +35,7 @@ namespace DecoAR.Player
 
         [Header("Capture")]
         [SerializeField] float requiredTime = 1.6f;   // secondes de suivi stable avant la capture
-        [SerializeField] int textureSize = 512;
+        [SerializeField] int textureSize = 1024;
         [SerializeField] string returnScene = "M1_Personnalisation";
 
         float stableTime;
@@ -206,6 +206,7 @@ namespace DecoAR.Player
             }
             float height = brow - chin;
             if (height < 0.08f) return false;
+            float width = FaceWidth(c, chin, height, c[nose].z);
 
             Vector3 origin = new Vector3(c[nose].x, (chin + brow) * 0.5f, c[nose].z);
             float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
@@ -264,8 +265,22 @@ namespace DecoAR.Player
             Vector3 gain = SkinTone.Gain(skin, SkinTone.Mul(profile.textureSkin, skinTint));
 
             texture = Bake(src, shot.width, shot.height, screen, uv, alpha, tris, gain, textureSize);
-            data = new FaceMaskData { vertices = c, triangles = tris, uv = uv, height = height };
+            data = new FaceMaskData { vertices = c, triangles = tris, uv = uv, height = height, width = width };
             return true;
+        }
+
+        // Largeur du visage au niveau des pommettes (meme mesure que sur le personnage)
+        static float FaceWidth(Vector3[] c, float chin, float height, float noseZ)
+        {
+            float min = float.MaxValue, max = float.MinValue;
+            foreach (var p in c)
+            {
+                float y = p.y - chin;
+                if (p.z < noseZ - 0.06f || y < height * 0.4f || y > height * 0.6f) continue;
+                min = Mathf.Min(min, p.x);
+                max = Mathf.Max(max, p.x);
+            }
+            return max > min ? max - min : 0f;
         }
 
         // Rasterise chaque triangle dans la texture du masque en lisant l'image camera a sa position ecran

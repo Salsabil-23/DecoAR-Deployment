@@ -166,8 +166,11 @@ namespace DecoAR.Player
 
             existing.localPosition = anchor.maskLocalPosition;
             existing.localRotation = anchor.maskLocalRotation;
-            float s = anchor.worldHeight / Mathf.Max(data.height, 0.01f) / Mathf.Abs(head.lossyScale.x);
-            existing.localScale = new Vector3(s * profile.faceScale.x, s * profile.faceScale.y, s);
+            // Largeur et hauteur calees separement sur le visage du personnage
+            float k = 1f / Mathf.Abs(head.lossyScale.x);
+            float sy = anchor.worldHeight / Mathf.Max(data.height, 0.01f);
+            float sx = data.width > 0.01f && anchor.worldWidth > 0.01f ? anchor.worldWidth / data.width : sy;
+            existing.localScale = new Vector3(sx * profile.faceScale.x, sy * profile.faceScale.y, (sx + sy) * 0.5f) * k;
         }
 
         struct FaceAnchor
@@ -175,6 +178,7 @@ namespace DecoAR.Player
             public Vector3 localPosition;    // dans le repere de l'os Head
             public Quaternion localRotation;
             public float worldHeight;        // menton -> front, en metres
+            public float worldWidth;         // largeur au niveau des pommettes, en metres
             public Vector3 maskLocalPosition; // centre du visage au ras du bout du nez
             public Quaternion maskLocalRotation;
         }
@@ -231,6 +235,18 @@ namespace DecoAR.Player
                 float height = brow - chin;
                 if (height < 0.08f * m) continue;
 
+                // Largeur au niveau des pommettes (meme mesure que le scan 3D)
+                float minX = float.MaxValue, maxX = float.MinValue;
+                foreach (int i in indices)
+                {
+                    Vector3 v = verts[i];
+                    float y = Vector3.Dot(v, u) - hy - chin;
+                    if (Vector3.Dot(v, f) < noseZ - 0.06f * m || y < height * 0.4f || y > height * 0.6f) continue;
+                    float x = Vector3.Dot(v, r) - hx;
+                    minX = Mathf.Min(minX, x);
+                    maxX = Mathf.Max(maxX, x);
+                }
+
                 // Centre du visage, decale devant le nez : la projection part de la et va vers l'arriere
                 float centerY = hy + (chin + brow) * 0.5f + profile.faceLift * height;
                 Vector3 center = r * hx + u * centerY + f * (noseZ + 0.03f * m);
@@ -238,6 +254,7 @@ namespace DecoAR.Player
                 anchor.localPosition = meshToHead.MultiplyPoint3x4(center);
                 anchor.localRotation = Quaternion.LookRotation(meshToHead.MultiplyVector(-f), meshToHead.MultiplyVector(u));
                 anchor.worldHeight = height / m;
+                anchor.worldWidth = maxX > minX ? (maxX - minX) / m : 0f;
                 anchor.maskLocalPosition = meshToHead.MultiplyPoint3x4(r * hx + u * centerY + f * (noseZ + 0.004f * m));
                 anchor.maskLocalRotation = Quaternion.LookRotation(meshToHead.MultiplyVector(f), meshToHead.MultiplyVector(u));
                 return true;
