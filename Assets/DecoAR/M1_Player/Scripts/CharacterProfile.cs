@@ -76,6 +76,7 @@ namespace DecoAR.Player
 
         [Header("Tete complete FLAME (M1_FaceServer) : reglage sur le personnage")]
         public Material headMaterial;                    // vide = URP Lit
+        public Material hairMaterial;                    // URP Lit, decoupe alpha, double face (cree par le menu M1)
         [Range(0.6f, 1.6f)] public float headScale = 1f;
         public Vector3 headOffset = Vector3.zero;        // metres, repere du visage (x droite, y haut, z avant)
 

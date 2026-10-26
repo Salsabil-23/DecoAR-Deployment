@@ -241,7 +241,8 @@ namespace DecoAR.Player
                 // Peau du corps reglee sur la peau mesuree (et non la teinte de palette la plus proche),
                 // pour que le cou du personnage et la tete scannee aient la meme couleur
                 lookHead.Set(LookSlot.Peau, BodyTint(head.Skin));
-                lookHead.Set(LookSlot.Cheveux, SkinTone.NearestHair(profile, head.Hair));
+                // Les cheveux 3D portent deja leur vraie couleur (prise sur les photos) : pas de teinte
+                lookHead.Set(LookSlot.Cheveux, Color.white);
                 gmHead.SetLook(lookHead);
 
                 HapticManager.Vibrate(HapticIntensity.Moyenne);

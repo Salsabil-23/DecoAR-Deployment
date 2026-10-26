@@ -74,6 +74,9 @@ namespace DecoAR.Player.EditorTools
                 PlayerSettings.Android.minSdkVersion = (AndroidSdkVersions)TestMinAndroidApi;
             // Le serveur de tete 3D (M1_FaceServer) tourne en HTTP sur le reseau local
             PlayerSettings.insecureHttpOption = InsecureHttpOption.AlwaysAllowed;
+            // Materiaux et profil a jour (materiau des cheveux 3D...)
+            EnsureFolders();
+            EnsureProfile(EnsureController());
 
             AssetDatabase.SaveAssets();
             Debug.Log("[M1] Build pret : M1_Personnalisation puis M1_Test, Android minimum API 31. Lance Build And Run.");
@@ -349,8 +352,9 @@ namespace DecoAR.Player.EditorTools
                 "Le suivi du visage de ton téléphone mesure la forme 3D de ton visage, et la caméra frontale sa couleur. " +
                 "Tout reste sur ton téléphone.", 30, Alpha(Color.white, 0.85f)), 170);
             Size(LabelOn(Node("Conseils", intro),
-                "Mets-toi face à une lumière, retire lunettes et casquette, garde le téléphone à hauteur des yeux.",
-                24, Alpha(Color.white, 0.6f)), 90);
+                "Téléphone à hauteur des yeux (pas en dessous du menton), face à une lumière douce comme une fenêtre. " +
+                "Retire lunettes et casquette, bouche fermée, cheveux bien visibles.",
+                24, Alpha(Color.white, 0.6f)), 110);
             // Adresse du serveur de tete 3D (PC sur le meme Wi-Fi), retenue sur le telephone
             Size(LabelOn(Node("ServeurTitre", intro), "Serveur tête 3D (ton PC) :", 24, Alpha(Color.white, 0.75f)), 36);
             var server = MakeInputField(intro, "http://192.168.1.10:8000");
@@ -963,6 +967,7 @@ namespace DecoAR.Player.EditorTools
             profile.animatorController = controller;
             if (profile.faceDecalMaterial == null) profile.faceDecalMaterial = EnsureFaceDecalMaterial();
             profile.faceMaskMaterial = EnsureFaceMaskMaterial();
+            profile.hairMaterial = EnsureHairMaterial();
             EnsureDecalFeature();
 
             // Le personnage : Remy de preference, sinon le premier modele de Mixamo/Avatars
@@ -978,6 +983,30 @@ namespace DecoAR.Player.EditorTools
             EditorUtility.SetDirty(profile);
             Debug.Log($"[M1] Personnage : {Name(profile.prefab)}");
             return profile;
+        }
+
+        // Cheveux 3D de la tete scannee : URP Lit a decoupe alpha (bord en meches), visible des deux cotes.
+        // Un vrai asset, pour que le build garde la variante "alpha test" du shader.
+        const string HairMaterialPath = DataFolder + "/M1_HairFLAME.mat";
+
+        static Material EnsureHairMaterial()
+        {
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(HairMaterialPath);
+            if (mat == null)
+            {
+                mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                AssetDatabase.CreateAsset(mat, HairMaterialPath);
+            }
+            mat.SetColor("_BaseColor", Color.white);
+            mat.SetFloat("_AlphaClip", 1f);
+            mat.SetFloat("_Cutoff", 0.5f);
+            mat.EnableKeyword("_ALPHATEST_ON");
+            mat.SetFloat("_Cull", (float)CullMode.Off);
+            mat.SetFloat("_Smoothness", 0.3f);
+            mat.SetFloat("_Metallic", 0f);
+            mat.renderQueue = (int)RenderQueue.AlphaTest;
+            EditorUtility.SetDirty(mat);
+            return mat;
         }
 
         // ---------------------------------------------------------------- visage scanne (decal URP)

@@ -91,7 +91,7 @@ def measure_colors(view: View):
     return skin, hair, has_hair
 
 
-def bake(flame: Flame, fit_result: Fit, views, size=1024):
+def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
     v = fit_result.vertices
     faces = flame.obj_faces
     normals = _vertex_normals(v, flame.faces)
@@ -169,11 +169,14 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024):
     total = sum(c * wt[:, None] for c, wt in zip(colors, weights))
     weight = sum(weights)
 
-    # Zones jamais vues : crane -> cheveux, le reste -> peau
+    # Zones jamais vues : sous les cheveux -> couleur des cheveux, le reste -> peau
     skin, hair, _ = measure_colors(views[0])
-    scalp = np.zeros(len(v), bool)
-    if "scalp" in flame.masks:
-        scalp[flame.masks["scalp"]] = True
+    if hair_zone is not None:
+        scalp = hair_zone > 0.5
+    else:
+        scalp = np.zeros(len(v), bool)
+        if "scalp" in flame.masks:
+            scalp[flame.masks["scalp"]] = True
     # Frontiere peau / cheveux adoucie (sinon elle suit les triangles en escalier)
     hair_map = np.zeros((size, size), np.float32)
     hair_map[covered] = scalp[corners].mean(1)
