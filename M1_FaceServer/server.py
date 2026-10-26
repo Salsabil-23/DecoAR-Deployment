@@ -80,11 +80,18 @@ def to_unity(result, texture, skin, hair, hair_mesh=None):
     # personnage au lieu de deborder en "ailes" sur l'encolure
     face_idx = flame.masks.get("face")
     chin = v[face_idx, 1].min() if face_idx is not None else v[:, 1].min()
-    cut = chin - 0.035
+    # Cou fin comme celui de l'avatar : il s'affine des le dessous de la machoire, descend plus bas et
+    # rentre dans le cou du corps (le raccord ne se voit plus)
+    cut = chin - 0.05
     axis = flame.joint(v, 1)
-    t = np.clip((chin - v[:, 1]) / 0.035, 0, 1)[:, None]
+    neck = np.zeros(len(v), bool)
+    for key in ("neck", "boundary"):
+        if key in flame.masks:
+            neck[flame.masks[key]] = True
+    t = np.clip((chin + 0.01 - v[:, 1]) / 0.06, 0, 1) * neck
+    t = t[:, None]
     tucked = v.copy()
-    tucked[:, [0, 2]] = axis[[0, 2]] + (v[:, [0, 2]] - axis[[0, 2]]) * (1 - 0.18 * t)
+    tucked[:, [0, 2]] = axis[[0, 2]] + (v[:, [0, 2]] - axis[[0, 2]]) * (1 - 0.28 * t)
     vertices, uvs, triangles = _export(tucked, flame.obj_faces, flame.uv_faces, cut)
 
     neck = flame.joint(v, 1)

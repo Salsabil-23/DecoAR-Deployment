@@ -63,14 +63,14 @@ def delight(tex, covered, skin, size):
     img = tex.astype(np.float32)
     lum = img @ np.array([0.114, 0.587, 0.299], np.float32)
     skin_lum = float(skin @ np.array([0.114, 0.587, 0.299]))
-    mask = (covered & (lum > skin_lum * 0.6) & (lum < skin_lum * 1.6)).astype(np.float32)
+    mask = (covered & (lum > skin_lum * 0.8) & (lum < skin_lum * 2.4)).astype(np.float32)
     sigma = size / 50
     den = cv2.GaussianBlur(mask, (0, 0), sigma) + 1e-4
-    out = img.copy()
-    for c in range(3):
-        low = cv2.GaussianBlur(img[:, :, c] * mask, (0, 0), sigma) / den
-        gain = np.clip(skin[c] / np.maximum(low, 1.0), 0.75, 1.35) ** 0.85
-        out[:, :, c] = img[:, :, c] * np.where(den > 0.02, gain, 1.0)
+    # Luminosite seulement : corriger chaque couleur separement verdit la barbe
+    low = cv2.GaussianBlur(lum * mask, (0, 0), sigma) / den
+    gain = np.clip(skin_lum / np.maximum(low, 1.0), 0.65, 1.35) ** 0.85
+    gain = np.where(den > 0.02, gain, 1.0)
+    out = img * gain[:, :, None]
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
@@ -158,6 +158,7 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
     photo_fade = (fade_v[corners] * b).sum(1)
     no_photo = photo_fade <= 0
 
+    skin_lum0 = float(measure_colors(views[0])[0] @ np.array([0.114, 0.587, 0.299]))
     colors, weights = [], []
     for k, view in enumerate(views):
         img = view.image
@@ -192,7 +193,10 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
         wk = np.clip((facing - 0.25) / 0.5, 0, 1) ** 2 * visible * inside * in_face
         wk[no_photo] = 0
 
-        colors.append(_sample(img, p))
+        color = _sample(img, p)
+        # Bien plus clair que la peau : c'est le fond (fenetre, mur) vu a travers le bord de l'oreille
+        wk[color @ np.array([0.114, 0.587, 0.299]) > skin_lum0 * 1.3] = 0
+        colors.append(color)
         weights.append(wk.astype(np.float32))
 
     # La vue de face est la plus nette : les cotes ne completent que la ou elle voit mal (joues, oreilles)
@@ -205,7 +209,9 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
         both = (weights[0] > 0.3) & (weights[k] > 0.3)
         if both.sum() > 200:
             gain = np.median(colors[0][both], 0) / np.maximum(np.median(colors[k][both], 0), 1)
-            colors[k] = colors[k] * np.clip(gain, 0.7, 1.4)
+            # luminosite librement, teinte a +-6 % seulement (sinon dominante verte ou rose)
+            g = float(np.clip(np.mean(gain), 0.7, 1.4))
+            colors[k] = colors[k] * (g * np.clip(gain / g, 0.94, 1.06))
 
     total = sum(c * wt[:, None] for c, wt in zip(colors, weights))
     weight = sum(weights)
