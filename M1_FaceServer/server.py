@@ -6,6 +6,8 @@ Le telephone envoie POST http://<ip-du-pc>:8000/head avec les photos front, left
 """
 import base64
 import time
+import traceback
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -88,13 +90,27 @@ def status():
     return {"ok": True, "model": "FLAME", "vertices": int(len(flame.v_template))}
 
 
+LAST_REQUEST = Path(__file__).parent / "sortie" / "derniere_requete"
+
+
 @app.post("/head")
 async def head(front: UploadFile = File(...), left: UploadFile = File(None), right: UploadFile = File(None),
                mirrored: bool = Form(True)):
     start = time.time()
     images = [_read(await f.read(), mirrored) for f in (front, left, right) if f is not None]
-    result, texture, skin, hair, used = build_head(images)
-    data = to_unity(result, texture, skin, hair)
+    # Photos gardees sur le PC pour rejouer un probleme : python test_local.py sortie/derniere_requete/*.jpg
+    LAST_REQUEST.mkdir(parents=True, exist_ok=True)
+    for i, image in enumerate(images):
+        cv2.imwrite(str(LAST_REQUEST / f"vue{i}.jpg"), image)
+    print(f"[M1] {len(images)} photo(s) recue(s), {images[0].shape[1]}x{images[0].shape[0]}")
+    try:
+        result, texture, skin, hair, used = build_head(images)
+        data = to_unity(result, texture, skin, hair)
+    except HTTPException:
+        raise
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(500, traceback.format_exc(limit=3))
     data["views"] = used
     data["error"] = result.error
     print(f"[M1] tete creee en {time.time() - start:.1f} s, {used} vue(s), erreur {result.error:.3f}")

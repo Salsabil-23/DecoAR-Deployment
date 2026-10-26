@@ -23,12 +23,20 @@ class _Ch:
         self.__dict__.update(state)
 
 
+def _chumpy_attr(attr):
+    # Seulement les classes chumpy : les attributs speciaux (__file__...) doivent rester absents,
+    # sinon inspect (utilise par torch) plante
+    if attr.startswith("__"):
+        raise AttributeError(attr)
+    return _Ch
+
+
 def _install_chumpy_stub():
     if "chumpy" in sys.modules:
         return
     for name in ("chumpy", "chumpy.ch", "chumpy.ch_ops", "chumpy.reordering", "chumpy.utils", "chumpy.logic"):
         mod = types.ModuleType(name)
-        mod.__getattr__ = lambda attr: _Ch
+        mod.__getattr__ = _chumpy_attr
         sys.modules[name] = mod
 
 
@@ -44,9 +52,14 @@ def _array(obj):
 
 
 def _load_pickle(path):
-    _install_chumpy_stub()
     with open(path, "rb") as f:
-        return pickle.load(f, encoding="latin1")
+        data = f.read()
+    try:
+        return pickle.loads(data, encoding="latin1")
+    except ModuleNotFoundError:
+        # FLAME 2020 : objets chumpy
+        _install_chumpy_stub()
+        return pickle.loads(data, encoding="latin1")
 
 
 class Flame:
