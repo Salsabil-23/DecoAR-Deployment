@@ -76,10 +76,16 @@ def _png(image):
 
 def to_unity(result, texture, skin, hair, hair_mesh=None):
     v = result.vertices
-    # Bas du cou coupe : il rentre sous le col du personnage au lieu de deborder sur le t-shirt
+    # Bas du cou : resserre progressivement puis coupe, pour que son bord disparaisse dans le cou du
+    # personnage au lieu de deborder en "ailes" sur l'encolure
     face_idx = flame.masks.get("face")
-    cut = (v[face_idx, 1].min() if face_idx is not None else v[:, 1].min()) - 0.035
-    vertices, uvs, triangles = _export(v, flame.obj_faces, flame.uv_faces, cut)
+    chin = v[face_idx, 1].min() if face_idx is not None else v[:, 1].min()
+    cut = chin - 0.035
+    axis = flame.joint(v, 1)
+    t = np.clip((chin - v[:, 1]) / 0.035, 0, 1)[:, None]
+    tucked = v.copy()
+    tucked[:, [0, 2]] = axis[[0, 2]] + (v[:, [0, 2]] - axis[[0, 2]]) * (1 - 0.18 * t)
+    vertices, uvs, triangles = _export(tucked, flame.obj_faces, flame.uv_faces, cut)
 
     neck = flame.joint(v, 1)
     face = flame.masks.get("face")

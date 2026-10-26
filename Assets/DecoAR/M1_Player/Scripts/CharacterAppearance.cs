@@ -121,7 +121,7 @@ namespace DecoAR.Player
                 var shader = Shader.Find("Universal Render Pipeline/Lit");
                 mr.sharedMaterial = profile != null && profile.headMaterial != null
                     ? new Material(profile.headMaterial) : new Material(shader);
-                mr.sharedMaterial.SetFloat("_Smoothness", 0.3f);
+                mr.sharedMaterial.SetFloat("_Smoothness", 0.15f); // peau peu brillante (pas de reflet du ciel)
                 existing = go.transform;
             }
             else
@@ -133,8 +133,14 @@ namespace DecoAR.Player
             mr.sharedMaterial.SetTexture(MaskBaseMapId, texture);
             mr.sharedMaterial.SetTexture(MainTexId, texture);
 
-            // Taille : le visage FLAME prend la hauteur du visage du personnage
-            float worldScale = anchor.worldHeight / Mathf.Max(data.FaceHeight, 0.01f) * (profile != null ? profile.headScale : 1f);
+            // Taille : la tete FLAME (menton -> sommet du crane) prend la taille de la tete d'origine ;
+            // a defaut, le visage prend la hauteur du visage du personnage
+            // (les cheveux 3D comptent a moitie : l'avatar d'origine a des cheveux peints, sans volume)
+            float flameHead = data.top + (data.HasHair ? data.hairThickness * 0.5f : 0f) - data.chin;
+            float worldScale = anchor.worldHeadHeight > 0.05f && flameHead > 0.05f
+                ? anchor.worldHeadHeight / flameHead
+                : anchor.worldHeight / Mathf.Max(data.FaceHeight, 0.01f);
+            worldScale *= profile != null ? profile.headScale : 1f;
             Quaternion rot = anchor.maskLocalRotation;
             float boneScale = Mathf.Abs(head.lossyScale.x);
             Vector3 local = anchor.maskLocalPosition - rot * (data.FaceOrigin * (worldScale / boneScale));
@@ -287,6 +293,7 @@ namespace DecoAR.Player
             public Quaternion localRotation;
             public float worldHeight;        // menton -> front, en metres
             public float worldWidth;         // largeur au niveau des pommettes, en metres
+            public float worldHeadHeight;    // menton -> sommet du crane, en metres (0 si inconnu)
             public Vector3 maskLocalPosition; // centre du visage au ras du bout du nez
             public Quaternion maskLocalRotation;
         }
@@ -355,6 +362,16 @@ namespace DecoAR.Player
                     maxX = Mathf.Max(maxX, x);
                 }
 
+                // Sommet du crane : la tete scannee prend la taille de la tete d'origine (menton -> sommet)
+                float top = float.MinValue;
+                foreach (int i in indices)
+                {
+                    Vector3 v = verts[i];
+                    float x = Vector3.Dot(v, r) - hx;
+                    if (Mathf.Abs(x) > 0.06f * m) continue;
+                    top = Mathf.Max(top, Vector3.Dot(v, u) - hy);
+                }
+
                 // Centre du visage, decale devant le nez : la projection part de la et va vers l'arriere
                 float centerY = hy + (chin + brow) * 0.5f + profile.faceLift * height;
                 Vector3 center = r * hx + u * centerY + f * (noseZ + 0.03f * m);
@@ -363,6 +380,7 @@ namespace DecoAR.Player
                 anchor.localRotation = Quaternion.LookRotation(meshToHead.MultiplyVector(-f), meshToHead.MultiplyVector(u));
                 anchor.worldHeight = height / m;
                 anchor.worldWidth = maxX > minX ? (maxX - minX) / m : 0f;
+                anchor.worldHeadHeight = top > brow ? (top - chin) / m : 0f;
                 anchor.maskLocalPosition = meshToHead.MultiplyPoint3x4(r * hx + u * centerY + f * (noseZ + 0.004f * m));
                 anchor.maskLocalRotation = Quaternion.LookRotation(meshToHead.MultiplyVector(f), meshToHead.MultiplyVector(u));
                 return true;
