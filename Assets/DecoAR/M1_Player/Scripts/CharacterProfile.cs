@@ -11,6 +11,9 @@ namespace DecoAR.Player
         public RuntimeAnimatorController animatorController; // idle / marche / interaction
         public float height = 1.75f;                         // metres
 
+        [Tooltip("Decocher si le modele est deja un avatar realiste de la personne (ex. MetaPerson) : pas de visage scanne par-dessus")]
+        public bool useFaceScan = true;
+
         [Header("Palettes (le premier blanc = couleur d'origine)")]
         public Color[] skinColors =
         {

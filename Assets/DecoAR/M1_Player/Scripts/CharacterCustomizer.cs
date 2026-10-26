@@ -86,6 +86,8 @@ namespace DecoAR.Player
 
             swatchTemplate.gameObject.SetActive(false);
             scanner.gameObject.SetActive(false);
+            // Avatar deja realiste (MetaPerson...) : la carte de scan n'a pas d'objet
+            scanButton.transform.parent.gameObject.SetActive(profile.useFaceScan);
             RefreshScanLabel();
             SelectSlot(LookSlot.Peau);
 

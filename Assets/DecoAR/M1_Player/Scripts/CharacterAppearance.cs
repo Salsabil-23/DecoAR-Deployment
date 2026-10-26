@@ -34,8 +34,9 @@ namespace DecoAR.Player
         public static void Apply(GameObject character, AvatarLook look, CharacterProfile profile)
         {
             // Visage scanne : masque 3D (ARCore / ARKit) en priorite, sinon photo projetee
-            bool mask3D = look.visagePhoto && FaceMaskStore.Exists;
-            Texture2D face = look.visagePhoto && !mask3D ? FaceStore.Load() : null;
+            bool scan = look.visagePhoto && (profile == null || profile.useFaceScan);
+            bool mask3D = scan && FaceMaskStore.Exists;
+            Texture2D face = scan && !mask3D ? FaceStore.Load() : null;
             bool hasFace = mask3D || face != null;
 
             foreach (var r in character.GetComponentsInChildren<Renderer>(true))

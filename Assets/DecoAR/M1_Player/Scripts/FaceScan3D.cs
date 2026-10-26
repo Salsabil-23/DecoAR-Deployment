@@ -36,6 +36,8 @@ namespace DecoAR.Player
         [Header("Capture")]
         [SerializeField] float requiredTime = 1.6f;   // secondes de suivi stable avant la capture
         [SerializeField] int textureSize = 1024;
+        [SerializeField] float sideAngle = 22f;     // rotation de tete demandee pour les vues de cote
+        [SerializeField] float sideTimeout = 10f;   // au-dela, on continue avec les vues deja prises
         [SerializeField] string returnScene = "M1_Personnalisation";
 
         float stableTime;
@@ -102,11 +104,8 @@ namespace DecoAR.Player
         {
             if (!running || capturing) return;
 
-            ARFace face = null;
-            foreach (var f in faceManager.trackables)
-                if (f.trackingState == TrackingState.Tracking) { face = f; break; }
-
-            bool ready = face != null && face.vertices.IsCreated && face.vertices.Length > 100 && face.indices.IsCreated;
+            ARFace face = TrackedFace();
+            bool ready = IsUsable(face);
             if (ready)
             {
                 stableTime += Time.deltaTime;
@@ -119,38 +118,80 @@ namespace DecoAR.Player
             }
 
             progressFill.fillAmount = Mathf.Clamp01(stableTime / requiredTime);
-            if (ready && stableTime >= requiredTime) StartCoroutine(Capture(face));
+            if (ready && stableTime >= requiredTime) StartCoroutine(Scan(face));
         }
 
-        IEnumerator Capture(ARFace face)
+        ARFace TrackedFace()
+        {
+            foreach (var f in faceManager.trackables)
+                if (f.trackingState == TrackingState.Tracking) return f;
+            return null;
+        }
+
+        static bool IsUsable(ARFace f) =>
+            f != null && f.vertices.IsCreated && f.vertices.Length > 100 && f.indices.IsCreated;
+
+        // Une prise de vue : image camera + position a l'ecran et visibilite de chaque point du visage
+        class View
+        {
+            public Color32[] pixels;
+            public int width, height;
+            public Vector2[] screen;
+            public float[] weight;          // 1 = surface vue de face, 0 = vue de profil ou cachee
+            public Vector3 gain = Vector3.one; // harmonise l'exposition avec la vue de face
+        }
+
+        // Face, puis chaque cote : les joues et les tempes sont texturees depuis l'angle ou on les voit le mieux
+        IEnumerator Scan(ARFace face)
         {
             capturing = true;
-            status.text = "Capture…";
 
-            // L'image capturee ne doit contenir que la camera : on cache l'UI et le maillage de suivi
-            var visual = face.GetComponent<Renderer>();
-            if (visual != null) visual.enabled = false;
-            canvas.enabled = false;
-            yield return new WaitForEndOfFrame();
-            var shot = ScreenCapture.CaptureScreenshotAsTexture();
-
-            // Maillage et projection a l'ecran au meme instant que l'image
             var vertices = face.vertices.ToArray();
             var triangles = face.indices.ToArray();
-            var screen = new Vector2[vertices.Length];
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                Vector3 p = arCamera.WorldToScreenPoint(face.transform.TransformPoint(vertices[i]));
-                screen[i] = new Vector2(p.x / shot.width, p.y / shot.height);
-            }
             Vector3 toCamera = face.transform.InverseTransformPoint(arCamera.transform.position).normalized;
+            Vector3[] normals = LocalNormals(vertices, triangles, toCamera);
 
-            canvas.enabled = true;
-            if (visual != null) visual.enabled = true;
+            var views = new List<View>();
+            status.text = "Capture de face…";
+            yield return CaptureView(face, normals, views);
 
-            bool ok = Build(vertices, triangles, screen, toCamera, shot, out var data, out var texture,
+            float firstSide = 0f;
+            for (int step = 0; step < 2; step++)
+            {
+                bool reached = false;
+                for (float t = 0f; t < sideTimeout; t += Time.deltaTime)
+                {
+                    status.text = step == 0
+                        ? "Tourne lentement la tête d'un côté…"
+                        : "Maintenant, tourne-la lentement de l'autre côté…";
+
+                    var f = TrackedFace();
+                    if (IsUsable(f))
+                    {
+                        float yaw = Yaw(f, toCamera);
+                        float toward = step == 0 ? Mathf.Abs(yaw) : -yaw * firstSide;
+                        progressFill.fillAmount = Mathf.Clamp01(toward / sideAngle);
+                        if (toward >= sideAngle)
+                        {
+                            if (step == 0) firstSide = Mathf.Sign(yaw);
+                            face = f;
+                            reached = true;
+                            break;
+                        }
+                    }
+                    yield return null;
+                }
+                if (!reached) break; // on garde les vues deja prises
+
+                status.text = "Capture…";
+                yield return CaptureView(face, normals, views);
+            }
+
+            status.text = "Création de ton visage 3D…";
+            yield return null;
+
+            bool ok = Build(vertices, triangles, toCamera, views, out var data, out var texture,
                 out var skinTint, out var hairTint, out bool hasHair);
-            Destroy(shot);
 
             if (!ok)
             {
@@ -177,10 +218,80 @@ namespace DecoAR.Player
             Return();
         }
 
+        IEnumerator CaptureView(ARFace face, Vector3[] normals, List<View> views)
+        {
+            // L'image capturee ne doit contenir que la camera : on cache l'UI et le maillage de suivi
+            var visual = face.GetComponent<Renderer>();
+            if (visual != null) visual.enabled = false;
+            canvas.enabled = false;
+            yield return new WaitForEndOfFrame();
+            var shot = ScreenCapture.CaptureScreenshotAsTexture();
+
+            // Maillage et projection a l'ecran au meme instant que l'image
+            var verts = face.vertices;
+            int n = Mathf.Min(normals.Length, verts.Length);
+            var view = new View
+            {
+                pixels = shot.GetPixels32(),
+                width = shot.width,
+                height = shot.height,
+                screen = new Vector2[normals.Length],
+                weight = new float[normals.Length],
+            };
+            Vector3 cam = arCamera.transform.position;
+            for (int i = 0; i < n; i++)
+            {
+                Vector3 wp = face.transform.TransformPoint(verts[i]);
+                Vector3 sp = arCamera.WorldToScreenPoint(wp);
+                view.screen[i] = new Vector2(sp.x / view.width, sp.y / view.height);
+                bool onScreen = sp.z > 0f && view.screen[i].x >= 0f && view.screen[i].x <= 1f
+                                && view.screen[i].y >= 0f && view.screen[i].y <= 1f;
+                float facing = Vector3.Dot(face.transform.TransformDirection(normals[i]), (cam - wp).normalized);
+                view.weight[i] = onScreen ? Mathf.Clamp01(facing) : 0f;
+            }
+            Destroy(shot);
+
+            canvas.enabled = true;
+            if (visual != null) visual.enabled = true;
+            views.Add(view);
+        }
+
+        // Rotation gauche / droite de la tete par rapport a la vue de face, en degres
+        float Yaw(ARFace f, Vector3 frontLocal)
+        {
+            Vector3 up = arCamera.transform.up;
+            Vector3 facing = Vector3.ProjectOnPlane(f.transform.TransformDirection(frontLocal), up);
+            Vector3 toCam = Vector3.ProjectOnPlane(arCamera.transform.position - f.transform.position, up);
+            return Vector3.SignedAngle(toCam, facing, up);
+        }
+
+        // Normales du maillage, orientees vers l'exterieur du visage
+        static Vector3[] LocalNormals(Vector3[] v, int[] tris, Vector3 front)
+        {
+            var n = new Vector3[v.Length];
+            for (int t = 0; t + 2 < tris.Length; t += 3)
+            {
+                int a = tris[t], b = tris[t + 1], c = tris[t + 2];
+                Vector3 fn = Vector3.Cross(v[b] - v[a], v[c] - v[a]);
+                n[a] += fn; n[b] += fn; n[c] += fn;
+            }
+            float sum = 0f;
+            for (int i = 0; i < n.Length; i++)
+            {
+                n[i] = n[i].normalized;
+                sum += Vector3.Dot(n[i], front);
+            }
+            if (sum < 0f)
+                for (int i = 0; i < n.Length; i++) n[i] = -n[i];
+            return n;
+        }
+
         // Repere normalise du visage, couleurs, et texture du masque
-        bool Build(Vector3[] v, int[] tris, Vector2[] screen, Vector3 front, Texture2D shot,
+        bool Build(Vector3[] v, int[] tris, Vector3 front, List<View> views,
             out FaceMaskData data, out Texture2D texture, out Color skinTint, out Color hairTint, out bool hasHair)
         {
+            var front0 = views[0];
+            var screen = front0.screen;
             data = null; texture = null; skinTint = hairTint = Color.white; hasHair = false;
 
             Vector3 f = front;
@@ -226,10 +337,11 @@ namespace DecoAR.Player
             {
                 uv[i] = new Vector2((c[i].x - minX) / (maxX - minX), (c[i].y - minY) / (maxY - minY));
                 float ex = (c[i].x - cx) / hw, ey = (c[i].y - cy) / hh;
-                alpha[i] = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.72f, 0.98f, Mathf.Sqrt(ex * ex + ey * ey)));
+                alpha[i] = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.86f, 1f, Mathf.Sqrt(ex * ex + ey * ey)));
             }
 
-            var src = shot.GetPixels32();
+            var src = front0.pixels;
+            int sw = front0.width, sh = front0.height;
 
             // Peau : joues ; cheveux : au-dessus du front, pixels plus sombres que la peau
             var skinSamples = new List<Color>();
@@ -237,7 +349,7 @@ namespace DecoAR.Player
             {
                 float ax = Mathf.Abs(c[i].x), y = c[i].y + height * 0.5f; // y depuis le menton
                 if (ax > 0.03f && ax < 0.06f && y > height * 0.3f && y < height * 0.5f)
-                    skinSamples.Add(Sample(src, shot.width, shot.height, screen[i]));
+                    skinSamples.Add(Sample(src, sw, sh, screen[i]));
             }
             if (skinSamples.Count == 0) return false;
             Color skin = Average(skinSamples);
@@ -255,7 +367,7 @@ namespace DecoAR.Player
             for (int j = 1; j <= 3; j++)
             {
                 Vector2 side = new Vector2(screenUp.y, -screenUp.x) * (k * 0.06f);
-                Color s = Sample(src, shot.width, shot.height, screen[browIndex] + screenUp * (0.06f * j) + side);
+                Color s = Sample(src, sw, sh, screen[browIndex] + screenUp * (0.06f * j) + side);
                 if (SkinTone.Lum(s) < skinLum * 0.75f) hairSamples.Add(s);
             }
             hasHair = hairSamples.Count >= 6;
@@ -264,7 +376,8 @@ namespace DecoAR.Player
             if (hasHair) hairTint = SkinTone.NearestHair(profile, Average(hairSamples));
             Vector3 gain = SkinTone.Gain(skin, SkinTone.Mul(profile.textureSkin, skinTint));
 
-            texture = Bake(src, shot.width, shot.height, screen, uv, alpha, tris, gain, textureSize);
+            MatchExposure(views, src, sw, sh);
+            texture = Bake(views, uv, alpha, tris, gain, textureSize);
             data = new FaceMaskData { vertices = c, triangles = tris, uv = uv, height = height, width = width };
             return true;
         }
@@ -283,11 +396,39 @@ namespace DecoAR.Player
             return max > min ? max - min : 0f;
         }
 
-        // Rasterise chaque triangle dans la texture du masque en lisant l'image camera a sa position ecran
-        static Texture2D Bake(Color32[] src, int sw, int sh, Vector2[] screen, Vector2[] uv, float[] alpha,
-            int[] tris, Vector3 gain, int size)
+        // L'exposition automatique de la camera change entre les prises : on recale chaque vue de cote
+        // sur la vue de face, en comparant les zones vues correctement dans les deux
+        static void MatchExposure(List<View> views, Color32[] src, int sw, int sh)
+        {
+            var front = views[0];
+            for (int k = 1; k < views.Count; k++)
+            {
+                var view = views[k];
+                Vector3 a = Vector3.zero, b = Vector3.zero;
+                int count = 0;
+                for (int i = 0; i < front.weight.Length; i++)
+                {
+                    if (front.weight[i] < 0.5f || view.weight[i] < 0.5f) continue;
+                    Color cf = Sample(src, sw, sh, front.screen[i]);
+                    Color cv = Sample(view.pixels, view.width, view.height, view.screen[i]);
+                    a += new Vector3(cf.r, cf.g, cf.b);
+                    b += new Vector3(cv.r, cv.g, cv.b);
+                    count++;
+                }
+                if (count < 20) continue;
+                view.gain = new Vector3(
+                    Mathf.Clamp(a.x / Mathf.Max(b.x, 1e-3f), 0.75f, 1.33f),
+                    Mathf.Clamp(a.y / Mathf.Max(b.y, 1e-3f), 0.75f, 1.33f),
+                    Mathf.Clamp(a.z / Mathf.Max(b.z, 1e-3f), 0.75f, 1.33f));
+            }
+        }
+
+        // Rasterise chaque triangle dans la texture du masque. Chaque pixel melange les vues,
+        // ponderees par l'angle sous lequel la camera voyait cette zone (la vue la plus frontale domine).
+        static Texture2D Bake(List<View> views, Vector2[] uv, float[] alpha, int[] tris, Vector3 gain, int size)
         {
             var dst = new Color32[size * size];
+            var front = views[0];
             for (int t = 0; t + 2 < tris.Length; t += 3)
             {
                 int a = tris[t], b = tris[t + 1], c = tris[t + 2];
@@ -307,10 +448,26 @@ namespace DecoAR.Player
                     float w0 = Edge(pb, pc, p) / area, w1 = Edge(pc, pa, p) / area, w2 = 1f - w0 - w1;
                     if (w0 < -0.02f || w1 < -0.02f || w2 < -0.02f) continue;
 
-                    Color s = Sample(src, sw, sh, screen[a] * w0 + screen[b] * w1 + screen[c] * w2);
+                    Color acc = Color.clear;
+                    float total = 0f;
+                    foreach (var view in views)
+                    {
+                        float w = view.weight[a] * w0 + view.weight[b] * w1 + view.weight[c] * w2;
+                        if (w < 0.2f) continue;
+                        w *= w; w *= w; // puissance 4 : la vue la mieux orientee l'emporte nettement
+                        Color s = Sample(view.pixels, view.width, view.height,
+                            view.screen[a] * w0 + view.screen[b] * w1 + view.screen[c] * w2);
+                        acc += new Color(s.r * view.gain.x, s.g * view.gain.y, s.b * view.gain.z) * w;
+                        total += w;
+                    }
+                    Color col = total > 0f
+                        ? acc / total
+                        : Sample(front.pixels, front.width, front.height,
+                            front.screen[a] * w0 + front.screen[b] * w1 + front.screen[c] * w2);
+
                     float al = alpha[a] * w0 + alpha[b] * w1 + alpha[c] * w2;
                     dst[y * size + x] = new Color32(
-                        ToByte(s.r * gain.x), ToByte(s.g * gain.y), ToByte(s.b * gain.z), ToByte(al));
+                        ToByte(col.r * gain.x), ToByte(col.g * gain.y), ToByte(col.b * gain.z), ToByte(al));
                 }
             }
 
