@@ -56,6 +56,39 @@ def _sample(image, points):
     return top * (1 - fy) + bottom * fy
 
 
+def delight(tex, covered, skin, size):
+    """Retire l'eclairage de la piece incruste dans la peau (ombre sous le menton, joue plus sombre,
+    front brillant) : comme une texture de peau MetaPerson, l'eclairage vient ensuite de la scene 3D.
+    Seule la peau sert a mesurer la lumiere ; barbe, sourcils, yeux et cheveux gardent leur couleur."""
+    img = tex.astype(np.float32)
+    lum = img @ np.array([0.114, 0.587, 0.299], np.float32)
+    skin_lum = float(skin @ np.array([0.114, 0.587, 0.299]))
+    mask = (covered & (lum > skin_lum * 0.6) & (lum < skin_lum * 1.6)).astype(np.float32)
+    sigma = size / 50
+    den = cv2.GaussianBlur(mask, (0, 0), sigma) + 1e-4
+    out = img.copy()
+    for c in range(3):
+        low = cv2.GaussianBlur(img[:, :, c] * mask, (0, 0), sigma) / den
+        gain = np.clip(skin[c] / np.maximum(low, 1.0), 0.75, 1.35) ** 0.85
+        out[:, :, c] = img[:, :, c] * np.where(den > 0.02, gain, 1.0)
+    return np.clip(out, 0, 255).astype(np.uint8)
+
+
+def _smooth_vertices(values, faces, iterations):
+    """Moyenne avec les sommets voisins (degrade sur le maillage)."""
+    from scipy import sparse
+    n = len(values)
+    i = np.concatenate([faces[:, 0], faces[:, 1], faces[:, 2], faces[:, 1], faces[:, 2], faces[:, 0]])
+    j = np.concatenate([faces[:, 1], faces[:, 2], faces[:, 0], faces[:, 0], faces[:, 1], faces[:, 2]])
+    adj = sparse.coo_matrix((np.ones(len(i)), (i, j)), shape=(n, n)).tocsr()
+    adj.data[:] = 1
+    deg = np.asarray(adj.sum(1)).ravel() + 1
+    out = values.astype(np.float64)
+    for _ in range(iterations):
+        out = (adj @ out + out) / deg
+    return out
+
+
 def _vertex_normals(v, faces):
     n = np.zeros_like(v)
     fn = np.cross(v[faces[:, 1]] - v[faces[:, 0]], v[faces[:, 2]] - v[faces[:, 0]])
@@ -116,6 +149,12 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
     chin = v[face_mask, 1].min() if face_mask is not None else v[:, 1].min()
     # fondu progressif sur 3 cm sous le menton : la barbe se perd dans le cou au lieu de s'arreter net
     fade_v = np.where(neck, np.clip((v[:, 1] - (chin - 0.02)) / 0.025, 0, 1), 1.0)
+    # Dessous du menton (tourne vers le bas, donc dans l'ombre sur les photos) : surtout couleur de peau
+    t_normals = _vertex_normals(flame.v_template, flame.faces)
+    under = neck & ((t_normals[:, 1] < -0.15) | (v[:, 1] < chin - 0.005))
+    fade_v = np.where(under, fade_v * 0.35, np.where(neck, fade_v * 0.5, fade_v))
+    # degrade doux entre le visage (photo) et le cou (peau), sans marche
+    fade_v = np.clip(_smooth_vertices(fade_v, flame.faces, 3), 0, 1)
     photo_fade = (fade_v[corners] * b).sum(1)
     no_photo = photo_fade <= 0
 
@@ -158,7 +197,7 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
 
     # La vue de face est la plus nette : les cotes ne completent que la ou elle voit mal (joues, oreilles)
     for k in range(1, len(views)):
-        weights[k] = weights[k] * np.clip(1 - weights[0] * 1.3, 0, 1)
+        weights[k] = weights[k] * np.clip(1 - weights[0] * 1.3, 0, 1) * 0.6
 
     # Exposition : chaque vue de cote est ramenee a la luminosite de la vue de face, sur les zones
     # vues par les deux (sinon le visage ressemble a un patchwork)
@@ -196,4 +235,5 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
     tex = np.clip(tex, 0, 255).astype(np.uint8)   # l'exposition corrigee peut depasser 255
     mask = (~covered).astype(np.uint8) * 255
     tex = cv2.inpaint(tex, mask, 3, cv2.INPAINT_TELEA)
+    tex = delight(tex, covered, skin, size)
     return tex, skin, hair

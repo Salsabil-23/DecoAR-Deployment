@@ -211,9 +211,12 @@ def build_hair(flame: Flame, fit_result: Fit, views, skin, hair, size=1024, indi
     rgb = photo * seen + strands * (1 - seen)
 
     # Bord effile : transparence qui suit le degrade du cuir chevelu, decoupee en meches
+    # Ligne de cheveux naturelle : bord irregulier en petites meches, plus un trait droit de casque
     alpha_v = (weight[corners] * b).sum(1)
-    edge = np.clip((alpha_v - 0.15) / 0.5, 0, 1)
-    alpha = np.clip(edge * 1.25 + 0.35 * noise[covered] * (1 - edge), 0, 1)
+    edge = np.clip((alpha_v - 0.1) / 0.6, 0, 1)
+    fine = cv2.GaussianBlur(rng.random((size, size)).astype(np.float32), (0, 0), 1.2)
+    fine = ((fine - fine.mean()) / (fine.std() + 1e-6))[covered]
+    alpha = np.clip(edge * 1.5 - 0.25 + 0.45 * fine * (1 - edge) * (edge > 0.05) + 0.25 * noise[covered] * (1 - edge), 0, 1)
 
     tex = np.zeros((size, size, 4), np.float32)
     tex[covered, :3] = rgb
