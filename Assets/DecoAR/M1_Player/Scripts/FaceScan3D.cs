@@ -238,7 +238,9 @@ namespace DecoAR.Player
                 var gmHead = GameManager.Instance;
                 var lookHead = gmHead.Look;
                 lookHead.visagePhoto = true;
-                lookHead.Set(LookSlot.Peau, SkinTone.NearestSkin(profile, head.Skin));
+                // Peau du corps reglee sur la peau mesuree (et non la teinte de palette la plus proche),
+                // pour que le cou du personnage et la tete scannee aient la meme couleur
+                lookHead.Set(LookSlot.Peau, BodyTint(head.Skin));
                 lookHead.Set(LookSlot.Cheveux, SkinTone.NearestHair(profile, head.Hair));
                 gmHead.SetLook(lookHead);
 
@@ -281,6 +283,14 @@ namespace DecoAR.Player
             progressFill.fillAmount = 1f;
             yield return new WaitForSeconds(0.7f);
             Return();
+        }
+
+        // Teinte a appliquer a la texture de peau du personnage pour obtenir la couleur mesuree
+        Color BodyTint(Color measured)
+        {
+            Color t = profile.textureSkin;
+            float Channel(float m, float s) => Mathf.Clamp(m / Mathf.Max(s, 0.05f), 0.3f, 1.25f);
+            return new Color(Channel(measured.r, t.r), Channel(measured.g, t.g), Channel(measured.b, t.b));
         }
 
         // Envoie les photos (face puis cotes) a M1_FaceServer et enregistre la tete renvoyee
