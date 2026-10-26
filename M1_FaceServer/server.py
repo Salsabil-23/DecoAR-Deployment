@@ -49,7 +49,12 @@ def to_unity(result, texture, skin, hair):
     v = result.vertices
     pairs = {}
     vertices, uvs, triangles = [], [], []
+    # Bas du cou coupe : il rentre sous le col du personnage au lieu de deborder sur le t-shirt
+    face_idx = flame.masks.get("face")
+    cut = (v[face_idx, 1].min() if face_idx is not None else v[:, 1].min()) - 0.045
     for tri_v, tri_vt in zip(flame.obj_faces, flame.uv_faces):
+        if v[tri_v, 1].min() < cut:
+            continue
         ids = []
         for vi, ti in zip(tri_v, tri_vt):
             key = (int(vi), int(ti))
