@@ -6,31 +6,29 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/DecoAR/M3_ProductCatalog/Scenes/M3.unity
-    guid: b0ff6df1d652e41678597efa426372f0
-  - enabled: 1
     path: Assets/DecoAR/M1_Player/Scenes/M1_Personnalisation.unity
     guid: c4a731d09a7d695419f79244bed27d53
-  - enabled: 1
-    path: Assets/DecoAR/M1_Player/Scenes/M1_AvatarSelection.unity
-    guid: 4163b34a0719b704580e543a7e525ef8
   - enabled: 1
     path: Assets/DecoAR/M1_Player/Scenes/M1_Test.unity
     guid: 0fce79e2a100f56419777ca7ed2fc2ef
   - enabled: 1
+    path: Assets/DecoAR/M1_Player/Scenes/M1_ScanVisage.unity
+    guid: 365793d0198041740b76b66ee95992ca
+  - enabled: 0
+    path: Assets/DecoAR/M3_ProductCatalog/Scenes/M3.unity
+    guid: b0ff6df1d652e41678597efa426372f0
+  - enabled: 0
+    path: Assets/DecoAR/M4_AR/Scenes/M4_AR.unity
+    guid: df402a5cb96374f3fb2b0cd43a60ace0
+  - enabled: 0
     path: Assets/Checkout/Scenes/caisse.unity
     guid: e03a80563c6dda442922c1e6d5c59e61
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 4755b35b590504809a7525fd2109c2e2
-    path: Assets/DecoAR/M1_Player/Scenes/M1_ScanVisage.unity
-    guid: 365793d0198041740b76b66ee95992ca
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 4755b35b590504809a7525fd2109c2e2
-  - enabled: 0
-    path: Assets/DecoAR/M4_AR/Scenes/M4_AR.unity
-    guid: df402a5cb96374f3fb2b0cd43a60ace0
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af, type: 2}
     UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: 0465d33c6aee55f44b0237db8b0e0259, type: 2}
