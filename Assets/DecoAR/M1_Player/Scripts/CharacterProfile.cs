@@ -74,6 +74,11 @@ namespace DecoAR.Player
         [Range(0f, 180f)] public float faceAngleFadeStart = 40f;   // le visage s'estompe sur les cotes de la tete
         [Range(0f, 180f)] public float faceAngleFadeEnd = 72f;
 
+        [Header("Tete complete FLAME (M1_FaceServer) : reglage sur le personnage")]
+        public Material headMaterial;                    // vide = URP Lit
+        [Range(0.6f, 1.6f)] public float headScale = 1f;
+        public Vector3 headOffset = Vector3.zero;        // metres, repere du visage (x droite, y haut, z avant)
+
         [Header("Couleurs moyennes des textures d'origine (pour le scan facial)")]
         public Color textureSkin = new Color(0.86f, 0.67f, 0.56f);
         public Color textureHair = new Color(0.70f, 0.55f, 0.36f);

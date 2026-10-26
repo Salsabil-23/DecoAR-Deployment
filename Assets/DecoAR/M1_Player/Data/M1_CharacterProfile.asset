@@ -15,6 +15,7 @@ MonoBehaviour:
   prefab: {fileID: 919132149155446097, guid: 05f96172828b186459c6c41b8859cb5e, type: 3}
   animatorController: {fileID: 9100000, guid: 1c2f19ebb2f5a114396b1d77f745622b, type: 2}
   height: 1.75
+  useFaceScan: 1
   skinColors:
   - {r: 1, g: 1, b: 1, a: 1}
   - {r: 0.97, g: 0.88, b: 0.82, a: 1}
@@ -61,5 +62,8 @@ MonoBehaviour:
   faceDepth: 0.12
   faceAngleFadeStart: 40
   faceAngleFadeEnd: 72
+  headMaterial: {fileID: 0}
+  headScale: 1
+  headOffset: {x: 0, y: 0, z: 0}
   textureSkin: {r: 0.86, g: 0.67, b: 0.56, a: 1}
   textureHair: {r: 0.7, g: 0.55, b: 0.36, a: 1}

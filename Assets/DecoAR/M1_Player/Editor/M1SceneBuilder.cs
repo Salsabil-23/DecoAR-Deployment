@@ -72,6 +72,8 @@ namespace DecoAR.Player.EditorTools
 
             if ((int)PlayerSettings.Android.minSdkVersion > TestMinAndroidApi)
                 PlayerSettings.Android.minSdkVersion = (AndroidSdkVersions)TestMinAndroidApi;
+            // Le serveur de tete 3D (M1_FaceServer) tourne en HTTP sur le reseau local
+            PlayerSettings.insecureHttpOption = InsecureHttpOption.AlwaysAllowed;
 
             AssetDatabase.SaveAssets();
             Debug.Log("[M1] Build pret : M1_Personnalisation puis M1_Test, Android minimum API 31. Lance Build And Run.");
@@ -349,6 +351,10 @@ namespace DecoAR.Player.EditorTools
             Size(LabelOn(Node("Conseils", intro),
                 "Mets-toi face à une lumière, retire lunettes et casquette, garde le téléphone à hauteur des yeux.",
                 24, Alpha(Color.white, 0.6f)), 90);
+            // Adresse du serveur de tete 3D (PC sur le meme Wi-Fi), retenue sur le telephone
+            Size(LabelOn(Node("ServeurTitre", intro), "Serveur tête 3D (ton PC) :", 24, Alpha(Color.white, 0.75f)), 36);
+            var server = MakeInputField(intro, "http://192.168.1.10:8000");
+            Size(server, 84);
             var start = MakeButton(intro, "Activer", "Activer la caméra", Accent, Color.white, 32, out _);
             Size(start, 110);
 
@@ -379,10 +385,31 @@ namespace DecoAR.Player.EditorTools
             Set(scan, "unsupportedGroup", unsupported.gameObject);
             Set(scan, "photoScanButton", photo);
             Set(scan, "backButton", back);
+            Set(scan, "serverField", server);
             SetString(scan, "returnScene", Path.GetFileNameWithoutExtension(CustomizationScenePath));
 
             AddEventSystem();
             SaveScene(FaceScanScenePath);
+        }
+
+        // Champ texte TMP aux couleurs du theme
+        static TMP_InputField MakeInputField(Transform parent, string text)
+        {
+            var go = TMP_DefaultControls.CreateInputField(new TMP_DefaultControls.Resources());
+            go.name = "ChampServeur";
+            go.transform.SetParent(parent, false);
+            var field = go.GetComponent<TMP_InputField>();
+            var bg = go.GetComponent<Image>();
+            bg.sprite = Rounded;
+            bg.type = Image.Type.Sliced;
+            bg.color = Card;
+            field.textComponent.fontSize = 28;
+            field.textComponent.color = Ink;
+            field.textComponent.alignment = TextAlignmentOptions.MidlineLeft;
+            if (field.placeholder is TMP_Text ph) { ph.fontSize = 28; ph.text = text; }
+            field.contentType = TMP_InputField.ContentType.Standard;
+            field.text = text;
+            return field;
         }
 
         // Visage suivi en direct : maillage AR semi-transparent, pour montrer que le scan est en 3D

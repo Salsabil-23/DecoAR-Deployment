@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DecoAR.Core;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
@@ -40,6 +41,15 @@ namespace DecoAR.Player
         [SerializeField] float sideTimeout = 10f;   // au-dela, on continue avec les vues deja prises
         [SerializeField] string returnScene = "M1_Personnalisation";
 
+        [Header("Tete complete (M1_FaceServer sur le PC, meme Wi-Fi)")]
+        [SerializeField] TMP_InputField serverField;   // adresse du serveur, retenue sur le telephone
+        [SerializeField] string defaultServer = "http://192.168.1.10:8000";
+        [SerializeField] float serverTimeout = 120f;
+        [Tooltip("La camera frontale s'affiche en miroir : le serveur remet les photos a l'endroit")]
+        [SerializeField] bool mirroredCamera = true;
+
+        const string ServerKey = "DecoAR.HeadServer";
+
         float stableTime;
         bool running;
         bool capturing;
@@ -56,7 +66,15 @@ namespace DecoAR.Player
             unsupportedGroup.SetActive(false);
             progressFill.fillAmount = 0f;
             status.text = "Le scan 3D utilise la caméra frontale et le suivi du visage de ton téléphone.";
+
+            if (serverField != null)
+            {
+                serverField.text = PlayerPrefs.GetString(ServerKey, defaultServer);
+                serverField.onEndEdit.AddListener(s => { PlayerPrefs.SetString(ServerKey, s.Trim()); PlayerPrefs.Save(); });
+            }
         }
+
+        string ServerUrl => PlayerPrefs.GetString(ServerKey, defaultServer).Trim().TrimEnd('/');
 
         IEnumerator Begin()
         {
@@ -139,6 +157,7 @@ namespace DecoAR.Player
             public Vector2[] screen;
             public float[] weight;          // 1 = surface vue de face, 0 = vue de profil ou cachee
             public Vector3 gain = Vector3.one; // harmonise l'exposition avec la vue de face
+            public byte[] jpeg;             // photo envoyee au serveur de tete 3D
         }
 
         // Face, puis chaque cote : les joues et les tempes sont texturees depuis l'angle ou on les voit le mieux
@@ -187,6 +206,32 @@ namespace DecoAR.Player
                 yield return CaptureView(face, normals, views);
             }
 
+            // Tete complete (crane, oreilles, cou) creee par le serveur a partir des photos
+            status.text = "Création de ta tête 3D…";
+            progressFill.fillAmount = 0f;
+            bool headOk = false;
+            yield return SendToServer(views, ok => headOk = ok);
+            if (headOk)
+            {
+                HeadStore.TryLoad(out var head, out _, out _);
+                FaceMaskStore.Delete(); // la tete complete remplace les anciens scans
+                FaceStore.Delete();
+                var gmHead = GameManager.Instance;
+                var lookHead = gmHead.Look;
+                lookHead.visagePhoto = true;
+                lookHead.Set(LookSlot.Peau, SkinTone.NearestSkin(profile, head.Skin));
+                lookHead.Set(LookSlot.Cheveux, SkinTone.NearestHair(profile, head.Hair));
+                gmHead.SetLook(lookHead);
+
+                HapticManager.Vibrate(HapticIntensity.Moyenne);
+                status.text = "Tête 3D créée !";
+                progressFill.fillAmount = 1f;
+                yield return new WaitForSeconds(0.7f);
+                Return();
+                yield break;
+            }
+
+            // Sans serveur : visage seul, calcule sur le telephone
             status.text = "Création de ton visage 3D…";
             yield return null;
 
@@ -203,6 +248,7 @@ namespace DecoAR.Player
 
             FaceMaskStore.Save(data, texture);
             FaceStore.Delete(); // le visage 3D remplace un eventuel scan photo
+            HeadStore.Delete();
 
             var gm = GameManager.Instance;
             var look = gm.Look;
@@ -216,6 +262,46 @@ namespace DecoAR.Player
             progressFill.fillAmount = 1f;
             yield return new WaitForSeconds(0.7f);
             Return();
+        }
+
+        // Envoie les photos (face puis cotes) a M1_FaceServer et enregistre la tete renvoyee
+        IEnumerator SendToServer(List<View> views, System.Action<bool> done)
+        {
+            string url = ServerUrl;
+            if (string.IsNullOrEmpty(url)) { done(false); yield break; }
+
+            var form = new List<IMultipartFormSection>();
+            string[] names = { "front", "left", "right" };
+            for (int i = 0; i < views.Count && i < names.Length; i++)
+                form.Add(new MultipartFormFileSection(names[i], views[i].jpeg, names[i] + ".jpg", "image/jpeg"));
+            form.Add(new MultipartFormDataSection("mirrored", mirroredCamera ? "true" : "false"));
+
+            using (var request = UnityWebRequest.Post(url + "/head", form))
+            {
+                request.timeout = Mathf.CeilToInt(serverTimeout);
+                var op = request.SendWebRequest();
+                float t = 0f;
+                while (!op.isDone)
+                {
+                    t += Time.unscaledDeltaTime;
+                    // Le serveur met environ une minute : la barre avance pour montrer que ca travaille
+                    progressFill.fillAmount = Mathf.Clamp01(t / 60f) * 0.95f;
+                    status.text = t < 3f ? "Envoi des photos au serveur…" : "Création de ta tête 3D… " + Mathf.FloorToInt(t) + " s";
+                    yield return null;
+                }
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogWarning($"[M1] Serveur de tete 3D injoignable ({url}) : {request.error}");
+                    status.text = "Serveur injoignable : visage calculé sur le téléphone.";
+                    yield return new WaitForSeconds(1.2f);
+                    done(false);
+                    yield break;
+                }
+                bool saved = HeadStore.Save(request.downloadHandler.text);
+                if (!saved) Debug.LogWarning("[M1] Reponse du serveur de tete 3D incomplete");
+                done(saved);
+            }
         }
 
         IEnumerator CaptureView(ARFace face, Vector3[] normals, List<View> views)
@@ -235,6 +321,7 @@ namespace DecoAR.Player
                 pixels = shot.GetPixels32(),
                 width = shot.width,
                 height = shot.height,
+                jpeg = shot.EncodeToJPG(92),
                 screen = new Vector2[normals.Length],
                 weight = new float[normals.Length],
             };

@@ -33,11 +33,13 @@ namespace DecoAR.Player
 
         public static void Apply(GameObject character, AvatarLook look, CharacterProfile profile)
         {
-            // Visage scanne : masque 3D (ARCore / ARKit) en priorite, sinon photo projetee
+            // Visage scanne : tete complete FLAME (serveur) en priorite, puis masque 3D (ARCore / ARKit),
+            // sinon photo projetee
             bool scan = look.visagePhoto && (profile == null || profile.useFaceScan);
-            bool mask3D = scan && FaceMaskStore.Exists;
-            Texture2D face = scan && !mask3D ? FaceStore.Load() : null;
-            bool hasFace = mask3D || face != null;
+            bool head3D = scan && HeadStore.Exists;
+            bool mask3D = scan && !head3D && FaceMaskStore.Exists;
+            Texture2D face = scan && !head3D && !mask3D ? FaceStore.Load() : null;
+            bool hasFace = head3D || mask3D || face != null;
 
             foreach (var r in character.GetComponentsInChildren<Renderer>(true))
             {
@@ -69,8 +71,78 @@ namespace DecoAR.Player
                 }
             }
 
+            ApplyHead(character, head3D, profile);
             ApplyMask(character, mask3D, profile);
             ApplyFace(character, face, profile);
+        }
+
+        const string HeadObjectName = "TeteFLAME";
+        const float HiddenHeadScale = 0.02f;
+
+        // Tete originale du personnage, gardee pour pouvoir la reafficher
+        class HiddenHead : MonoBehaviour { public Vector3 originalScale; }
+
+        // Remplace la tete du personnage par la tete FLAME de la personne : la tete d'origine (et ses cheveux,
+        // cils) est reduite a presque rien sous l'os Head, la tete FLAME y est accrochee et suit les animations.
+        // Calage : memes reperes que le masque (centre du visage au bout du nez, hauteur menton -> front).
+        static void ApplyHead(GameObject character, bool show, CharacterProfile profile)
+        {
+            var anim = character.GetComponentInChildren<Animator>();
+            Transform head = anim != null && anim.isHuman ? anim.GetBoneTransform(HumanBodyBones.Head) : null;
+            if (head == null) return;
+
+            var hidden = head.GetComponent<HiddenHead>();
+            if (hidden != null) head.localScale = hidden.originalScale; // les reperes se mesurent tete normale
+            Transform existing = head.Find(HeadObjectName);
+
+            if (!show || !HeadStore.TryLoad(out var data, out var texture, out var mesh)
+                || !TryFindFace(character, head, profile, out var anchor))
+            {
+                if (existing != null) existing.gameObject.SetActive(false);
+                if (show) Debug.LogWarning("[M1] Tete 3D non affichee (fichier ou visage du personnage manquant)");
+                return;
+            }
+
+            if (hidden == null)
+            {
+                hidden = head.gameObject.AddComponent<HiddenHead>();
+                hidden.originalScale = head.localScale;
+            }
+
+            MeshRenderer mr;
+            if (existing == null)
+            {
+                var go = new GameObject(HeadObjectName);
+                go.transform.SetParent(head, false);
+                go.AddComponent<MeshFilter>();
+                mr = go.AddComponent<MeshRenderer>();
+                var shader = Shader.Find("Universal Render Pipeline/Lit");
+                mr.sharedMaterial = profile != null && profile.headMaterial != null
+                    ? new Material(profile.headMaterial) : new Material(shader);
+                mr.sharedMaterial.SetFloat("_Smoothness", 0.3f);
+                existing = go.transform;
+            }
+            else
+            {
+                existing.gameObject.SetActive(true);
+                mr = existing.GetComponent<MeshRenderer>();
+            }
+            existing.GetComponent<MeshFilter>().sharedMesh = mesh;
+            mr.sharedMaterial.SetTexture(MaskBaseMapId, texture);
+            mr.sharedMaterial.SetTexture(MainTexId, texture);
+
+            // Taille : le visage FLAME prend la hauteur du visage du personnage
+            float worldScale = anchor.worldHeight / Mathf.Max(data.FaceHeight, 0.01f) * (profile != null ? profile.headScale : 1f);
+            Quaternion rot = anchor.maskLocalRotation;
+            float boneScale = Mathf.Abs(head.lossyScale.x);
+            Vector3 local = anchor.maskLocalPosition - rot * (data.FaceOrigin * (worldScale / boneScale));
+            if (profile != null) local += rot * (profile.headOffset / boneScale);
+
+            // On reduit la tete d'origine, puis on compense pour que la tete FLAME garde sa taille
+            head.localScale = hidden.originalScale * HiddenHeadScale;
+            existing.localRotation = rot;
+            existing.localPosition = local / HiddenHeadScale;
+            existing.localScale = Vector3.one * (worldScale / boneScale / HiddenHeadScale);
         }
 
         static readonly int DecalBaseMapId = Shader.PropertyToID("Base_Map"); // shader URP "Shader Graphs/Decal"

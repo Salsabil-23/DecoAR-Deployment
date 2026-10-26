@@ -192,6 +192,7 @@ namespace DecoAR.Player
             look = new AvatarLook();
             FaceStore.Delete();
             FaceMaskStore.Delete();
+            HeadStore.Delete();
             if (preview != null) CharacterAppearance.Apply(preview, look, profile);
             RefreshSelection();
             RefreshScanLabel();
