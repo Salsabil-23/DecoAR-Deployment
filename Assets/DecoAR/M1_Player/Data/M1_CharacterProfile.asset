@@ -63,6 +63,7 @@ MonoBehaviour:
   faceAngleFadeStart: 40
   faceAngleFadeEnd: 72
   headMaterial: {fileID: 0}
+  hairMaterial: {fileID: 2100000, guid: 7c4e2a9b1d3f5e6a8b0c2d4e6f8a1b3c, type: 2}
   headScale: 0.85
   headOffset: {x: 0, y: 0, z: 0}
   textureSkin: {r: 0.788, g: 0.608, b: 0.518, a: 1}

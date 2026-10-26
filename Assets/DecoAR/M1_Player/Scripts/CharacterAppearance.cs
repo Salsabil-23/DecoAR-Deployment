@@ -158,6 +158,8 @@ namespace DecoAR.Player
             if (!HeadStore.TryLoadHair(out var texture, out var mesh) || profile == null || profile.hairMaterial == null)
             {
                 if (hair != null) hair.gameObject.SetActive(false);
+                if (profile != null && profile.hairMaterial == null)
+                    Debug.LogWarning("[M1] Cheveux 3D non affiches : materiau des cheveux absent du profil (M1_HairFLAME)");
                 return;
             }
 
