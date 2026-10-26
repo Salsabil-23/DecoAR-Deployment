@@ -78,7 +78,7 @@ def to_unity(result, texture, skin, hair, hair_mesh=None):
     v = result.vertices
     # Bas du cou coupe : il rentre sous le col du personnage au lieu de deborder sur le t-shirt
     face_idx = flame.masks.get("face")
-    cut = (v[face_idx, 1].min() if face_idx is not None else v[:, 1].min()) - 0.045
+    cut = (v[face_idx, 1].min() if face_idx is not None else v[:, 1].min()) - 0.035
     vertices, uvs, triangles = _export(v, flame.obj_faces, flame.uv_faces, cut)
 
     neck = flame.joint(v, 1)
