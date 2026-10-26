@@ -38,11 +38,15 @@ namespace DecoAR.Player
             return best;
         }
 
-        // Correction par canal pour que la peau de la photo ait exactement la teinte du corps
-        public static Vector3 Gain(Color from, Color to) => new Vector3(
-            Mathf.Clamp(to.r / Mathf.Max(from.r, 0.02f), 0.5f, 2.5f),
-            Mathf.Clamp(to.g / Mathf.Max(from.g, 0.02f), 0.5f, 2.5f),
-            Mathf.Clamp(to.b / Mathf.Max(from.b, 0.02f), 0.5f, 2.5f));
+        // Correction de la photo pour que sa peau se raccorde a celle du corps.
+        // La luminosite est corrigee librement ; la teinte de +-12 % seulement, sinon la barbe,
+        // les cheveux et les yeux prennent une dominante (verte, rose...) bien visible.
+        public static Vector3 Gain(Color from, Color to)
+        {
+            float k = Mathf.Clamp(Lum(to) / Mathf.Max(Lum(from), 0.02f), 0.6f, 2f);
+            float Channel(float t, float f) => k * Mathf.Clamp(t / Mathf.Max(f, 0.02f) / k, 0.88f, 1.12f);
+            return new Vector3(Channel(to.r, from.r), Channel(to.g, from.g), Channel(to.b, from.b));
+        }
 
         public static Color Mul(Color a, Color b) => new Color(a.r * b.r, a.g * b.g, a.b * b.b);
         public static float Lum(Color c) => 0.299f * c.r + 0.587f * c.g + 0.114f * c.b;
