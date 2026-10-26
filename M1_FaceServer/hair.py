@@ -64,12 +64,15 @@ def measure_thickness(flame: Flame, fit_result: Fit, view: View, skin, hair):
                 break
     if top is None:
         return 0.008
-    return float(np.clip((y - (y0 + top)) / s, 0.006, 0.035))
+    return float(np.clip((y - (y0 + top)) / s, 0.006, 0.025))
 
 
 def _is_hair(colors, skin, hair):
     lum = colors @ LUM
-    return (np.linalg.norm(colors - hair, axis=1) < 55) & (lum < float(skin @ LUM) * 0.82)
+    b, g, r = colors[:, 0], colors[:, 1], colors[:, 2]
+    # des cheveux ne sont ni bleus ni verts (vitre, mur, plante derriere la tete)
+    natural = (b - r < 18) & (g - r < 22)
+    return (np.linalg.norm(colors - hair, axis=1) < 55) & (lum < float(skin @ LUM) * 0.82) & natural
 
 
 def has_long_hair(view: View, skin, hair):
@@ -165,7 +168,7 @@ def build_hair(flame: Flame, fit_result: Fit, views, skin, hair, size=1024, indi
     normals = _vertex_normals(v, flame.faces)
     # Epaisseur pleine sur le dessus, plus fine sur les cotes et la nuque
     up = np.clip((v[:, 1] - v[:, 1].min()) / (v[:, 1].max() - v[:, 1].min()), 0, 1)
-    offset = thickness * weight * (0.45 + 0.55 * up ** 2) + 0.002 * weight
+    offset = thickness * weight * (0.3 + 0.7 * up ** 2) + 0.002 * weight
     shell = (v + normals * offset[:, None]).astype(np.float32)
 
     keep = weight[flame.obj_faces].min(1) > 0.02
