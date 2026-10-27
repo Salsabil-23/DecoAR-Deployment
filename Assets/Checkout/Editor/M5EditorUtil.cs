@@ -32,27 +32,8 @@ namespace DecoAR.M5
             return best;
         }
 
-        public static GameObject FindVendor(bool log = true)
-        {
-            // Vendeur déjà installé et actif (ex. Aj qui remplace X Bot) en priorité
-            var npc = Object.FindAnyObjectByType<VendorNPC>();
-            if (npc) return npc.gameObject;
-            return FindByKeywords("Vendeur", VendorKeys,
-                g => g.GetComponentInChildren<SkinnedMeshRenderer>(true) || g.GetComponentInChildren<Animator>(true));
-        }
-
-        /// Instance dans la scène d'un modèle donné (FBX / prefab), même renommée.
-        public static GameObject FindInstanceOf(string assetPath, bool includeInactive = true)
-        {
-            foreach (var root in SceneManager.GetActiveScene().GetRootGameObjects())
-                foreach (var t in root.GetComponentsInChildren<Transform>(includeInactive))
-                {
-                    if (!PrefabUtility.IsOutermostPrefabInstanceRoot(t.gameObject)) continue;
-                    var src = PrefabUtility.GetCorrespondingObjectFromOriginalSource(t.gameObject);
-                    if (src && AssetDatabase.GetAssetPath(src) == assetPath) return t.gameObject;
-                }
-            return null;
-        }
+        public static GameObject FindVendor(bool log = true) => FindByKeywords("Vendeur", VendorKeys,
+            g => g.GetComponentInChildren<SkinnedMeshRenderer>(true) || g.GetComponentInChildren<Animator>(true));
         public static GameObject FindCounter() => FindByKeywords("Comptoir", CounterKeys, g => g.GetComponentInChildren<Renderer>(true));
         public static GameObject FindBasket() => FindByKeywords("Panier", BasketKeys, g => g.GetComponentInChildren<Renderer>(true));
 

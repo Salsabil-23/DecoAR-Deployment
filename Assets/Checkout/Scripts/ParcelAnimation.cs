@@ -116,7 +116,7 @@ namespace DecoAR.M5
             }
 
             // 3. Feedback : vendeur, vibration forte, son
-            var npc = vendor && vendor.isActiveAndEnabled ? vendor : VendorNPC.Instance;
+            var npc = vendor ? vendor : VendorNPC.Instance;
             if (npc) npc.PlayConfirm();
             M5Haptics.Strong();
             if (audioSource && confirmClip) audioSource.PlayOneShot(confirmClip);
