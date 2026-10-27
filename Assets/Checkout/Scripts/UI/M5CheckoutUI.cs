@@ -36,9 +36,12 @@ namespace DecoAR.M5
         public VendorNPC vendor;
         public M5PlayerController player;
         public bool focusBasketOnEnter = true;
+        [Tooltip("Paiement Stripe (vide = commande confirmée sans paiement, mode démo).")]
+        public M5StripePayment payment;
 
         public event Action<float> OnOrderConfirmed;
         public float Total { get { float t = 0; foreach (var l in lines) t += l.p.price * l.qty; return t; } }
+        public string DeliveryAddress => addressField ? addressField.text.Trim() : "";
 
         class Line { public Product p; public int qty; }
         readonly List<Line> lines = new List<Line>();
@@ -53,14 +56,24 @@ namespace DecoAR.M5
         RectTransform panel, joyBase, joyKnob;
         CanvasGroup panelGroup, toastGroup;
         TextMeshProUGUI listText, totalText, hintText, toastText;
-        Button confirmBtn;
+        Button confirmBtn, gpsBtn;
+        TMP_InputField addressField;
+        TextMeshProUGUI addressStatus, gpsLabel, gyroLabel;
+        M5LocationService location;
+        CanvasGroup payGroup;
+        TextMeshProUGUI payStatus;
+        RectTransform safeArea;
+        Rect lastSafe;
         bool inZone;
         float toastUntil;
+        const string AddressKey = "M5_Adresse";
+        const string GpsText = "Utiliser ma position (GPS)";
 
         void Start()
         {
             if (!basket) basket = Basket3D.Instance;
-            if (!vendor) vendor = VendorNPC.Instance;
+            if (!vendor || !vendor.isActiveAndEnabled) vendor = VendorNPC.Instance;
+            if (!payment) payment = GetComponent<M5StripePayment>();
             EnsureEventSystem();
             BuildUI();
             ImportSharedCart();
@@ -105,15 +118,90 @@ namespace DecoAR.M5
         public void ConfirmOrder()
         {
             if (lines.Count == 0) { Toast("Votre panier est vide"); return; }
+            if (string.IsNullOrEmpty(DeliveryAddress))
+            {
+                Toast("Ajoutez votre adresse de livraison (ou « Utiliser ma position »)", 3f);
+                if (addressField) addressField.Select();
+                return;
+            }
             if (parcel && parcel.IsPlaying) return;
             float total = Total;
+            string address = DeliveryAddress;
+            PlayerPrefs.SetString(AddressKey, address);
+            if (payment && payment.IsConfigured) { StartPayment(total, address); return; }
+            FinishOrder(total, address, false);
+        }
+
+        // ---------- Paiement Stripe ----------
+        void StartPayment(float total, string address)
+        {
+            if (payment.Busy) { ShowPayment(true); return; }
+            var items = new List<(string, float, int)>();
+            foreach (var l in lines) items.Add((l.p.name, l.p.price, l.qty));
+            ShowPayment(true);
+            payment.Pay(items, address, s => payStatus.text = s, (paid, msg) =>
+            {
+                ShowPayment(false);
+                if (paid) FinishOrder(total, address, true);
+                else Toast(msg, 3f);
+            });
+        }
+
+        void ShowPayment(bool show)
+        {
+            if (!payGroup) return;
+            payGroup.alpha = show ? 1f : 0f;
+            payGroup.interactable = payGroup.blocksRaycasts = show;
+        }
+
+        void FinishOrder(float total, string address, bool paid)
+        {
             if (parcel) parcel.Play(); // vendeur + vibration + son + vide le panier 3D
             else { if (vendor) vendor.PlayConfirm(); M5Haptics.Strong(); if (basket) basket.Clear(); }
             lines.Clear();
             if (DecoAR.Core.GameManager.Instance != null) DecoAR.Core.GameManager.Instance.SetCartCount(0);
             Refresh();
-            Toast($"Commande confirmée ! Total payé : {Money(total)}", 3.5f);
+            Toast($"{(paid ? "Paiement accepté ! " : "Commande confirmée ! ")}Total : {Money(total)}\n<size=80%>Livraison : {address}</size>", 4.5f);
             OnOrderConfirmed?.Invoke(total);
+        }
+
+        // ---------- Adresse (GPS) ----------
+        void UseMyLocation()
+        {
+            if (!location) location = gameObject.AddComponent<M5LocationService>();
+            if (location.Busy) return;
+            gpsBtn.interactable = false;
+            gpsLabel.text = "Localisation…";
+            location.FindAddress(status => addressStatus.text = status, (addr, err) =>
+            {
+                gpsBtn.interactable = true;
+                gpsLabel.text = GpsText;
+                if (!string.IsNullOrEmpty(addr)) { addressField.text = addr; Toast("Adresse ajoutée depuis votre position"); }
+                addressStatus.text = err ?? "<color=#A8C79E>Adresse trouvée, vous pouvez la modifier.</color>";
+            });
+        }
+
+        // ---------- Gyroscope ----------
+        void ToggleGyro()
+        {
+            player.SetGyro(!player.useGyro);
+            UpdateGyroLabel();
+            Toast(player.useGyro ? "Gyroscope activé : tournez le téléphone pour regarder" : "Gyroscope désactivé : glissez à droite pour regarder");
+        }
+
+        void UpdateGyroLabel()
+        {
+            if (gyroLabel) gyroLabel.text = player.useGyro ? "Gyroscope : <b>ON</b>" : "Gyroscope : OFF";
+        }
+
+        void ApplySafeArea()
+        {
+            var r = Screen.safeArea;
+            if (!safeArea || r == lastSafe || Screen.width == 0 || Screen.height == 0) return;
+            lastSafe = r;
+            safeArea.anchorMin = new Vector2(r.xMin / Screen.width, r.yMin / Screen.height);
+            safeArea.anchorMax = new Vector2(r.xMax / Screen.width, r.yMax / Screen.height);
+            safeArea.offsetMin = safeArea.offsetMax = Vector2.zero;
         }
 
         string Money(float v) => v.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',') + " " + currency;
@@ -141,6 +229,7 @@ namespace DecoAR.M5
         // ---------- Boucle ----------
         void Update()
         {
+            ApplySafeArea();
             var cam = Camera.main;
             if (cam && zoneCenter)
             {
@@ -201,7 +290,12 @@ namespace DecoAR.M5
             var scaler = cgo.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, 1080); scaler.matchWidthOrHeight = 0.5f;
-            var root = cgo.transform;
+            // Zone sûre : rien sous l'encoche / les bords arrondis du téléphone
+            safeArea = new GameObject("ZoneSure", typeof(RectTransform)).GetComponent<RectTransform>();
+            safeArea.SetParent(cgo.transform, false);
+            safeArea.anchorMin = Vector2.zero; safeArea.anchorMax = Vector2.one; safeArea.offsetMin = safeArea.offsetMax = Vector2.zero;
+            ApplySafeArea();
+            var root = safeArea;
 
             // Indication en haut
             var hint = Box("Indication", root, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -30), new Vector2(900, 70), Dark);
@@ -225,18 +319,52 @@ namespace DecoAR.M5
             Stack(panel, 14, 26);
             Label(panel, "<b>Votre commande</b>", 40, Cream, TextAlignmentOptions.Left, 56);
             Box("Separateur", panel, Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(0, 3), Brass).GetComponent<LayoutElement>().preferredHeight = 3;
-            listText = Label(panel, "", 28, Cream, TextAlignmentOptions.TopLeft, 260);
+            listText = Label(panel, "", 28, Cream, TextAlignmentOptions.TopLeft, 200);
             totalText = Label(panel, "", 34, new Color(0.95f, 0.83f, 0.6f), TextAlignmentOptions.Left, 56);
-            confirmBtn = Btn(panel, "<b>Confirmer la commande</b>", Sage, ConfirmOrder, 84, 34, TextAlignmentOptions.Center);
-            Btn(panel, "Vider le panier", Muted, ClearCart, 60, 28, TextAlignmentOptions.Center);
+            var beige = new Color(0.85f, 0.78f, 0.68f);
+            Label(panel, "<b>Adresse de livraison</b>", 26, beige, TextAlignmentOptions.Left, 34);
+            addressField = InputField(panel, "Saisissez votre adresse…", 92);
+            addressField.text = PlayerPrefs.GetString(AddressKey, "");
+            gpsBtn = Btn(panel, GpsText, new Color(0.33f, 0.45f, 0.55f), UseMyLocation, 58, 26, TextAlignmentOptions.Center);
+            gpsLabel = gpsBtn.GetComponentInChildren<TextMeshProUGUI>();
+            addressStatus = Label(panel, "", 22, beige, TextAlignmentOptions.Left, 28);
+            confirmBtn = Btn(panel, "<b>Confirmer la commande</b>", Sage, ConfirmOrder, 76, 34, TextAlignmentOptions.Center);
+            Btn(panel, "Vider le panier", Muted, ClearCart, 52, 28, TextAlignmentOptions.Center);
 
             // Toast
             var toast = Box("Toast", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 170), new Vector2(980, 80), new Color(0.30f, 0.42f, 0.29f, 0.95f));
             toastGroup = toast.gameObject.AddComponent<CanvasGroup>(); toastGroup.alpha = 0; toastGroup.blocksRaycasts = false;
             toastText = Label(toast, "", 32, Color.white, TextAlignmentOptions.Center);
 
+            // Paiement en cours (Stripe)
+            var dim = Box("Paiement", root, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0, 0, 0, 0.55f));
+            dim.offsetMin = dim.offsetMax = Vector2.zero;
+            payGroup = dim.gameObject.AddComponent<CanvasGroup>();
+            var payBox = Box("Fenetre", dim, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(760, 0), Dark);
+            Stack(payBox, 16, 34);
+            Label(payBox, "<b>Paiement sécurisé</b>  <size=70%><color=#B8A48E>par Stripe</color></size>", 40, Cream, TextAlignmentOptions.Center, 60);
+            payStatus = Label(payBox, "", 28, Cream, TextAlignmentOptions.Center, 90);
+            Btn(payBox, "Rouvrir la page de paiement", new Color(0.33f, 0.45f, 0.55f), () => payment.ReopenPage(), 70, 28, TextAlignmentOptions.Center);
+            Btn(payBox, "Annuler", Muted, () => payment.Cancel(), 60, 28, TextAlignmentOptions.Center);
+            ShowPayment(false);
+
+            // Gyroscope (téléphone uniquement)
+            if (player && player.GyroAvailable)
+            {
+                var bar = Box("Gyro", root, new Vector2(0, 1), new Vector2(0, 1), new Vector2(30, -30), new Vector2(320, 0), Color.clear);
+                bar.pivot = new Vector2(0, 1);
+                bar.GetComponent<Image>().enabled = false;
+                Stack(bar, 10, 0);
+                gyroLabel = Btn(bar, "", Dark, ToggleGyro, 62, 26, TextAlignmentOptions.Center).GetComponentInChildren<TextMeshProUGUI>();
+                Btn(bar, "Recentrer la vue", Dark, () => player.Recenter(), 54, 24, TextAlignmentOptions.Center);
+                UpdateGyroLabel();
+            }
+
             // Aide contrôles
-            var help = Label(root, "Mobile : glisser à gauche pour avancer, à droite pour regarder  •  PC : ZQSD / flèches + clic droit", 22, new Color(1, 1, 1, 0.75f), TextAlignmentOptions.Center);
+            string helpText = Application.isMobilePlatform
+                ? "Glisser à gauche pour avancer  •  à droite pour tourner  •  tournez le téléphone pour regarder"
+                : "PC : ZQSD / flèches + clic droit pour regarder";
+            var help = Label(root, helpText, 22, new Color(1, 1, 1, 0.75f), TextAlignmentOptions.Center);
             var hr = help.rectTransform; hr.anchorMin = new Vector2(0.5f, 0); hr.anchorMax = new Vector2(0.5f, 0); hr.anchoredPosition = new Vector2(0, 40); hr.sizeDelta = new Vector2(1400, 40);
             help.raycastTarget = false;
 
@@ -256,6 +384,29 @@ namespace DecoAR.M5
             rt.anchorMin = aMin; rt.anchorMax = aMax; rt.anchoredPosition = pos; rt.sizeDelta = size;
             var img = go.GetComponent<Image>(); img.color = c; img.sprite = rounded; img.type = Image.Type.Sliced;
             return rt;
+        }
+
+        TMP_InputField InputField(Transform parent, string placeholder, float height)
+        {
+            var rt = Box("Adresse", parent, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, new Color(1, 1, 1, 0.1f));
+            rt.GetComponent<LayoutElement>().preferredHeight = height;
+            rt.gameObject.SetActive(false); // références posées avant OnEnable du champ
+            var area = new GameObject("Zone", typeof(RectTransform), typeof(RectMask2D)).GetComponent<RectTransform>();
+            area.SetParent(rt, false);
+            area.anchorMin = Vector2.zero; area.anchorMax = Vector2.one; area.offsetMin = new Vector2(18, 8); area.offsetMax = new Vector2(-18, -8);
+            var ph = Label(area, placeholder, 24, new Color(1, 1, 1, 0.4f), TextAlignmentOptions.TopLeft);
+            ph.fontStyle = FontStyles.Italic;
+            var txt = Label(area, "", 24, Cream, TextAlignmentOptions.TopLeft);
+            foreach (var t in new[] { ph, txt }) { t.rectTransform.offsetMin = t.rectTransform.offsetMax = Vector2.zero; t.richText = false; }
+            var f = rt.gameObject.AddComponent<TMP_InputField>();
+            f.textViewport = area; f.textComponent = txt; f.placeholder = ph;
+            f.targetGraphic = rt.GetComponent<Image>();
+            f.lineType = TMP_InputField.LineType.MultiLineSubmit;
+            f.characterLimit = 160;
+            f.customCaretColor = true; f.caretColor = Brass; f.caretWidth = 3;
+            f.selectionColor = new Color(0.8f, 0.63f, 0.3f, 0.35f);
+            rt.gameObject.SetActive(true);
+            return f;
         }
 
         static void Stack(RectTransform rt, float spacing, int pad)
