@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import cv2
+import numpy as np
 
 from server import build_head, flame
 
@@ -29,7 +30,11 @@ def write_obj(name, vertices, faces, uv_faces, image):
     (out / f"{name}.mtl").write_text(f"newmtl {name}\nmap_Kd {name}.png\n", encoding="utf-8")
 
 
-write_obj("tete", result.vertices, flame.obj_faces, flame.uv_faces, texture)
+from server import shape_neck
+tucked, cut = shape_neck(result.vertices)
+tucked[:, 1] = np.maximum(tucked[:, 1], cut)
+keep = tucked[flame.obj_faces, 1].max(1) > cut + 1e-6
+write_obj("tete", tucked, flame.obj_faces[keep], flame.uv_faces[keep], texture)
 if hair_mesh is not None:
     write_obj("cheveux", hair_mesh["vertices"], hair_mesh["faces"], hair_mesh["uv_faces"], hair_mesh["texture"])
     print(f"cheveux : epaisseur {hair_mesh['thickness'] * 1000:.0f} mm")

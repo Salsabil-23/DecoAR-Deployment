@@ -126,6 +126,8 @@ La configuration du dépôt inclut ARKit et ARCore, mais les builds, permissions
 
 ## Organisation du projet
 
+L'architecture technique complète (modules, diagrammes UML, données, capteurs) est décrite dans [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md).
+
 ```text
 Assets/
 └── DecoAR/

@@ -20,6 +20,14 @@ from hair import build_hair, hair_region
 from texture import bake, measure_colors
 
 app = FastAPI(title="DecoAR M1 - tete FLAME")
+# Taille de la tete sur le corps (1 = taille calculee dans l'app ; plus petit = tete plus petite)
+HEAD_SIZE = 1.0
+# Descente de la tete sur le cou (metres du modele FLAME ; plus grand = plus bas)
+HEAD_DROP = 0.0
+# Recul de la tete sur le cou (metres ; plus grand = tete plus en arriere, 0 = comme avant)
+HEAD_BACK = 0.035
+# Affinage du bas du cou (0 = cou FLAME d'origine, 0.45 = ancien reglage trop fin qui laissait une marche)
+NECK_SLIM = 0.45
 flame = Flame()
 
 
@@ -54,7 +62,9 @@ def _export(v, faces, uv_faces, cut=None):
     pairs = {}
     vertices, uvs, triangles = [], [], []
     for tri_v, tri_vt in zip(faces, uv_faces):
-        if cut is not None and v[tri_v, 1].min() < cut:
+        # coupe nette et horizontale : on garde les triangles qui touchent la zone gardee et on ramene
+        # leurs sommets trop bas sur la ligne de coupe (plus de bord en escalier)
+        if cut is not None and v[tri_v, 1].max() < cut:
             continue
         ids = []
         for vi, ti in zip(tri_v, tri_vt):
@@ -62,6 +72,8 @@ def _export(v, faces, uv_faces, cut=None):
             if key not in pairs:
                 pairs[key] = len(vertices) // 3   # numero du sommet (la liste est a plat : x, y, z...)
                 x, y, z = v[vi]
+                if cut is not None:
+                    y = max(y, cut)
                 vertices += [-float(x), float(y), float(z)]
                 uvs += [float(flame.uv[ti, 0]), float(flame.uv[ti, 1])]
             ids.append(pairs[key])
@@ -74,24 +86,28 @@ def _png(image):
     return base64.b64encode(png.tobytes()).decode("ascii")
 
 
-def to_unity(result, texture, skin, hair, hair_mesh=None):
-    v = result.vertices
-    # Bas du cou : resserre progressivement puis coupe, pour que son bord disparaisse dans le cou du
-    # personnage au lieu de deborder en "ailes" sur l'encolure
+def shape_neck(v):
+    """Bas du cou fin et rentre : il s'affine sous la machoire et sa coupe disparait dans le cou du corps
+    (plus de plaque qui deborde devant l'encolure)."""
     face_idx = flame.masks.get("face")
     chin = v[face_idx, 1].min() if face_idx is not None else v[:, 1].min()
-    # Cou fin comme celui de l'avatar : il s'affine des le dessous de la machoire, descend plus bas et
-    # rentre dans le cou du corps (le raccord ne se voit plus)
-    cut = chin - 0.05
+    cut = chin - 0.06   # cou assez long pour rentrer dans le cou du corps
     axis = flame.joint(v, 1)
     neck = np.zeros(len(v), bool)
     for key in ("neck", "boundary"):
         if key in flame.masks:
             neck[flame.masks[key]] = True
-    t = np.clip((chin + 0.01 - v[:, 1]) / 0.06, 0, 1) * neck
-    t = t[:, None]
+    t = (np.clip((chin + 0.005 - v[:, 1]) / 0.05, 0, 1) ** 0.8 * neck)[:, None]
     tucked = v.copy()
-    tucked[:, [0, 2]] = axis[[0, 2]] + (v[:, [0, 2]] - axis[[0, 2]]) * (1 - 0.28 * t)
+    # un peu plus fin en bas (NECK_SLIM) pour se fondre dans le cou du corps, et recule un peu
+    tucked[:, [0, 2]] = axis[[0, 2]] + (v[:, [0, 2]] - axis[[0, 2]]) * (1 - NECK_SLIM * t)
+    tucked[:, 2] -= 0.008 * t[:, 0]
+    return tucked, cut
+
+
+def to_unity(result, texture, skin, hair, hair_mesh=None):
+    v = result.vertices
+    tucked, cut = shape_neck(v)
     vertices, uvs, triangles = _export(tucked, flame.obj_faces, flame.uv_faces, cut)
 
     neck = flame.joint(v, 1)
@@ -115,6 +131,18 @@ def to_unity(result, texture, skin, hair, hair_mesh=None):
         "hair": bgr_to_rgb(hair),
         "texture": _png(texture),
     }
+    # Taille dans l'app = hauteur de la tete de l'avatar / (top + cheveux/2 - menton) : annoncer un crane
+    # plus haut rend la tete plus petite, toujours centree sur le visage de l'avatar (pas de recompilation)
+    half_hair = hair_mesh["thickness"] * 0.5 if hair_mesh is not None else 0.0
+    data["top"] = chin + (data["top"] + half_hair - chin) / HEAD_SIZE - half_hair
+    # Tete plus petite = menton qui remonte : on annonce un visage plus haut pour que l'app la pose
+    # plus bas et que le menton retombe sur le cou du corps
+    drop = HEAD_DROP + (1 - HEAD_SIZE) * 0.08
+    for key in ("top", "chin", "brow"):
+        data[key] += drop
+    data["nose"][1] += drop
+    # l'app aligne le bout du nez : annoncer un nez plus en avant pose la tete plus en arriere sur le cou
+    data["nose"][2] += HEAD_BACK
     if hair_mesh is not None:
         hv, huv, ht = _export(hair_mesh["vertices"], hair_mesh["faces"], hair_mesh["uv_faces"])
         data.update(hairVertices=hv, hairUv=huv, hairTriangles=ht,

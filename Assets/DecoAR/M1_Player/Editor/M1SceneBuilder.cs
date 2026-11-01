@@ -356,8 +356,8 @@ namespace DecoAR.Player.EditorTools
                 "Retire lunettes et casquette, bouche fermée, cheveux bien visibles.",
                 24, Alpha(Color.white, 0.6f)), 110);
             // Adresse du serveur de tete 3D (PC sur le meme Wi-Fi), retenue sur le telephone
-            Size(LabelOn(Node("ServeurTitre", intro), "Serveur tête 3D (ton PC) :", 24, Alpha(Color.white, 0.75f)), 36);
-            var server = MakeInputField(intro, "http://192.168.1.10:8000");
+            Size(LabelOn(Node("ServeurTitre", intro), "Serveur tête 3D (optionnel, ton PC) :", 24, Alpha(Color.white, 0.75f)), 36);
+            var server = MakeInputField(intro, "Vide = visage calculé sur le téléphone");
             Size(server, 84);
             var start = MakeButton(intro, "Activer", "Activer la caméra", Accent, Color.white, 32, out _);
             Size(start, 110);
@@ -397,7 +397,7 @@ namespace DecoAR.Player.EditorTools
         }
 
         // Champ texte TMP aux couleurs du theme
-        static TMP_InputField MakeInputField(Transform parent, string text)
+        static TMP_InputField MakeInputField(Transform parent, string placeholder)
         {
             var go = TMP_DefaultControls.CreateInputField(new TMP_DefaultControls.Resources());
             go.name = "ChampServeur";
@@ -410,9 +410,9 @@ namespace DecoAR.Player.EditorTools
             field.textComponent.fontSize = 28;
             field.textComponent.color = Ink;
             field.textComponent.alignment = TextAlignmentOptions.MidlineLeft;
-            if (field.placeholder is TMP_Text ph) { ph.fontSize = 28; ph.text = text; }
+            if (field.placeholder is TMP_Text ph) { ph.fontSize = 28; ph.text = placeholder; }
             field.contentType = TMP_InputField.ContentType.Standard;
-            field.text = text;
+            field.text = "";
             return field;
         }
 

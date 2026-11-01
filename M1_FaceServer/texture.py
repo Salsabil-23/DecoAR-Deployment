@@ -242,4 +242,11 @@ def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
     mask = (~covered).astype(np.uint8) * 255
     tex = cv2.inpaint(tex, mask, 3, cv2.INPAINT_TELEA)
     tex = delight(tex, covered, skin, size)
+    # Bas du cou en legere ombre (comme sous la machoire d'un vrai cou) : la jointure avec le cou du
+    # corps se fond dans l'ombre au lieu de faire une plaque claire
+    drop = np.where(neck, np.clip((chin - 0.01 - v[:, 1]) / 0.03, 0, 1), 0.0)
+    shade = np.ones((size, size), np.float32)
+    shade[covered] = 1 - 0.18 * (drop[corners] * b).sum(1)
+    shade = cv2.GaussianBlur(shade, (0, 0), size / 200)[:, :, None]
+    tex = np.clip(tex * shade, 0, 255).astype(np.uint8)
     return tex, skin, hair
