@@ -16,9 +16,10 @@ namespace DecoAR.Player
 
         public static Animator Spawn(CharacterProfile profile, AvatarLook look, Transform parent)
         {
-            if (profile == null || profile.prefab == null) return null;
+            GameObject source = profile != null ? profile.AvatarPrefab(look != null ? look.avatar : 0) : null;
+            if (source == null) return null;
 
-            GameObject model = Object.Instantiate(profile.prefab, parent);
+            GameObject model = Object.Instantiate(source, parent);
             model.transform.localPosition = Vector3.zero;
             model.transform.localRotation = Quaternion.identity;
             FitToHeight(model, profile.height);

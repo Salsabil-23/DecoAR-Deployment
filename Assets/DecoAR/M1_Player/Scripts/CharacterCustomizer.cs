@@ -58,40 +58,45 @@ namespace DecoAR.Player
             "Le premier rond garde les chaussures d'origine.",
         };
 
+        // Couleurs des ronds de l'onglet Avatar (un rond numerote par personnage)
+        static readonly Color[] AvatarSwatchColors =
+        {
+            new Color(0.78f, 0.40f, 0.29f), new Color(0.54f, 0.60f, 0.48f), new Color(0.22f, 0.29f, 0.45f),
+            new Color(0.85f, 0.65f, 0.28f), new Color(0.45f, 0.32f, 0.24f), new Color(0.82f, 0.56f, 0.60f),
+        };
+
         AvatarLook look;
         LookSlot slot;
+        bool onAvatarTab;
+        Button avatarTab;
         GameObject preview;
         bool onePieceOutfit;
-        readonly List<(Color color, GameObject selection)> swatches = new List<(Color, GameObject)>();
+        readonly List<(Color color, int avatar, GameObject selection)> swatches = new List<(Color, int, GameObject)>();
         readonly Dictionary<LookSlot, Color> scanned = new Dictionary<LookSlot, Color>();
 
         void Start()
         {
             look = GameManager.Instance.Look;
+            if (look.avatar < 0 || look.avatar >= profile.AvatarCount) look.avatar = 0;
 
-            var anim = CharacterAppearance.Spawn(profile, look, previewRoot);
-            preview = anim != null ? anim.gameObject : null;
-            if (preview == null) Debug.LogWarning("[M1] Aucun personnage dans le profil");
-
-            LookSlot first = LookSlot.Peau;
-            bool found = false;
             for (int i = 0; i < tabButtons.Length; i++)
             {
                 var s = (LookSlot)i;
                 tabButtons[i].onClick.AddListener(() => SelectSlot(s));
-                // Un avatar MetaPerson n'a qu'une tenue d'une piece ; les cheveux viennent du scan
-                bool available = preview == null || s == LookSlot.Cheveux || CharacterAppearance.HasSlot(preview, s);
-                tabButtons[i].gameObject.SetActive(available);
-                if (available && !found) { first = s; found = true; }
             }
-            // Haut seul sans pantalon ni chaussures : c'est la tenue complete
-            onePieceOutfit = preview != null && !CharacterAppearance.HasSlot(preview, LookSlot.Bas)
-                && !CharacterAppearance.HasSlot(preview, LookSlot.Chaussures);
-            if (onePieceOutfit)
+            // Plusieurs personnages : onglet Avatar en premier, pour choisir avant d'entrer dans la boutique
+            if (profile.AvatarCount > 1)
             {
-                var label = tabButtons[(int)LookSlot.Haut].GetComponentInChildren<TMP_Text>();
-                if (label != null) label.text = "Tenue";
+                avatarTab = Instantiate(tabButtons[0], tabButtons[0].transform.parent);
+                avatarTab.name = "OngletAvatar";
+                avatarTab.onClick.RemoveAllListeners();
+                avatarTab.onClick.AddListener(ShowAvatars);
+                avatarTab.transform.SetSiblingIndex(tabButtons[0].transform.GetSiblingIndex());
+                var avatarLabel = avatarTab.GetComponentInChildren<TMP_Text>();
+                if (avatarLabel != null) avatarLabel.text = "Avatar";
             }
+
+            LookSlot first = SpawnPreview();
             scanButton.onClick.AddListener(OpenFaceScan);
             randomButton.onClick.AddListener(Randomize);
             resetButton.onClick.AddListener(ResetLook);
@@ -104,7 +109,8 @@ namespace DecoAR.Player
             // Avatar deja realiste (MetaPerson...) : la carte de scan n'a pas d'objet
             scanButton.transform.parent.gameObject.SetActive(profile.useFaceScan);
             RefreshScanLabel();
-            SelectSlot(first);
+            if (avatarTab != null) ShowAvatars();
+            else SelectSlot(first);
 
             if (OpenPhotoScanOnStart)
             {
@@ -122,10 +128,36 @@ namespace DecoAR.Player
             CharacterProfile.Changed -= OnProfileChanged;
         }
 
-        // Gros plan sur le visage pour la peau et les cheveux, plan large pour les vetements
+        // (Re)cree le personnage choisi et n'affiche que les onglets qu'il porte ; renvoie le premier onglet couleur
+        LookSlot SpawnPreview()
+        {
+            foreach (Transform child in previewRoot) Destroy(child.gameObject);
+            var anim = CharacterAppearance.Spawn(profile, look, previewRoot);
+            preview = anim != null ? anim.gameObject : null;
+            if (preview == null) Debug.LogWarning("[M1] Aucun personnage dans le profil");
+
+            LookSlot first = LookSlot.Peau;
+            bool found = false;
+            for (int i = 0; i < tabButtons.Length; i++)
+            {
+                var s = (LookSlot)i;
+                // Un avatar MetaPerson n'a qu'une tenue d'une piece ; les cheveux viennent du scan
+                bool available = preview == null || s == LookSlot.Cheveux || CharacterAppearance.HasSlot(preview, s);
+                tabButtons[i].gameObject.SetActive(available);
+                if (available && !found) { first = s; found = true; }
+            }
+            // Haut seul sans pantalon ni chaussures : c'est la tenue complete
+            onePieceOutfit = preview != null && !CharacterAppearance.HasSlot(preview, LookSlot.Bas)
+                && !CharacterAppearance.HasSlot(preview, LookSlot.Chaussures);
+            var label = tabButtons[(int)LookSlot.Haut].GetComponentInChildren<TMP_Text>();
+            if (label != null) label.text = onePieceOutfit ? "Tenue" : "T-shirt";
+            return first;
+        }
+
+        // Gros plan sur le visage pour la peau et les cheveux, plan large pour les vetements et l'avatar
         Transform CurrentView()
         {
-            bool face = slot == LookSlot.Peau || slot == LookSlot.Cheveux;
+            bool face = !onAvatarTab && (slot == LookSlot.Peau || slot == LookSlot.Cheveux);
             if (ResponsiveLayout.IsPortrait && bodyViewPortrait != null) return face ? faceViewPortrait : bodyViewPortrait;
             return face ? faceView : bodyView;
         }
@@ -141,19 +173,35 @@ namespace DecoAR.Player
         void SelectSlot(LookSlot s)
         {
             slot = s;
+            onAvatarTab = false;
             bool outfit = onePieceOutfit && s == LookSlot.Haut;
             sectionTitle.text = outfit ? "Tenue" : Titles[(int)s];
             sectionHint.text = outfit ? "Le premier rond garde la tenue d'origine." : Hints[(int)s];
-
-            for (int i = 0; i < tabButtons.Length; i++)
-            {
-                bool active = i == (int)s;
-                tabButtons[i].image.color = active ? tabActive : tabIdle;
-                var label = tabButtons[i].GetComponentInChildren<TMP_Text>();
-                if (label != null) label.color = active ? tabActiveText : tabIdleText;
-            }
-
+            HighlightTabs();
             BuildSwatches();
+        }
+
+        void ShowAvatars()
+        {
+            onAvatarTab = true;
+            sectionTitle.text = $"Avatar {look.avatar + 1} / {profile.AvatarCount}";
+            sectionHint.text = "Choisis ton personnage avant d'entrer dans la boutique.";
+            HighlightTabs();
+            BuildSwatches();
+        }
+
+        void HighlightTabs()
+        {
+            for (int i = 0; i < tabButtons.Length; i++)
+                Highlight(tabButtons[i], !onAvatarTab && i == (int)slot);
+            if (avatarTab != null) Highlight(avatarTab, onAvatarTab);
+        }
+
+        void Highlight(Button tab, bool active)
+        {
+            tab.image.color = active ? tabActive : tabIdle;
+            var label = tab.GetComponentInChildren<TMP_Text>();
+            if (label != null) label.color = active ? tabActiveText : tabIdleText;
         }
 
         void BuildSwatches()
@@ -161,20 +209,61 @@ namespace DecoAR.Player
             foreach (var sw in swatches) Destroy(sw.selection.transform.parent.gameObject);
             swatches.Clear();
 
+            if (onAvatarTab)
+            {
+                for (int i = 0; i < profile.AvatarCount; i++)
+                {
+                    var b = AddSwatch(AvatarSwatchColors[i % AvatarSwatchColors.Length], i);
+                    // numero du personnage dans le rond
+                    var number = Instantiate(sectionHint, b.transform);
+                    foreach (var fitter in number.GetComponents<ContentSizeFitter>()) Destroy(fitter);
+                    var element = number.GetComponent<LayoutElement>();
+                    if (element == null) element = number.gameObject.AddComponent<LayoutElement>();
+                    element.ignoreLayout = true;
+                    number.text = (i + 1).ToString();
+                    number.fontSize = 30;
+                    number.fontStyle = FontStyles.Bold;
+                    number.color = Color.white;
+                    number.alignment = TextAlignmentOptions.Center;
+                    number.raycastTarget = false;
+                    var rt = number.rectTransform;
+                    rt.anchorMin = Vector2.zero;
+                    rt.anchorMax = Vector2.one;
+                    rt.offsetMin = rt.offsetMax = Vector2.zero;
+                    int captured = i;
+                    b.onClick.AddListener(() => PickAvatar(captured));
+                }
+                RefreshSelection();
+                return;
+            }
+
             var colors = new List<Color>(profile.Palette(slot));
             if (scanned.TryGetValue(slot, out var fromScan)) colors.Add(fromScan);
 
             foreach (var c in colors)
             {
-                var b = Instantiate(swatchTemplate, swatchGrid);
-                b.gameObject.SetActive(true);
-                b.image.color = c;
-                var selection = b.transform.Find("Selection").gameObject;
+                var b = AddSwatch(c, -1);
                 Color captured = c;
                 b.onClick.AddListener(() => Pick(captured));
-                swatches.Add((c, selection));
             }
             RefreshSelection();
+        }
+
+        Button AddSwatch(Color c, int avatar)
+        {
+            var b = Instantiate(swatchTemplate, swatchGrid);
+            b.gameObject.SetActive(true);
+            b.image.color = c;
+            swatches.Add((c, avatar, b.transform.Find("Selection").gameObject));
+            return b;
+        }
+
+        void PickAvatar(int index)
+        {
+            if (look.avatar == index) return;
+            look.avatar = index;
+            SpawnPreview();
+            ShowAvatars();
         }
 
         void Pick(Color c)
@@ -187,7 +276,8 @@ namespace DecoAR.Player
         void RefreshSelection()
         {
             Color current = look.Get(slot);
-            foreach (var sw in swatches) sw.selection.SetActive(Same(sw.color, current));
+            foreach (var sw in swatches)
+                sw.selection.SetActive(onAvatarTab ? sw.avatar == look.avatar : Same(sw.color, current));
         }
 
         static bool Same(Color a, Color b) => Mathf.Abs(a.r - b.r) + Mathf.Abs(a.g - b.g) + Mathf.Abs(a.b - b.b) < 0.02f;
@@ -205,7 +295,8 @@ namespace DecoAR.Player
 
         void ResetLook()
         {
-            look = new AvatarLook();
+            // Couleurs et scan d'origine ; le personnage choisi reste
+            look = new AvatarLook { avatar = look.avatar };
             FaceStore.Delete();
             FaceMaskStore.Delete();
             HeadStore.Delete();

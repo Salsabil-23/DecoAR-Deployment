@@ -16,6 +16,7 @@ namespace DecoAR.Core
         public Color bas = Color.white;
         public Color chaussures = Color.white;
         public bool visagePhoto;   // le visage scanne remplace celui du personnage
+        public int avatar;         // personnage choisi dans l'onglet Avatar (0 = modele principal)
 
         public Color Get(LookSlot slot)
         {

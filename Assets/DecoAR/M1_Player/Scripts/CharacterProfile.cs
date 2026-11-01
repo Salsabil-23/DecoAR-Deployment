@@ -8,6 +8,8 @@ namespace DecoAR.Player
     public class CharacterProfile : ScriptableObject
     {
         public GameObject prefab;                            // modele Mixamo (rig Humanoid)
+        [Tooltip("Autres personnages proposes dans l'onglet Avatar (MetaPerson Creator...) ; rempli par le menu DecoAR > M1 > Mettre a jour la liste des avatars")]
+        public GameObject[] otherAvatars = new GameObject[0];
         public RuntimeAnimatorController animatorController; // idle / marche / interaction
         public float height = 1.75f;                         // metres
 
@@ -87,6 +89,38 @@ namespace DecoAR.Player
         // Modifier le profil pendant le Play met a jour le personnage tout de suite (reglage du visage)
         public static event System.Action<CharacterProfile> Changed;
         void OnValidate() => Changed?.Invoke(this);
+
+        // Avatars au choix : le modele principal d'abord, puis les autres
+        public int AvatarCount
+        {
+            get
+            {
+                int n = prefab != null ? 1 : 0;
+                if (otherAvatars != null) foreach (var a in otherAvatars) if (a != null) n++;
+                return n;
+            }
+        }
+
+        // Index hors limites (avatar retire du projet) = modele principal
+        public GameObject AvatarPrefab(int index)
+        {
+            if (index > 0 && otherAvatars != null)
+            {
+                int i = 0;
+                foreach (var a in otherAvatars)
+                {
+                    if (a == null) continue;
+                    if (++i == index) return a;
+                }
+            }
+            return prefab != null ? prefab : FirstOtherAvatar();
+        }
+
+        GameObject FirstOtherAvatar()
+        {
+            if (otherAvatars != null) foreach (var a in otherAvatars) if (a != null) return a;
+            return null;
+        }
 
         public Color[] Palette(LookSlot slot)
         {

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Icône DecoAR">
+  <!-- Fond : terracotta de l'app -->
+  <rect width="1024" height="1024" rx="232" fill="#C5603F"/>
+  <!-- Maison tracée en coins de visée AR -->
+  <g fill="none" stroke="#FBF6EE" stroke-width="56" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="412,317 512,230 612,317"/>
+    <polyline points="331,388 260,450 260,540"/>
+    <polyline points="693,388 764,450 764,540"/>
+    <polyline points="260,700 260,800 360,800"/>
+    <polyline points="764,700 764,800 664,800"/>
+  </g>
+  <!-- Plan detecte (sauge) et lampe posee dessus -->
+  <ellipse cx="512" cy="690" rx="132" ry="34" fill="none" stroke="#A9C2A0" stroke-width="18"/>
+  <path d="M474 452 H550 L598 566 H426 Z" fill="#FBF6EE"/>
+  <rect x="500" y="566" width="24" height="100" fill="#FBF6EE"/>
+  <ellipse cx="512" cy="676" rx="46" ry="14" fill="#FBF6EE"/>
+</svg>

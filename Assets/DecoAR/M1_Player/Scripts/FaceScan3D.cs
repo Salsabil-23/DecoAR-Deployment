@@ -41,14 +41,18 @@ namespace DecoAR.Player
         [SerializeField] float sideTimeout = 10f;   // au-dela, on continue avec les vues deja prises
         [SerializeField] string returnScene = "M1_Personnalisation";
 
-        [Header("Tete complete (M1_FaceServer sur le PC, meme Wi-Fi)")]
+        [Header("Tete complete (M1_FaceServer sur le PC, meme Wi-Fi) : optionnelle")]
         [SerializeField] TMP_InputField serverField;   // adresse du serveur, retenue sur le telephone
-        [SerializeField] string defaultServer = "http://192.168.1.10:8000";
+        [Tooltip("Afficher le champ d'adresse du serveur sur l'ecran du scan ; masque = visage calcule sur le telephone (ou defaultServer s'il est rempli)")]
+        [SerializeField] bool showServerField = false;
+        // Vide par defaut : le visage est calcule sur le telephone ; taper l'adresse du PC active la tete FLAME
+        [SerializeField] string defaultServer = "";
         [SerializeField] float serverTimeout = 120f;
         [Tooltip("La camera frontale s'affiche en miroir : le serveur remet les photos a l'endroit")]
         [SerializeField] bool mirroredCamera = true;
 
-        const string ServerKey = "DecoAR.HeadServer";
+        // Nouvelle cle : les adresses deja retenues sur les telephones sont oubliees, le visage sur le telephone redevient le defaut
+        const string ServerKey = "DecoAR.HeadServer.v2";
 
         float stableTime;
         bool running;
@@ -67,7 +71,14 @@ namespace DecoAR.Player
             progressFill.fillAmount = 0f;
             status.text = "Le scan 3D utilise la caméra frontale et le suivi du visage de ton téléphone.";
 
-            if (serverField != null)
+            if (serverField != null && !showServerField)
+            {
+                // champ et son titre retires de l'ecran
+                var title = serverField.transform.parent.Find("ServeurTitre");
+                if (title != null) title.gameObject.SetActive(false);
+                serverField.gameObject.SetActive(false);
+            }
+            else if (serverField != null)
             {
                 serverField.text = PlayerPrefs.GetString(ServerKey, defaultServer);
                 serverField.onEndEdit.AddListener(s =>
@@ -79,7 +90,7 @@ namespace DecoAR.Player
             }
         }
 
-        string ServerUrl => NormalizeServer(PlayerPrefs.GetString(ServerKey, defaultServer));
+        string ServerUrl => NormalizeServer(showServerField ? PlayerPrefs.GetString(ServerKey, defaultServer) : defaultServer);
 
         // M1_FaceServer ne parle qu'en HTTP : "https://", "192.168.1.10" ou "192.168.1.10:8000" -> "http://ip:8000"
         static string NormalizeServer(string s)

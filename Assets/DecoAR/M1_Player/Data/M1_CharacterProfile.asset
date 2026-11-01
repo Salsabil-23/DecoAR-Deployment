@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: M1_CharacterProfile
   m_EditorClassIdentifier: Assembly-CSharp::DecoAR.Player.CharacterProfile
   prefab: {fileID: 919132149155446097, guid: 1439f8569cf1dca4eba5b66fe2274b24, type: 3}
+  otherAvatars:
+  - {fileID: 919132149155446097, guid: b7d56b465b6ee6f43840db460ce7c1e4, type: 3}
+  - {fileID: 919132149155446097, guid: 6b83e4b3253f7dc46b180b3905be3be5, type: 3}
   animatorController: {fileID: 9100000, guid: 1c2f19ebb2f5a114396b1d77f745622b, type: 2}
   height: 1.75
   useFaceScan: 1
