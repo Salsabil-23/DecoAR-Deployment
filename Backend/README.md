@@ -36,26 +36,61 @@ npm test
 
 | Methode | Route | Corps | Reponse |
 | --- | --- | --- | --- |
-| POST | `/api/auth/register` | `firstName, lastName, email, phone?, password` | `201 { token, user }` |
+| POST | `/api/auth/register` | `firstName, lastName, email, phone?, password, face: { challengeToken, frames[4] }` | `201 { token, user }` + code par e-mail |
 | POST | `/api/auth/login` | `email, password` | `{ token, user }` |
-| POST | `/api/auth/biometric/enroll` (JWT) | `deviceId, deviceName` | `201 { biometricToken, user }` |
-| POST | `/api/auth/biometric/login` | `email, deviceId, biometricToken` | `{ token, user }` |
-| DELETE | `/api/auth/biometric/:deviceId` (JWT) | - | `{ user }` |
-| GET | `/api/users/me` (JWT) | - | `{ user }` |
+| POST | `/api/auth/verify-email` (JWT) | `code` | `{ user }` (`emailVerified: true`) |
+| POST | `/api/auth/verify-email/resend` (JWT) | - | `{ message }` (1 envoi / minute) |
+| POST | `/api/auth/forgot-password` | `email` | `{ message }` (toujours le meme, ne revele pas si le compte existe) |
+| POST | `/api/auth/reset-password` | `email, code, password` | `{ token, user }` |
+| POST | `/api/auth/face/challenge` | `purpose` (`enroll` / `login`) | `{ challengeToken, steps, yawDelta, pitchDelta, centerMaxYaw }` |
+| POST | `/api/auth/face/pose` | `image` | `{ ok, yaw, pitch }` (retour en direct pendant le defi) |
+| POST | `/api/auth/face/login` | `face: { challengeToken, frames[2] }, email?` | `{ token, user }` (avec e-mail : 1:1, sans : cherche parmi tous) |
+| PUT | `/api/users/me/face` (JWT) | `face: { challengeToken, frames[4] }` | `{ user }` (reenregistrer son visage) |
+| GET | `/api/users/me` (JWT) | - | `{ user }` (sert aussi a la connexion automatique) |
+| PATCH | `/api/users/me` (JWT) | `firstName?, lastName?, phone?` | `{ user }` |
+| POST | `/api/users/me/password` (JWT) | `currentPassword, newPassword` | `{ message }` |
+| PUT | `/api/users/me/photo` (JWT) | `image` (JPEG/PNG base64, 300 Ko max) | `{ user }` |
+| GET | `/api/users/me/photo` (JWT) | - | l'image |
+| DELETE | `/api/users/me/photo` (JWT) | - | `{ user }` |
 
 Routes "(JWT)" : en-tete `Authorization: Bearer <token>`.
 Erreurs : `{ message, field }` (`field` = champ du formulaire a surligner dans Unity, ex. `email`).
 
-## Comment marche Face ID
+## Codes par e-mail
 
-Le visage n'est **jamais** envoye au serveur : c'est le telephone (Secure Enclave / Keystore) qui le verifie.
+Codes a 6 chiffres (verification du compte, mot de passe oublie) : valables 15 min, 5 essais, 1 envoi par minute,
+seul leur hash SHA-256 est stocke. Envoi selon le `.env` :
 
-1. Activation (apres inscription ou connexion) : le telephone demande Face ID -> si OK, Unity appelle
-   `biometric/enroll`. Le serveur cree un jeton aleatoire, n'en garde que le hash SHA-256 dans
-   `users.biometricDevices` et renvoie le jeton au telephone, qui le range (Keychain / Keystore).
-2. Connexion : Face ID OK -> Unity envoie `email + deviceId + biometricToken` a `biometric/login` -> JWT.
+| Fournisseur | Quand | Reglage |
+| --- | --- | --- |
+| `console` | rien de configure | le code s'affiche dans le terminal : `[MAIL] ...` |
+| `smtp` (Gmail) | en local | `SMTP_USER` + `SMTP_PASS` (mot de passe d'application Google, validation en 2 etapes requise) |
+| `brevo` | en ligne | `BREVO_API_KEY` + `MAIL_FROM` (Render gratuit bloque le SMTP, Brevo passe par HTTPS) |
+
+## Mettre en ligne (Render, gratuit)
+
+1. Atlas > Network Access : autoriser `0.0.0.0/0` (les IP de Render changent).
+2. [render.com](https://render.com) > New > **Blueprint** > choisir le depot : `render.yaml` (racine) cree le service `decoar-api`.
+   Le depot est prive : la proprietaire (Maya-Marzouki) doit autoriser l'application Render GitHub sur le depot.
+3. Renseigner `MONGODB_URI`, `BREVO_API_KEY`, `MAIL_FROM`, `FACE_SERVICE_URL` (URL de `decoar-face`) et la meme
+   `FACE_SERVICE_KEY` dans les deux services (`JWT_SECRET` est genere automatiquement).
+4. URL obtenue (ex. `https://decoar-api.onrender.com`) -> Unity : menu DecoAR > Auth > Reglages > `Device Api Url`.
+
+Le service gratuit s'endort apres 15 min sans requete : le premier appel prend ~1 min (l'app reveille le serveur
+des l'ouverture de l'ecran de connexion).
+
+## Reconnaissance faciale
+
+Le service Python `face-service/` (OpenCV YuNet + SFace) doit tourner a cote (voir son README).
+
+1. **Defi de mouvements** (detection du vivant) : `face/challenge` tire au sort les mouvements et signe le defi ;
+   Unity envoie des images a `face/pose` jusqu'a ce que chaque mouvement soit fait, puis une image par etape.
+   Le backend revérifie : bons mouvements, meme personne sur toutes les images, defi pas expire ni deja utilise.
+2. Inscription : vecteur moyen des images de face stocke dans `users.faceEmbedding` (refus si ce visage a deja un compte).
+3. Connexion / deverrouillage : similarite cosinus avec le compte (ou tous les comptes) >= 0.40 -> JWT.
 
 ## Collection `users`
 
-`firstName, lastName, email (unique), phone, passwordHash (bcrypt), faceIdEnabled,
-biometricDevices[{ deviceId, deviceName, tokenHash, createdAt, lastUsedAt }], createdAt, updatedAt`
+`firstName, lastName, email (unique), phone, passwordHash (bcrypt), emailVerified, verifyCode / resetCode
+({ hash, expiresAt, attempts, sentAt }), faceEmbedding[128], faceEnrolledAt, photo ({ data, contentType }),
+photoUpdatedAt, createdAt, updatedAt`

@@ -1,45 +1,49 @@
-# Auth - Inscription et connexion (Face ID)
+# Auth - Compte, reconnaissance faciale et profil
 
-Scene : `Scenes/Auth.unity`, generee par le menu **DecoAR > Auth > Creer la scene inscription + connexion**
-(elle est placee en premiere scene du build). Backend : dossier `Backend/` a la racine du depot (voir son README).
+Tout se genere par le menu **DecoAR > Auth > Tout generer** :
+- `Resources/DecoAR_AuthSettings.asset` : adresse de l'API (telephone / editeur), delai de verrouillage, noms des scenes
+- `Resources/DecoAR_AuthOverlay.prefab` : bouton profil + ecran de verrouillage, charges automatiquement dans toutes les scenes
+- `Scenes/Auth.unity` (premiere scene du build) et `Scenes/Profile.unity`
 
-Test rapide : lancer le backend (`npm run dev`), ouvrir la scene, Play. Dans l'editeur Face ID est simule
-(`EditorBiometricSimulator.NextResult = false` pour simuler un echec).
+A lancer avant de tester : le backend (`Backend/`, `npm run dev`) **et** le service visage
+(`face-service/`, `.venv\Scripts\python app.py`). Voir leurs README.
 
-## Ecran
+## Parcours
 
-- Inscription : prenom, nom, e-mail, telephone (optionnel), mot de passe + confirmation, jauge de robustesse,
-  interrupteur "Activer Face ID", erreurs surlignees champ par champ (validation locale puis serveur).
-- Connexion : e-mail + mot de passe, ou bouton "Se connecter avec Face ID" si Face ID est deja active sur ce telephone.
-- S'adapte au paysage (marque a gauche, carte a droite) et au portrait (marque en haut).
-- Apres succes : scene `nextSceneName` (par defaut `M1_AvatarSelection`).
+```
+Ouverture -> session encore valide ? -> oui : connexion automatique -> boutique
+                                     -> non : inscription / connexion
+Inscription -> formulaire -> defi de mouvements (face, 2 mouvements, face) -> compte cree -> code e-mail -> boutique
+Connexion   -> mot de passe, ou "Se connecter avec mon visage" (defi : face + 1 mouvement)
+            -> "Mot de passe oublie ?" -> code par e-mail -> nouveau mot de passe
+App en arriere-plan > 5 min -> ecran verrouille -> defi de mouvements (ou se reconnecter)
+Bouton rond en haut a gauche -> Profil : photo, nom/telephone, mot de passe, reenregistrer le visage, deconnexion
+```
+
+Le visage n'est pas analyse dans Unity : `FaceCamera` affiche la camera frontale (en miroir), `FaceChallenge` fait
+le defi tire au sort par le serveur (fleche + consignes, une image toutes les ~0,35 s envoyee a `/face/pose`),
+puis le serveur (service Python OpenCV) revérifie les mouvements et compare le visage dans MongoDB.
+`SelfieCapture` sert seulement a la photo de profil.
+Avec un e-mail saisi, la connexion compare au visage de ce compte (1:1) ; sans, elle cherche parmi tous les comptes.
 
 ## Pour les autres modules
 
 | Quoi | Comment |
 | --- | --- |
-| Utilisateur connecte | `AuthSession.User` (`firstName`, `email`...), `AuthSession.IsLoggedIn`, evenement `AuthSession.Changed` |
+| Utilisateur connecte | `AuthSession.User` (`firstName`, `email`, `faceEnrolled`, `hasPhoto`...), `AuthSession.IsLoggedIn`, evenement `AuthSession.Changed` |
 | Appeler une route protegee | en-tete `Authorization: Bearer ` + `AuthSession.Token` |
-| Deconnexion | `AuthSession.Logout()` |
+| Ouvrir le profil / revenir | `ProfileNavigation.Open()` / `ProfileNavigation.Back()` (la position de l'avatar M1 est gardee) |
+| Verrouiller (test) | menu DecoAR > Auth > Verrouiller maintenant (en Play) |
 
 ## Adresse de l'API
 
-`AuthScreen.apiBaseUrl` (inspecteur du Canvas `UI`) :
-- editeur : `http://localhost:3000`
-- telephone : IP du PC sur le meme Wi-Fi, ex. `http://192.168.1.20:3000` (`ipconfig` pour la trouver,
-  autoriser le port 3000 dans le pare-feu Windows)
-- HTTP non chiffre : Player Settings > Other Settings > **Allow downloads over HTTP** = Always allowed (dev uniquement)
+Menu **DecoAR > Auth > Reglages** :
+- `Device Api Url` : `http://localhost:3000` avec le telephone branche en USB (renvoi `adb reverse` refait
+  automatiquement par `Editor/AndroidUsbReverse.cs`), ou URL Render, ou IP du PC sur le Wi-Fi
+- `Editor Api Url` : `http://localhost:3000`
+- HTTP non chiffre : Player Settings > Other Settings > **Allow downloads over HTTP** = Always allowed
 
-## Capteur Face ID (a brancher)
+## Camera
 
-Tout passe par `IBiometricAuthenticator` (`Scripts/BiometricAuth.cs`) :
-
-```csharp
-BiometricAuth.Current = new MonPluginFaceId(); // au demarrage, avant la scene Auth
-```
-
-- iOS : `LAContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics)` (plugin `.mm`) ;
-  Player Settings : renseigner **NSFaceIDUsageDescription** (sinon l'app plante a la demande Face ID).
-- Android : `androidx.biometric.BiometricPrompt` (plugin `.aar` ou `AndroidJavaObject`).
-- Rappeler `done` sur le thread principal de Unity.
-- Ranger le jeton d'appareil dans le Keychain / Keystore : `BiometricVault` utilise PlayerPrefs en attendant.
+Android demande l'autorisation camera a la premiere utilisation. Dans l'editeur, la webcam du PC est utilisee.
+Conseils affiches : visage dans le cercle, bien eclaire, une seule personne.

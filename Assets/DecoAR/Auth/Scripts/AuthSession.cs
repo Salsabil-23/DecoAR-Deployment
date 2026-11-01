@@ -8,10 +8,13 @@ namespace DecoAR.Auth
     {
         const string KeyToken = "DecoAR.Auth.Token";
         const string KeyUser = "DecoAR.Auth.User";
+        const string KeyLastEmail = "DecoAR.Auth.LastEmail";
 
         public static string Token { get; private set; }
         public static UserDto User { get; private set; }
         public static bool IsLoggedIn => !string.IsNullOrEmpty(Token);
+        // Dernier compte utilise sur ce telephone (prerempli pour la connexion par le visage)
+        public static string LastEmail => PlayerPrefs.GetString(KeyLastEmail, "");
 
         public static event Action<UserDto> Changed;
 
@@ -30,6 +33,7 @@ namespace DecoAR.Auth
             User = user;
             PlayerPrefs.SetString(KeyToken, token);
             PlayerPrefs.SetString(KeyUser, JsonUtility.ToJson(user));
+            PlayerPrefs.SetString(KeyLastEmail, user.email);
             PlayerPrefs.Save();
             Changed?.Invoke(user);
         }

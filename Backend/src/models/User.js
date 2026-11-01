@@ -1,16 +1,14 @@
 const mongoose = require('mongoose');
 
-// Un appareil autorise a se connecter par Face ID / empreinte.
-// Le visage ne quitte jamais le telephone : le capteur valide localement,
-// puis le telephone envoie un jeton d'appareil dont on ne garde que le hash.
-const biometricDeviceSchema = new mongoose.Schema(
+// Code a 6 chiffres envoye par e-mail (hash uniquement)
+const emailCodeSchema = new mongoose.Schema(
   {
-    deviceId: { type: String, required: true },
-    deviceName: { type: String, default: '' },
-    tokenHash: { type: String, required: true },
-    lastUsedAt: { type: Date },
+    hash: String,
+    expiresAt: Date,
+    attempts: { type: Number, default: 0 },
+    sentAt: Date,
   },
-  { _id: false, timestamps: { createdAt: true, updatedAt: false } }
+  { _id: false }
 );
 
 const userSchema = new mongoose.Schema(
@@ -20,13 +18,24 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     phone: { type: String, trim: true, default: '' },
     passwordHash: { type: String, required: true, select: false },
-    biometricDevices: { type: [biometricDeviceSchema], default: [], select: false },
-    faceIdEnabled: { type: Boolean, default: false },
+    emailVerified: { type: Boolean, default: false },
+    verifyCode: { type: emailCodeSchema, select: false },
+    resetCode: { type: emailCodeSchema, select: false },
+    // Reconnaissance faciale (OpenCV SFace) : vecteur de 128 nombres calcule a l'inscription.
+    // On ne garde pas les photos du visage, seulement ce vecteur.
+    faceEmbedding: { type: [Number], default: undefined, select: false },
+    faceEnrolledAt: { type: Date },
+    // Photo de profil (JPEG 256 px), servie par GET /api/users/me/photo
+    photo: {
+      type: new mongoose.Schema({ data: Buffer, contentType: String }, { _id: false }),
+      select: false,
+    },
+    photoUpdatedAt: { type: Date },
   },
   { timestamps: true }
 );
 
-// Format renvoye a Unity (jamais le hash du mot de passe)
+// Format renvoye a Unity (jamais les hash, le vecteur visage ni la photo elle-meme)
 userSchema.methods.toPublic = function () {
   return {
     id: this._id.toString(),
@@ -34,7 +43,11 @@ userSchema.methods.toPublic = function () {
     lastName: this.lastName,
     email: this.email,
     phone: this.phone,
-    faceIdEnabled: this.faceIdEnabled,
+    emailVerified: this.emailVerified,
+    faceEnrolled: Boolean(this.faceEnrolledAt),
+    faceEnrolledAt: this.faceEnrolledAt,
+    hasPhoto: Boolean(this.photoUpdatedAt),
+    photoUpdatedAt: this.photoUpdatedAt,
     createdAt: this.createdAt,
   };
 };

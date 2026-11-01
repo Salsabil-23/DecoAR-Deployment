@@ -9,17 +9,20 @@ using UnityEngine.UI;
 
 namespace DecoAR.Auth
 {
-    // Ecran d'accueil : inscription (formulaire) et connexion (mot de passe ou Face ID)
+    // Ecran d'accueil : inscription (formulaire + defi de mouvements qui enregistre le visage),
+    // verification de l'e-mail, connexion (mot de passe ou visage avec defi), mot de passe oublie,
+    // et connexion automatique si la session est encore valide
     public class AuthScreen : MonoBehaviour
     {
-        [SerializeField] string apiBaseUrl = "http://localhost:3000";
-        [SerializeField] string nextSceneName = "M1_AvatarSelection";
-
         [Header("Mise en page (paysage / portrait)")]
         [SerializeField] CanvasScaler scaler;
         [SerializeField] RectTransform brandPanel;
         [SerializeField] GameObject brandDetails; // masque en portrait (pas la place)
         [SerializeField] RectTransform cardArea;
+
+        [Header("Chargement")]
+        [SerializeField] GameObject loadingPanel;
+        [SerializeField] TMP_Text loadingLabel;
 
         [Header("Inscription")]
         [SerializeField] GameObject registerPanel;
@@ -31,24 +34,51 @@ namespace DecoAR.Auth
         [SerializeField] AuthField confirmPassword;
         [SerializeField] Image[] strengthBars;
         [SerializeField] TMP_Text strengthLabel;
-        [SerializeField] GameObject registerFaceIdRow;
-        [SerializeField] Toggle registerFaceIdToggle;
         [SerializeField] TMP_Text registerStatus;
         [SerializeField] Button registerButton;
         [SerializeField] Button goToLoginButton;
+
+        [Header("Enregistrement du visage (inscription)")]
+        [SerializeField] GameObject enrollPanel;
+        [SerializeField] FaceChallenge enrollChallenge;
+        [SerializeField] TMP_Text enrollStatus;
+
+        [Header("Verification de l'e-mail")]
+        [SerializeField] GameObject verifyPanel;
+        [SerializeField] TMP_Text verifySubtitle;
+        [SerializeField] AuthField verifyCode;
+        [SerializeField] TMP_Text verifyStatus;
+        [SerializeField] Button verifyButton;
+        [SerializeField] Button resendButton;
+        [SerializeField] Button verifySwitchAccountButton;
 
         [Header("Connexion")]
         [SerializeField] GameObject loginPanel;
         [SerializeField] AuthField loginEmail;
         [SerializeField] AuthField loginPassword;
-        [SerializeField] GameObject loginFaceIdRow;
-        [SerializeField] Toggle loginFaceIdToggle;
+        [SerializeField] Button forgotLinkButton;
         [SerializeField] TMP_Text loginStatus;
         [SerializeField] Button loginButton;
-        [SerializeField] GameObject faceIdLoginGroup;
-        [SerializeField] Button faceIdLoginButton;
-        [SerializeField] TMP_Text faceIdLoginLabel;
+        [SerializeField] Button faceLoginButton;
         [SerializeField] Button goToRegisterButton;
+
+        [Header("Connexion par le visage")]
+        [SerializeField] GameObject faceLoginPanel;
+        [SerializeField] TMP_Text faceLoginSubtitle;
+        [SerializeField] FaceChallenge faceLoginChallenge;
+        [SerializeField] TMP_Text faceLoginStatus;
+
+        [Header("Mot de passe oublie")]
+        [SerializeField] GameObject forgotPanel;
+        [SerializeField] AuthField forgotEmail;
+        [SerializeField] Button forgotSendButton;
+        [SerializeField] GameObject forgotStep2;
+        [SerializeField] AuthField forgotCode;
+        [SerializeField] AuthField forgotPassword;
+        [SerializeField] AuthField forgotConfirm;
+        [SerializeField] Button forgotResetButton;
+        [SerializeField] TMP_Text forgotStatus;
+        [SerializeField] Button forgotBackButton;
 
         static readonly Regex EmailRe = new Regex(@"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$");
         static readonly Regex PhoneRe = new Regex(@"^\+?[0-9 ]{8,15}$");
@@ -63,29 +93,47 @@ namespace DecoAR.Auth
         };
         static readonly string[] StrengthNames = { "Trop faible", "Moyen", "Bon", "Excellent" };
 
-        IBiometricAuthenticator Bio => BiometricAuth.Current;
+        GameObject[] panels;
         bool busy;
         bool? portrait;
         // Texte d'origine des boutons pendant l'etat "chargement"
         readonly Dictionary<Button, string> idleLabels = new Dictionary<Button, string>();
 
-        void Awake()
-        {
-            AuthApi.BaseUrl = apiBaseUrl;
-        }
-
         void Start()
         {
-            registerButton.onClick.AddListener(OnRegister);
-            loginButton.onClick.AddListener(OnPasswordLogin);
-            faceIdLoginButton.onClick.AddListener(OnFaceIdLogin);
-            goToLoginButton.onClick.AddListener(() => ShowLogin(true));
-            goToRegisterButton.onClick.AddListener(() => ShowLogin(false));
+            panels = new[] { loadingPanel, registerPanel, enrollPanel, verifyPanel, loginPanel, faceLoginPanel, forgotPanel };
+
+            registerButton.onClick.AddListener(OnRegisterForm);
+            goToLoginButton.onClick.AddListener(() => ShowLogin());
             password.Input.onValueChanged.AddListener(UpdateStrength);
             UpdateStrength("");
 
-            // Face ID deja active sur ce telephone : on propose directement la connexion
-            ShowLogin(Bio.IsAvailable && BiometricVault.HasToken);
+            enrollChallenge.Purpose = "enroll";
+            enrollChallenge.StartText = "Commencer le défi";
+            enrollChallenge.Completed += OnFaceEnrolled;
+            enrollChallenge.Cancelled += () => Show(registerPanel);
+
+            verifyButton.onClick.AddListener(OnVerify);
+            verifyCode.Input.onValueChanged.AddListener(code => { if (code.Length == 6) OnVerify(); });
+            resendButton.onClick.AddListener(OnResend);
+            verifySwitchAccountButton.onClick.AddListener(() => { AuthSession.Logout(); ShowLogin(); });
+
+            loginButton.onClick.AddListener(OnPasswordLogin);
+            faceLoginButton.onClick.AddListener(ShowFaceLogin);
+            goToRegisterButton.onClick.AddListener(() => Show(registerPanel));
+
+            faceLoginChallenge.Purpose = "login";
+            faceLoginChallenge.StartText = "Me reconnaître";
+            faceLoginChallenge.Completed += OnFaceLogin;
+            faceLoginChallenge.Cancelled += () => ShowLogin();
+
+            forgotLinkButton.onClick.AddListener(ShowForgot);
+            forgotSendButton.onClick.AddListener(OnForgotSend);
+            forgotResetButton.onClick.AddListener(OnForgotReset);
+            forgotBackButton.onClick.AddListener(() => ShowLogin());
+
+            StartCoroutine(AuthApi.Wake()); // reveille le serveur en ligne pendant que l'utilisateur tape
+            AutoLogin();
         }
 
         void Update()
@@ -96,24 +144,24 @@ namespace DecoAR.Auth
 
         // ------------------------------------------------------------ navigation
 
-        void ShowLogin(bool login)
+        void Show(GameObject panel)
         {
-            registerPanel.SetActive(!login);
-            loginPanel.SetActive(login);
-            SetStatus(registerStatus, "", InfoColor);
-            SetStatus(loginStatus, "", InfoColor);
-            if (login && string.IsNullOrEmpty(loginEmail.RawValue))
-                loginEmail.Input.text = !string.IsNullOrEmpty(BiometricVault.Email) ? BiometricVault.Email : email.Value;
-            RefreshFaceId();
+            foreach (var p in panels) p.SetActive(p == panel);
+            foreach (var s in new[] { registerStatus, enrollStatus, verifyStatus, loginStatus, faceLoginStatus, forgotStatus }) SetStatus(s, "", InfoColor);
         }
 
-        void RefreshFaceId()
+        void ShowLogin(string message = null)
         {
-            bool available = Bio.IsAvailable;
-            registerFaceIdRow.SetActive(available);
-            loginFaceIdRow.SetActive(available && !BiometricVault.HasToken);
-            faceIdLoginGroup.SetActive(available && BiometricVault.HasToken);
-            faceIdLoginLabel.text = $"Se connecter avec {Bio.Label}";
+            Show(loginPanel);
+            if (string.IsNullOrEmpty(loginEmail.RawValue))
+                loginEmail.Input.text = !string.IsNullOrEmpty(AuthSession.LastEmail) ? AuthSession.LastEmail : email.Value;
+            if (message != null) SetStatus(loginStatus, message, ErrorColor);
+        }
+
+        void ShowLoading(string text)
+        {
+            Show(loadingPanel);
+            loadingLabel.text = text;
         }
 
         void ApplyLayout(bool isPortrait)
@@ -142,25 +190,80 @@ namespace DecoAR.Auth
             rt.offsetMin = rt.offsetMax = Vector2.zero;
         }
 
+        // ------------------------------------------------------------ connexion automatique
+
+        void AutoLogin()
+        {
+            if (!AuthSession.IsLoggedIn)
+            {
+                // Deja venu sur ce telephone : connexion ; sinon : inscription
+                if (!string.IsNullOrEmpty(AuthSession.LastEmail)) ShowLogin();
+                else Show(registerPanel);
+                return;
+            }
+
+            ShowLoading($"Reconnexion de {AuthSession.User.firstName}…");
+            StartCoroutine(AuthApi.Me(AuthSession.Token, r =>
+            {
+                if (r.Ok)
+                {
+                    AuthSession.UpdateUser(r.Data.user);
+                    ContinueAfterAuth(loadingLabel);
+                }
+                else if (r.Status == 401)
+                {
+                    AuthSession.Logout();
+                    ShowLogin("Session expirée, reconnecte-toi");
+                }
+                else ShowLogin(r.Error);
+            }));
+        }
+
+        // Apres inscription / connexion : e-mail verifie -> boutique
+        void ContinueAfterAuth(TMP_Text status)
+        {
+            if (!AuthSession.User.emailVerified) { ShowVerify(); return; }
+            Welcome(status);
+        }
+
         // ------------------------------------------------------------ inscription
 
-        void OnRegister()
+        // Etape 1 : le formulaire est valide localement, on passe a la camera
+        void OnRegisterForm()
         {
             if (busy) return;
             if (!ValidateRegister(out string error)) { SetStatus(registerStatus, error, ErrorColor); return; }
+            Show(enrollPanel);
+        }
 
-            SetBusy(registerButton, true, "Création du compte…");
-            StartCoroutine(AuthApi.Register(firstName.Value, lastName.Value, email.Value.ToLowerInvariant(), phone.Value, password.RawValue, r =>
+        // Etape 2 : defi de mouvements reussi -> creation du compte (le serveur revérifie tout avec OpenCV)
+        void OnFaceEnrolled(FaceProof proof)
+        {
+            if (busy) return;
+            busy = true;
+            enrollChallenge.SetMessage("Création du compte…");
+            SetStatus(enrollStatus, "", InfoColor);
+            StartCoroutine(AuthApi.Register(firstName.Value, lastName.Value, email.Value.ToLowerInvariant(), phone.Value, password.RawValue, proof, r =>
             {
+                busy = false;
                 if (!r.Ok)
                 {
-                    SetBusy(registerButton, false);
-                    FieldFor(r.Field)?.SetError(true);
-                    SetStatus(registerStatus, r.Error, ErrorColor);
+                    if (r.Field == "face" || r.IsNetworkError)
+                    {
+                        // Defi refuse (mouvement douteux, visage deja utilise...) : on recommence le defi
+                        enrollChallenge.Fail(r.Error);
+                    }
+                    else
+                    {
+                        // Probleme dans le formulaire (e-mail deja pris...) : retour au formulaire
+                        Show(registerPanel);
+                        FieldFor(r.Field)?.SetError(true);
+                        SetStatus(registerStatus, r.Error, ErrorColor);
+                    }
                     return;
                 }
                 AuthSession.Set(r.Data.token, r.Data.user);
-                AfterLogin(registerStatus, registerFaceIdRow.activeSelf && registerFaceIdToggle.isOn);
+                ContinueAfterAuth(enrollStatus);
             }));
         }
 
@@ -212,7 +315,53 @@ namespace DecoAR.Auth
             strengthLabel.color = pw.Length == 0 ? (Color)InfoColor : on;
         }
 
-        // ------------------------------------------------------------ connexion
+        // ------------------------------------------------------------ verification de l'e-mail
+
+        void ShowVerify()
+        {
+            Show(verifyPanel);
+            verifyCode.Clear();
+            verifySubtitle.text = $"Saisis le code à 6 chiffres envoyé à <b>{AuthSession.User.email}</b>";
+        }
+
+        void OnVerify()
+        {
+            if (busy) return;
+            string code = verifyCode.Value;
+            if (code.Length != 6)
+            {
+                verifyCode.SetError(true);
+                SetStatus(verifyStatus, "Le code contient 6 chiffres", ErrorColor);
+                return;
+            }
+
+            SetBusy(verifyButton, true, "Vérification…");
+            StartCoroutine(AuthApi.VerifyEmail(AuthSession.Token, code, r =>
+            {
+                SetBusy(verifyButton, false);
+                if (!r.Ok)
+                {
+                    verifyCode.SetError(true);
+                    SetStatus(verifyStatus, r.Error, ErrorColor);
+                    return;
+                }
+                AuthSession.UpdateUser(r.Data.user);
+                ContinueAfterAuth(verifyStatus);
+            }));
+        }
+
+        void OnResend()
+        {
+            if (busy) return;
+            SetBusy(resendButton, true, "Envoi…");
+            StartCoroutine(AuthApi.ResendVerification(AuthSession.Token, r =>
+            {
+                SetBusy(resendButton, false);
+                SetStatus(verifyStatus, r.Ok ? "Nouveau code envoyé, regarde tes e-mails (et les spams)" : r.Error, r.Ok ? SuccessColor : ErrorColor);
+            }));
+        }
+
+        // ------------------------------------------------------------ connexion par mot de passe
 
         void OnPasswordLogin()
         {
@@ -230,80 +379,115 @@ namespace DecoAR.Auth
             SetBusy(loginButton, true, "Connexion…");
             StartCoroutine(AuthApi.Login(loginEmail.Value.ToLowerInvariant(), loginPassword.RawValue, r =>
             {
+                SetBusy(loginButton, false);
                 if (!r.Ok)
                 {
-                    SetBusy(loginButton, false);
                     loginPassword.SetError(true);
                     SetStatus(loginStatus, r.Error, ErrorColor);
                     return;
                 }
                 AuthSession.Set(r.Data.token, r.Data.user);
-                AfterLogin(loginStatus, loginFaceIdRow.activeSelf && loginFaceIdToggle.isOn);
+                ContinueAfterAuth(loginStatus);
             }));
         }
 
-        void OnFaceIdLogin()
+        // ------------------------------------------------------------ connexion par le visage
+
+        // E-mail saisi : on compare a CE compte (plus sur). Sinon : on cherche parmi tous les comptes.
+        string FaceLoginEmail => EmailRe.IsMatch(loginEmail.Value) ? loginEmail.Value.ToLowerInvariant() : null;
+
+        void ShowFaceLogin()
+        {
+            Show(faceLoginPanel);
+            faceLoginSubtitle.text = FaceLoginEmail != null
+                ? $"Regarde la caméra pour te connecter en tant que <b>{FaceLoginEmail}</b>"
+                : "Suis les mouvements demandés : DecoAR va te reconnaître";
+        }
+
+        void OnFaceLogin(FaceProof proof)
         {
             if (busy) return;
-            string savedEmail = BiometricVault.Email;
-            SetBusy(faceIdLoginButton, true, $"{Bio.Label}…");
-
-            Bio.Authenticate("Connecte-toi à DecoAR", (ok, err) =>
+            busy = true;
+            faceLoginChallenge.SetMessage("Reconnaissance en cours…");
+            SetStatus(faceLoginStatus, "", InfoColor);
+            StartCoroutine(AuthApi.FaceLogin(FaceLoginEmail, proof, r =>
             {
-                if (!ok)
+                busy = false;
+                if (!r.Ok)
                 {
-                    SetBusy(faceIdLoginButton, false);
-                    SetStatus(loginStatus, err ?? "Visage non reconnu", ErrorColor);
+                    faceLoginChallenge.Fail(r.Error);
                     return;
                 }
-                StartCoroutine(AuthApi.BiometricLogin(savedEmail, BiometricAuth.DeviceId, BiometricVault.Token, r =>
-                {
-                    SetBusy(faceIdLoginButton, false);
-                    if (!r.Ok)
-                    {
-                        // Jeton refuse (Face ID desactive ailleurs) : on repasse au mot de passe
-                        if (r.Status == 401) { BiometricVault.Clear(); RefreshFaceId(); }
-                        SetStatus(loginStatus, r.Error, ErrorColor);
-                        return;
-                    }
-                    AuthSession.Set(r.Data.token, r.Data.user);
-                    Welcome(loginStatus);
-                }));
-            });
+                AuthSession.Set(r.Data.token, r.Data.user);
+                ContinueAfterAuth(faceLoginStatus);
+            }));
         }
 
-        // Apres inscription / connexion : active Face ID si demande, puis entre dans l'app
-        void AfterLogin(TMP_Text status, bool enableFaceId)
-        {
-            if (!enableFaceId) { Welcome(status); return; }
+        // ------------------------------------------------------------ mot de passe oublie
 
-            SetStatus(status, $"Valide avec {Bio.Label} pour l'activer…", InfoColor);
-            Bio.Authenticate($"Active {Bio.Label} pour te connecter plus vite", (ok, err) =>
+        void ShowForgot()
+        {
+            Show(forgotPanel);
+            forgotStep2.SetActive(false);
+            forgotEmail.Input.text = loginEmail.Value;
+        }
+
+        void OnForgotSend()
+        {
+            if (busy) return;
+            if (!EmailRe.IsMatch(forgotEmail.Value))
             {
-                if (!ok)
+                forgotEmail.SetError(true);
+                SetStatus(forgotStatus, "Adresse e-mail invalide", ErrorColor);
+                return;
+            }
+            SetBusy(forgotSendButton, true, "Envoi…");
+            StartCoroutine(AuthApi.ForgotPassword(forgotEmail.Value.ToLowerInvariant(), r =>
+            {
+                SetBusy(forgotSendButton, false);
+                if (!r.Ok) { SetStatus(forgotStatus, r.Error, ErrorColor); return; }
+                forgotStep2.SetActive(true);
+                SetStatus(forgotStatus, "Si un compte existe, un code vient d'être envoyé (pense aux spams)", SuccessColor);
+            }));
+        }
+
+        void OnForgotReset()
+        {
+            if (busy) return;
+            bool codeOk = forgotCode.Value.Length == 6;
+            bool pwOk = PasswordScore(forgotPassword.RawValue) >= 1;
+            bool sameOk = forgotConfirm.RawValue == forgotPassword.RawValue;
+            forgotCode.SetError(!codeOk);
+            forgotPassword.SetError(!pwOk);
+            forgotConfirm.SetError(!sameOk);
+            if (!codeOk || !pwOk || !sameOk)
+            {
+                SetStatus(forgotStatus, !codeOk ? "Le code contient 6 chiffres"
+                    : !pwOk ? "Mot de passe : 8 caractères minimum avec lettres et chiffres"
+                    : "Les mots de passe ne correspondent pas", ErrorColor);
+                return;
+            }
+
+            SetBusy(forgotResetButton, true, "Changement…");
+            StartCoroutine(AuthApi.ResetPassword(forgotEmail.Value.ToLowerInvariant(), forgotCode.Value, forgotPassword.RawValue, r =>
+            {
+                SetBusy(forgotResetButton, false);
+                if (!r.Ok)
                 {
-                    // Le compte est cree quand meme : Face ID pourra etre active plus tard
-                    Welcome(status, $"{Bio.Label} non activé ({err})");
+                    (r.Field == "password" ? forgotPassword : forgotCode).SetError(true);
+                    SetStatus(forgotStatus, r.Error, ErrorColor);
                     return;
                 }
-                StartCoroutine(AuthApi.EnrollBiometric(AuthSession.Token, BiometricAuth.DeviceId, BiometricAuth.DeviceName, r =>
-                {
-                    if (r.Ok)
-                    {
-                        BiometricVault.Save(AuthSession.User.email, r.Data.biometricToken);
-                        AuthSession.UpdateUser(r.Data.user);
-                        Welcome(status, $"{Bio.Label} activé");
-                    }
-                    else Welcome(status, $"{Bio.Label} non activé ({r.Error})");
-                }));
-            });
+                AuthSession.Set(r.Data.token, r.Data.user);
+                ContinueAfterAuth(forgotStatus);
+            }));
         }
 
-        void Welcome(TMP_Text status, string extra = null)
+        // ------------------------------------------------------------ fin
+
+        void Welcome(TMP_Text status)
         {
-            string text = $"Bienvenue {AuthSession.User.firstName} !";
-            if (!string.IsNullOrEmpty(extra)) text += $"\n<size=80%>{extra}</size>";
-            SetStatus(status, text, SuccessColor);
+            SetStatus(status, $"Bienvenue {AuthSession.User.firstName} !", SuccessColor);
             busy = true;
             StartCoroutine(LoadNext());
         }
@@ -311,8 +495,9 @@ namespace DecoAR.Auth
         IEnumerator LoadNext()
         {
             yield return new WaitForSeconds(1.2f);
-            if (Application.CanStreamedLevelBeLoaded(nextSceneName)) SceneManager.LoadScene(nextSceneName);
-            else Debug.LogWarning($"[Auth] Scene '{nextSceneName}' absente des Build Settings");
+            string next = AuthSettings.Get().firstSceneAfterLogin;
+            if (Application.CanStreamedLevelBeLoaded(next)) SceneManager.LoadScene(next);
+            else Debug.LogWarning($"[Auth] Scene '{next}' absente des Build Settings");
         }
 
         // ------------------------------------------------------------ utilitaires

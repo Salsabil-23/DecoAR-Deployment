@@ -8,9 +8,13 @@ async function main() {
 
   const port = Number(process.env.PORT) || 3000;
   // 0.0.0.0 : accessible depuis le telephone sur le meme Wi-Fi
-  createApp().listen(port, '0.0.0.0', () => {
+  const server = createApp().listen(port, '0.0.0.0', () => {
     console.log(`[API] DecoAR en ecoute sur http://localhost:${port}`);
   });
+  // Node ferme les connexions inactives apres 5 s ; Unity (Android) les reutilise plus tard
+  // et recoit "Connection reset by peer". On les garde ouvertes plus longtemps que le client.
+  server.keepAliveTimeout = 65_000;
+  server.headersTimeout = 66_000;
 }
 
 main().catch((err) => {
