@@ -23,6 +23,10 @@ namespace DecoAR.AR.EditorTools
         const string HolderWallPath = Root + "/Prefabs/M4_Holder_Wall.prefab";
         const string ShadowMatPath = Root + "/Materials/ShadowCatcher_Mat.mat";
         const string CatalogPath = "Assets/DecoAR/M3_ProductCatalog/Data/M3_ProductCatalog.asset";
+        const string TemplatePlanePath = "Assets/MobileARTemplateAssets/Prefabs/ARFeatheredOcclusionPlane.prefab";
+        const string LogoPlanePath = Root + "/Prefabs/M4_LogoPlane.prefab";
+        const string LogoPlaneMatPath = Root + "/Materials/M4_LogoPlane.mat";
+        const string LogoPath = "Assets/DecoAR/Core/Icons/DecoAR_Icon.png";
 
         static readonly Color Dark = new Color(0.17f, 0.14f, 0.11f, 0.85f);
         static readonly Color Cream = new Color(0.98f, 0.95f, 0.89f);
@@ -64,6 +68,12 @@ namespace DecoAR.AR.EditorTools
                 sun.shadows = LightShadows.Soft;   // ombre portee sur le shadow catcher (F4.3)
             }
             else Debug.LogWarning("[M4] ARCameraManager ou lumiere directionnelle introuvable : M4_LightMatcher non configure");
+
+            // --- surfaces detectees : logo DecoAR a la place des points du template (F4.1)
+            var planeManager = Object.FindAnyObjectByType<ARPlaneManager>();
+            var logoPlane = BuildLogoPlanePrefab();
+            if (planeManager != null && logoPlane != null) Set(planeManager, "m_PlanePrefab", logoPlane);
+            else Debug.LogWarning("[M4] ARPlaneManager ou prefab de plan introuvable : visuel des surfaces inchange");
 
             // --- interface
             var old = GameObject.Find("M4_Canvas");
@@ -115,6 +125,40 @@ namespace DecoAR.AR.EditorTools
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log("[M4] Scene AR completee : " + ScenePath);
+        }
+
+        // Variante du plan du template (bord adouci, fondu, occlusion conserves) avec le materiau logo en premier
+        static GameObject BuildLogoPlanePrefab()
+        {
+            var template = AssetDatabase.LoadAssetAtPath<GameObject>(TemplatePlanePath);
+            var logo = AssetDatabase.LoadAssetAtPath<Texture2D>(LogoPath);
+            var shader = Shader.Find("DecoAR/M4 Logo Plane");
+            if (template == null || logo == null || shader == null)
+            {
+                Debug.LogError($"[M4] Plan logo impossible : template={template != null} logo={logo != null} shader={shader != null}");
+                return null;
+            }
+
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(LogoPlaneMatPath);
+            if (mat == null)
+            {
+                mat = new Material(shader);
+                AssetDatabase.CreateAsset(mat, LogoPlaneMatPath);
+            }
+            mat.shader = shader;
+            mat.SetTexture("_LogoTex", logo);
+            EditorUtility.SetDirty(mat);
+
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(template);
+            var renderer = instance.GetComponent<MeshRenderer>();
+            var mats = renderer.sharedMaterials;
+            mats[0] = mat;
+            renderer.sharedMaterials = mats;
+            instance.name = "M4_LogoPlane";
+            var prefab = PrefabUtility.SaveAsPrefabAsset(instance, LogoPlanePath);
+            Object.DestroyImmediate(instance);
+            Debug.Log("[M4] Plan logo : " + LogoPlanePath);
+            return prefab;
         }
 
         static void WireSpawnTrigger(M4PlacementGate gate)
