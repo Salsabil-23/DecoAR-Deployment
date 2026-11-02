@@ -9,13 +9,13 @@ namespace DecoAR.Core
     {
         public static GameManager Instance { get; private set; }
 
-        const string KeyAvatar = "DecoAR.AvatarIndex";
-        const string KeyOutfit = "DecoAR.OutfitColor";
+        const string KeyLook = "DecoAR.Look";
         const string KeyGyro = "DecoAR.GyroEnabled";
         const string KeyHaptics = "DecoAR.HapticsEnabled";
 
-        public int AvatarIndex { get; private set; }
-        public Color OutfitColor { get; private set; } = Color.white;
+        // Apparence du personnage (M1), lue par la boutique, l'AR et la caisse
+        AvatarLook look = new AvatarLook();
+        public AvatarLook Look => look.Clone();
         public bool GyroEnabled { get; private set; }
         public bool HapticsEnabled { get; private set; } = true;
         public bool IsNight { get; set; }
@@ -69,19 +69,16 @@ namespace DecoAR.Core
 
         void Load()
         {
-            AvatarIndex = PlayerPrefs.GetInt(KeyAvatar, 0);
-            if (ColorUtility.TryParseHtmlString("#" + PlayerPrefs.GetString(KeyOutfit, "FFFFFFFF"), out var c))
-                OutfitColor = c;
+            string json = PlayerPrefs.GetString(KeyLook, "");
+            if (!string.IsNullOrEmpty(json)) JsonUtility.FromJsonOverwrite(json, look);
             GyroEnabled = PlayerPrefs.GetInt(KeyGyro, 0) == 1;
             HapticsEnabled = PlayerPrefs.GetInt(KeyHaptics, 1) == 1;
         }
 
-        public void SetAvatar(int index, Color outfitColor)
+        public void SetLook(AvatarLook newLook)
         {
-            AvatarIndex = index;
-            OutfitColor = outfitColor;
-            PlayerPrefs.SetInt(KeyAvatar, index);
-            PlayerPrefs.SetString(KeyOutfit, ColorUtility.ToHtmlStringRGBA(outfitColor));
+            look = newLook.Clone();
+            PlayerPrefs.SetString(KeyLook, JsonUtility.ToJson(look));
             PlayerPrefs.Save();
         }
 

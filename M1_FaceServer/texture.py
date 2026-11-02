@@ -1,0 +1,252 @@
+"""Texture de la tete : chaque point de la texture FLAME prend sa couleur dans la photo ou il est le
+mieux vu (face pour le visage, cotes pour les joues et les oreilles). Ce qu'aucune photo ne voit
+(arriere du crane) prend la couleur des cheveux ou de la peau mesuree."""
+import cv2
+import numpy as np
+
+from fit import Fit, View, project_vertices
+from flame_model import Flame
+
+
+def _raster(tri, size, depth=None):
+    """Rasterise des triangles 2D (pixels). Retourne l'indice du triangle et les barycentriques par pixel ;
+    avec `depth`, garde le plus proche de la camera (z-buffer)."""
+    h, w = size
+    face_id = np.full((h, w), -1, np.int64)
+    bary = np.zeros((h, w, 3), np.float32)
+    zbuf = np.full((h, w), -np.inf, np.float32)
+    for i, (a, b, c) in enumerate(tri):
+        x0, y0 = np.floor(np.minimum(np.minimum(a, b), c)).astype(int)
+        x1, y1 = np.ceil(np.maximum(np.maximum(a, b), c)).astype(int)
+        x0, y0, x1, y1 = max(x0, 0), max(y0, 0), min(x1, w - 1), min(y1, h - 1)
+        if x0 > x1 or y0 > y1:
+            continue
+        den = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
+        if abs(den) < 1e-9:
+            continue
+        xs, ys = np.meshgrid(np.arange(x0, x1 + 1) + 0.5, np.arange(y0, y1 + 1) + 0.5)
+        l0 = ((b[1] - c[1]) * (xs - c[0]) + (c[0] - b[0]) * (ys - c[1])) / den
+        l1 = ((c[1] - a[1]) * (xs - c[0]) + (a[0] - c[0]) * (ys - c[1])) / den
+        l2 = 1 - l0 - l1
+        inside = (l0 >= -1e-4) & (l1 >= -1e-4) & (l2 >= -1e-4)
+        if not inside.any():
+            continue
+        yy, xx = ys[inside].astype(int), xs[inside].astype(int)
+        lb = np.stack([l0[inside], l1[inside], l2[inside]], 1)
+        if depth is not None:
+            z = lb @ depth[i]
+            closer = z > zbuf[yy, xx]
+            yy, xx, lb, z = yy[closer], xx[closer], lb[closer], z[closer]
+            zbuf[yy, xx] = z
+        face_id[yy, xx] = i
+        bary[yy, xx] = lb
+    return face_id, bary, zbuf
+
+
+def _sample(image, points):
+    """Couleur bilineaire aux positions (x, y) en pixels (cv2.remap refuse plus de 32767 points d'un coup)."""
+    h, w = image.shape[:2]
+    x = np.clip(points[:, 0] - 0.5, 0, w - 1.001)
+    y = np.clip(points[:, 1] - 0.5, 0, h - 1.001)
+    x0, y0 = x.astype(int), y.astype(int)
+    fx, fy = (x - x0)[:, None], (y - y0)[:, None]
+    img = image.astype(np.float32)
+    top = img[y0, x0] * (1 - fx) + img[y0, x0 + 1] * fx
+    bottom = img[y0 + 1, x0] * (1 - fx) + img[y0 + 1, x0 + 1] * fx
+    return top * (1 - fy) + bottom * fy
+
+
+def delight(tex, covered, skin, size):
+    """Retire l'eclairage de la piece incruste dans la peau (ombre sous le menton, joue plus sombre,
+    front brillant) : comme une texture de peau MetaPerson, l'eclairage vient ensuite de la scene 3D.
+    Seule la peau sert a mesurer la lumiere ; barbe, sourcils, yeux et cheveux gardent leur couleur."""
+    img = tex.astype(np.float32)
+    lum = img @ np.array([0.114, 0.587, 0.299], np.float32)
+    skin_lum = float(skin @ np.array([0.114, 0.587, 0.299]))
+    mask = (covered & (lum > skin_lum * 0.8) & (lum < skin_lum * 2.4)).astype(np.float32)
+    sigma = size / 50
+    den = cv2.GaussianBlur(mask, (0, 0), sigma) + 1e-4
+    # Luminosite seulement : corriger chaque couleur separement verdit la barbe
+    low = cv2.GaussianBlur(lum * mask, (0, 0), sigma) / den
+    gain = np.clip(skin_lum / np.maximum(low, 1.0), 0.65, 1.35) ** 0.85
+    gain = np.where(den > 0.02, gain, 1.0)
+    out = img * gain[:, :, None]
+    return np.clip(out, 0, 255).astype(np.uint8)
+
+
+def _smooth_vertices(values, faces, iterations):
+    """Moyenne avec les sommets voisins (degrade sur le maillage)."""
+    from scipy import sparse
+    n = len(values)
+    i = np.concatenate([faces[:, 0], faces[:, 1], faces[:, 2], faces[:, 1], faces[:, 2], faces[:, 0]])
+    j = np.concatenate([faces[:, 1], faces[:, 2], faces[:, 0], faces[:, 0], faces[:, 1], faces[:, 2]])
+    adj = sparse.coo_matrix((np.ones(len(i)), (i, j)), shape=(n, n)).tocsr()
+    adj.data[:] = 1
+    deg = np.asarray(adj.sum(1)).ravel() + 1
+    out = values.astype(np.float64)
+    for _ in range(iterations):
+        out = (adj @ out + out) / deg
+    return out
+
+
+def _vertex_normals(v, faces):
+    n = np.zeros_like(v)
+    fn = np.cross(v[faces[:, 1]] - v[faces[:, 0]], v[faces[:, 2]] - v[faces[:, 0]])
+    for k in range(3):
+        np.add.at(n, faces[:, k], fn)
+    return n / (np.linalg.norm(n, axis=1, keepdims=True) + 1e-9)
+
+
+def _median_color(image, points):
+    h, w = image.shape[:2]
+    pts = np.clip(points.astype(int), 0, [w - 1, h - 1])
+    return np.median(image[pts[:, 1], pts[:, 0]].astype(np.float32), axis=0)
+
+
+def measure_colors(view: View):
+    """Peau (joues) et cheveux (au-dessus du front, si plus sombres que la peau)."""
+    p = view.points[:, :2]
+    cheeks = np.concatenate([p[[50, 101, 118, 117]], p[[280, 330, 347, 346]]])
+    skin = _median_color(view.image, cheeks)
+    top, chin = p[10], p[152]
+    up = (top - chin) / (np.linalg.norm(top - chin) + 1e-6)
+    side = np.array([up[1], -up[0]])
+    height = np.linalg.norm(top - chin)
+    samples = [top + up * height * d + side * height * s for d in (0.08, 0.14, 0.2) for s in (-0.2, -0.1, 0, 0.1, 0.2)]
+    h, w = view.image.shape[:2]
+    pts = np.clip(np.asarray(samples).astype(int), 0, [w - 1, h - 1])
+    colors = view.image[pts[:, 1], pts[:, 0]].astype(np.float32)
+    lum = colors @ np.array([0.114, 0.587, 0.299])        # BGR
+    skin_lum = skin @ np.array([0.114, 0.587, 0.299])
+    dark = colors[lum < skin_lum * 0.75]
+    has_hair = len(dark) >= 5
+    hair = np.median(dark, axis=0) if has_hair else skin * 0.9
+    return skin, hair, has_hair
+
+
+def bake(flame: Flame, fit_result: Fit, views, size=1024, hair_zone=None):
+    v = fit_result.vertices
+    faces = flame.obj_faces
+    normals = _vertex_normals(v, flame.faces)
+
+    # Chaque texel : son triangle et sa position sur ce triangle. Interieur de la bouche et des paupieres
+    # tombent au meme endroit de la texture que la peau : la surface la plus exterieure l'emporte.
+    uv_px = np.stack([flame.uv[:, 0] * size, (1 - flame.uv[:, 1]) * size], 1)
+    t = flame.v_template
+    radius = np.linalg.norm((t - t.mean(0))[:, [0, 2]], axis=1).astype(np.float32)
+    face_id, bary, _ = _raster(uv_px[flame.uv_faces], (size, size), radius[faces])
+    covered = face_id >= 0
+    fid, b = face_id[covered], bary[covered]
+    corners = faces[fid]                                    # (n, 3) sommets du triangle
+
+    # Bas du cou souvent cache par un col sur les photos : couleur de la peau. Le haut du cou (sous la
+    # machoire, ou pousse la barbe) garde la photo.
+    neck = np.zeros(len(v), bool)
+    for key in ("neck", "boundary"):
+        if key in flame.masks:
+            neck[flame.masks[key]] = True
+    face_mask = flame.masks.get("face")
+    chin = v[face_mask, 1].min() if face_mask is not None else v[:, 1].min()
+    # fondu progressif sur 3 cm sous le menton : la barbe se perd dans le cou au lieu de s'arreter net
+    fade_v = np.where(neck, np.clip((v[:, 1] - (chin - 0.02)) / 0.025, 0, 1), 1.0)
+    # Dessous du menton (tourne vers le bas, donc dans l'ombre sur les photos) : surtout couleur de peau
+    t_normals = _vertex_normals(flame.v_template, flame.faces)
+    under = neck & ((t_normals[:, 1] < -0.15) | (v[:, 1] < chin - 0.005))
+    fade_v = np.where(under, fade_v * 0.35, np.where(neck, fade_v * 0.5, fade_v))
+    # degrade doux entre le visage (photo) et le cou (peau), sans marche
+    fade_v = np.clip(_smooth_vertices(fade_v, flame.faces, 3), 0, 1)
+    photo_fade = (fade_v[corners] * b).sum(1)
+    no_photo = photo_fade <= 0
+
+    skin_lum0 = float(measure_colors(views[0])[0] @ np.array([0.114, 0.587, 0.299]))
+    colors, weights = [], []
+    for k, view in enumerate(views):
+        img = view.image
+        h, w = img.shape[:2]
+        xy, depth = project_vertices(fit_result, k)
+
+        # Visibilite : z-buffer de la tete vue depuis cette photo (en basse resolution)
+        down = 2
+        zid, _, zbuf = _raster(xy[flame.faces] / down, (h // down + 1, w // down + 1), depth[flame.faces])
+
+        p = (xy[corners] * b[:, :, None]).sum(1)
+        z = (depth[corners] * b).sum(1)
+        n = (normals[corners] * b[:, :, None]).sum(1) @ fit_result.rotations[k].T
+        facing = np.clip(n[:, 2], 0, 1)
+        qx = np.clip((p[:, 0] / down).astype(int), 0, zbuf.shape[1] - 1)
+        qy = np.clip((p[:, 1] / down).astype(int), 0, zbuf.shape[0] - 1)
+        # tolerance de 8 mm : les surfaces fuyantes (haut du front) ne clignotent pas d'un triangle a l'autre
+        visible = z >= zbuf[qy, qx] - 0.008 * fit_result.scales[k]
+        inside = (p[:, 0] >= 0) & (p[:, 0] < w) & (p[:, 1] >= 0) & (p[:, 1] < h)
+        # Seulement a l'interieur du visage detecte (un peu elargi pour les oreilles et le front) :
+        # un leger decalage au bord ne prend pas le fond de la piece
+        hull = cv2.convexHull(view.points[:, :2].astype(np.float32))
+        center = view.points[:, :2].mean(0)
+        hull = ((hull - center) * 1.2 + center).astype(np.int32)   # assez large pour la barbe sous la machoire
+        face_area = np.zeros((h, w), np.float32)
+        cv2.fillConvexPoly(face_area, hull, 1.0)
+        # bord adouci : pas de marche brusque entre deux photos
+        face_area = cv2.GaussianBlur(face_area, (0, 0), w * 0.015)
+        px = np.clip(p[:, 0].astype(int), 0, w - 1)
+        py = np.clip(p[:, 1].astype(int), 0, h - 1)
+        in_face = face_area[py, px]
+        wk = np.clip((facing - 0.25) / 0.5, 0, 1) ** 2 * visible * inside * in_face
+        wk[no_photo] = 0
+
+        color = _sample(img, p)
+        # Bien plus clair que la peau : c'est le fond (fenetre, mur) vu a travers le bord de l'oreille
+        wk[color @ np.array([0.114, 0.587, 0.299]) > skin_lum0 * 1.3] = 0
+        colors.append(color)
+        weights.append(wk.astype(np.float32))
+
+    # La vue de face est la plus nette : les cotes ne completent que la ou elle voit mal (joues, oreilles)
+    for k in range(1, len(views)):
+        weights[k] = weights[k] * np.clip(1 - weights[0] * 1.3, 0, 1) * 0.6
+
+    # Exposition : chaque vue de cote est ramenee a la luminosite de la vue de face, sur les zones
+    # vues par les deux (sinon le visage ressemble a un patchwork)
+    for k in range(1, len(views)):
+        both = (weights[0] > 0.3) & (weights[k] > 0.3)
+        if both.sum() > 200:
+            gain = np.median(colors[0][both], 0) / np.maximum(np.median(colors[k][both], 0), 1)
+            # luminosite librement, teinte a +-6 % seulement (sinon dominante verte ou rose)
+            g = float(np.clip(np.mean(gain), 0.7, 1.4))
+            colors[k] = colors[k] * (g * np.clip(gain / g, 0.94, 1.06))
+
+    total = sum(c * wt[:, None] for c, wt in zip(colors, weights))
+    weight = sum(weights)
+
+    # Zones jamais vues : sous les cheveux -> couleur des cheveux, le reste -> peau
+    skin, hair, _ = measure_colors(views[0])
+    if hair_zone is not None:
+        scalp = hair_zone > 0.5
+    else:
+        scalp = np.zeros(len(v), bool)
+        if "scalp" in flame.masks:
+            scalp[flame.masks["scalp"]] = True
+    # Frontiere peau / cheveux adoucie (sinon elle suit les triangles en escalier)
+    hair_map = np.zeros((size, size), np.float32)
+    hair_map[covered] = scalp[corners].mean(1)
+    hair_map = cv2.GaussianBlur(hair_map, (0, 0), size / 120)[covered][:, None]
+    fill = (hair * hair_map + skin * (1 - hair_map)).astype(np.float32)
+
+    # Vu par une photo, meme de biais : sa vraie couleur (barbe, ombres), pas un melange avec la peau unie
+    seen = (np.clip(weight / 0.05, 0, 1) * photo_fade)[:, None]
+    baked = total / np.maximum(weight, 1e-6)[:, None]
+    texels = baked * seen + fill * (1 - seen)
+
+    tex = np.zeros((size, size, 3), np.float32)
+    tex[covered] = texels
+    # Bords des ilots UV : on deborde un peu pour eviter les coutures noires
+    tex = np.clip(tex, 0, 255).astype(np.uint8)   # l'exposition corrigee peut depasser 255
+    mask = (~covered).astype(np.uint8) * 255
+    tex = cv2.inpaint(tex, mask, 3, cv2.INPAINT_TELEA)
+    tex = delight(tex, covered, skin, size)
+    # Bas du cou en legere ombre (comme sous la machoire d'un vrai cou) : la jointure avec le cou du
+    # corps se fond dans l'ombre au lieu de faire une plaque claire
+    drop = np.where(neck, np.clip((chin - 0.01 - v[:, 1]) / 0.03, 0, 1), 0.0)
+    shade = np.ones((size, size), np.float32)
+    shade[covered] = 1 - 0.18 * (drop[corners] * b).sum(1)
+    shade = cv2.GaussianBlur(shade, (0, 0), size / 200)[:, :, None]
+    tex = np.clip(tex * shade, 0, 255).astype(np.uint8)
+    return tex, skin, hair
