@@ -1,0 +1,46 @@
+# Deploiement du backend DecoAR sur Render (Blueprint) : Render > New > Blueprint > ce depot.
+# Les valeurs "sync: false" sont demandees a la creation (jamais ecrites dans Git).
+services:
+  - type: web
+    name: decoar-api
+    runtime: node
+    plan: free
+    rootDir: Backend
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # Render gratuit bloque le SMTP (Gmail) : e-mails envoyes par l'API HTTP de Brevo
+      - key: BREVO_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      # Service Python de reconnaissance faciale (ci-dessous) : URL https://decoar-face.onrender.com
+      - key: FACE_SERVICE_URL
+        sync: false
+      - key: FACE_SERVICE_KEY
+        sync: false
+
+  # Reconnaissance faciale OpenCV (YuNet + SFace), appelee uniquement par decoar-api
+  - type: web
+    name: decoar-face
+    runtime: python
+    plan: free
+    rootDir: face-service
+    buildCommand: pip install -r requirements.txt && python download_models.py
+    startCommand: gunicorn -w 1 --threads 2 -b 0.0.0.0:$PORT app:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.1"
+      # Meme valeur que FACE_SERVICE_KEY de decoar-api
+      - key: FACE_SERVICE_KEY
+        sync: false
