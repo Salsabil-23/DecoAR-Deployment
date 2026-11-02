@@ -17,4 +17,4 @@ MonoBehaviour:
   lockAfterSeconds: 300
   authScene: Auth
   profileScene: Profile
-  firstSceneAfterLogin: M1_AvatarSelection
+  firstSceneAfterLogin: M1_Personnalisation

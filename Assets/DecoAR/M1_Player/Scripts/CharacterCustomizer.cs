@@ -42,7 +42,7 @@ namespace DecoAR.Player
         [SerializeField] Button confirmButton;
         [SerializeField] FaceScanner scanner;
 
-        [SerializeField] string shopSceneName = "M1_Test";
+        [SerializeField] string shopSceneName = SceneNames.Shop;
         [SerializeField] string faceScanSceneName = "M1_ScanVisage";
 
         // Le scan 3D renvoie ici quand le telephone ne gere pas le suivi du visage : on ouvre le scan photo

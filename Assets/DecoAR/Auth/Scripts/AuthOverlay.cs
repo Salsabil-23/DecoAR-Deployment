@@ -169,6 +169,12 @@ namespace DecoAR.Auth
             ReturnScene = SceneManager.GetActiveScene().name;
             // Boutique M1 : on retient la position de l'avatar pour le remettre au meme endroit
             if (DecoAR.Player.PlayerController.Instance != null) DecoAR.Player.PlayerController.Instance.SaveShopPose();
+            // Boutique de la caisse (M5) : son joueur reprend la position gardee par le GameManager a son retour
+            else if (SceneManager.GetActiveScene().name == DecoAR.Core.SceneNames.Shop && DecoAR.Core.GameManager.Instance != null)
+            {
+                var player = UnityEngine.Object.FindAnyObjectByType<CharacterController>();
+                if (player != null) DecoAR.Core.GameManager.Instance.SaveShopPose(player.transform.position, player.transform.rotation);
+            }
             SceneManager.LoadScene(AuthSettings.Get().profileScene);
         }
 

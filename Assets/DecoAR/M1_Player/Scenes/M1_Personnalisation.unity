@@ -11229,7 +11229,7 @@ MonoBehaviour:
   resetButton: {fileID: 2106767397}
   confirmButton: {fileID: 1154149510}
   scanner: {fileID: 446348350}
-  shopSceneName: M1_Test
+  shopSceneName: caisse
   faceScanSceneName: M1_ScanVisage
 --- !u!114 &2058958698
 MonoBehaviour:

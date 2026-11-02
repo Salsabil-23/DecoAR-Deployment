@@ -249,7 +249,7 @@ namespace DecoAR.Player.EditorTools
             Set(customizer, "resetButton", ui.reset);
             Set(customizer, "confirmButton", ui.confirm);
             Set(customizer, "scanner", scan);
-            SetString(customizer, "shopSceneName", Path.GetFileNameWithoutExtension(TestScenePath));
+            SetString(customizer, "shopSceneName", DecoAR.Core.SceneNames.Shop); // la boutique de l'equipe (caisse M5)
 
             scan.gameObject.SetActive(false);
 
