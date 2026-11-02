@@ -111,6 +111,22 @@ namespace DecoAR.M5
             if (t) t.localScale = baseScale;
         }
 
+        /// Retire un article (rendu par AddItem) avec une petite animation de disparition.
+        public void RemoveItem(GameObject item)
+        {
+            if (!items.Remove(item)) return;
+            if (item) StartCoroutine(Shrink(item));
+            UpdateLabel();
+            OnCountChanged?.Invoke(items.Count);
+        }
+
+        IEnumerator Shrink(GameObject g)
+        {
+            var t = g.transform; var s = t.localScale;
+            for (float e = 0; e < 0.18f && t; e += Time.deltaTime) { t.localScale = s * (1f - e / 0.18f); yield return null; }
+            if (g) Destroy(g);
+        }
+
         public void Clear()
         {
             foreach (var i in items) if (i) Destroy(i);

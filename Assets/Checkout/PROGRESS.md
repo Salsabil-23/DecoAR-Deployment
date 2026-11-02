@@ -22,3 +22,18 @@
 - Unity : menu `DecoAR/M5/9. Paiement Stripe (Supabase)` puis, sur M5_CheckoutUI, remplir `Function Url` + `Supabase Anon Key`. Sans URL, la commande est confirmée sans paiement (démo).
 - ⚠️ La clé secrète Stripe (`sk_...`) ne va JAMAIS dans Unity. Démo : les prix viennent de l'app (à vérifier côté serveur en production).
 - Paiement DANS l'app : `Plugins/Android/M5WebView.java` + `Plugins/iOS/M5WebView.mm` (page Stripe plein écran, fermée automatiquement au retour de Stripe, puis vérification serveur et animation). Dans l'éditeur : navigateur externe.
+
+## HUD minimaliste (mobile)
+- Dock d'icônes en haut à droite : Catalogue, Panier (badge du nombre d'articles), Réglages, Profil. Chaque icône ouvre un tiroir à droite ; toucher ailleurs ou ✕ le referme.
+- Une seule pastille de notification en haut au centre (remplace bandeau, aide et toasts).
+- Bouton « Payer » en bas uniquement au comptoir avec un panier non vide. Le tiroir se ferme après paiement pour voir l'animation.
+- Panier : − / + par article (le panier 3D suit), adresse + GPS, payer/confirmer.
+- Profil : `onProfileRequested` (bouton « Se connecter ») à brancher sur le module de connexion.
+- Icônes dessinées par code : `Scripts/UI/M5Icons.cs`.
+
+## Boutique complète (menu 10) + sons et argent (menu 11)
+- Menu 10 `M5ShopBuilder` : murs, plafond, vitrines, rayons Salon / Chambre / Cuisine / Salle à manger / Bureau, îlot déco, éclairage, panneaux, étiquettes de prix, comptoir habillé (façade à lattes, plateau marbre, plaque DecoAR, terminal, bouquet, cadeaux). Relançable. Modèles des packs déplacés dans `Boutique/` (les dossiers `Assets/ithappy` et `Assets/LowPolyLivingRoomPack` ne sont jamais poussés).
+- Menu 11 `M5SoundSetup` : `M5_Audio` (musique en boucle + effets) et point de départ de l'argent (caisse enregistreuse).
+- Sons synthétisés dans `Audio/` (remplaçables en gardant les noms) : musique, article dans le panier, caisse « cling », envol du colis, applaudissements.
+- Après paiement : cling + billets et pièces qui s'envolent (`M5MoneyBurst`), puis Aj applaudit avec les applaudissements, puis le colis s'envole.
+- Au comptoir avec un panier non vide, le bouton Panier clignote. Réglages : interrupteur « Musique d'ambiance ».

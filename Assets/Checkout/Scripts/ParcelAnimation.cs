@@ -18,6 +18,8 @@ namespace DecoAR.M5
         public float flyDuration = 0.9f;
         public bool clearBasket = true;
         public bool rebuildAfter = true;
+        [Tooltip("Pause avant les applaudissements (laisse entendre la caisse et voler l'argent).")]
+        public float confirmDelay = 0.7f;
         [Tooltip("Modèle de colis déjà posé sur le comptoir (ex. CartTon). Vide = colis généré par code.")]
         public Transform existingParcel;
         [Header("Feedback")]
@@ -91,6 +93,7 @@ namespace DecoAR.M5
             if (!parcel) Build();
 
             var baseScale = parcel.localScale;
+            if (existingParcel) yield return new WaitForSeconds(confirmDelay);
             if (!existingParcel) {
             // 1. Rabats qui se ferment (le droit légèrement décalé)
             float total = closeDuration * 1.3f;
@@ -134,6 +137,7 @@ namespace DecoAR.M5
 
             // 5. Envol hors champ
             if (clearBasket && Basket3D.Instance) Basket3D.Instance.Clear();
+            M5ShopAudio.Whoosh();
             var start = parcel.position;
             var dir = transform.TransformDirection(flyDirection.normalized);
             var startRot = parcel.rotation;

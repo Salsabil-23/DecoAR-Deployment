@@ -94,6 +94,7 @@ namespace DecoAR.M5
         public void PlayConfirm()
         {
             if (animator) animator.SetTrigger(ConfirmH);
+            M5ShopAudio.Applause();
             ShowBubble(confirmText);
         }
 

@@ -69,6 +69,7 @@ namespace DecoAR.M5
 
         void Update()
         {
+            if (!screen) return; // rechargement des scripts en Play (éditeur) : l'écran n'est plus construit
             var cam = Camera.main;
             if (cam)
             {
@@ -123,7 +124,7 @@ namespace DecoAR.M5
 
             float pulse = 1f + 0.12f * Mathf.Sin(t * 2.2f);
             float level = open * pulse + (t - tapTime < 0.3f ? 0.6f : 0f);
-            if (glow)
+            if (glow && mpb != null)
             {
                 var c = Color.Lerp(colorA, colorB, 0.5f + 0.5f * Mathf.Sin(t * 0.5f));
                 glow.GetPropertyBlock(mpb);
@@ -143,7 +144,7 @@ namespace DecoAR.M5
             if (mouse != null && mouse.leftButton.wasPressedThisFrame) p = mouse.position.ReadValue();
             var ts = Touchscreen.current;
             if (ts != null && ts.primaryTouch.press.wasPressedThisFrame) p = ts.primaryTouch.position.ReadValue();
-            if (p == null) return;
+            if (p == null || OverUI(p.Value)) return; // un toucher sur le HUD n'allume pas la télé
             var col = GetComponent<Collider>();
             if (!col.Raycast(cam.ScreenPointToRay(p.Value), out _, 50f)) return;
             tapTime = Time.time;
@@ -151,6 +152,16 @@ namespace DecoAR.M5
             M5Haptics.Light();
             if (onCatalogRequested.GetPersistentEventCount() > 0 || HasRuntimeListeners) onCatalogRequested.Invoke();
             else ShowMessage("Le catalogue arrive bientôt !");
+        }
+
+        static readonly List<UnityEngine.EventSystems.RaycastResult> uiHits = new List<UnityEngine.EventSystems.RaycastResult>();
+        static bool OverUI(Vector2 pos)
+        {
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            if (!es) return false;
+            uiHits.Clear();
+            es.RaycastAll(new UnityEngine.EventSystems.PointerEventData(es) { position = pos }, uiHits);
+            return uiHits.Count > 0;
         }
 
         bool HasRuntimeListeners { get; set; }
