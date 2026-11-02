@@ -1,0 +1,21 @@
+# Python
+**/.env
+**/.env.*
+**/.venv/
+**/__pycache__/
+**/*.pyc
+
+# Backend M6 - fichiers générés
+Assets/DecoAR/Backend_M6/uploads/
+Assets/DecoAR/Backend_M6/generated_models/
+Assets/DecoAR/Backend_M6/*.glb
+Assets/DecoAR/Backend_M6/**/*.glb
+
+# Unity metadata des fichiers générés
+Assets/DecoAR/Backend_M6/uploads.meta
+Assets/DecoAR/Backend_M6/generated_models.meta
+Assets/DecoAR/Backend_M6/generated_models.meta/
+Assets/DecoAR/Backend_M6/**/*.glb.meta
+Assets/DecoAR/Backend_M6/*.glb.meta
+Assets/DecoAR/Backend_M6/__pycache__.meta
+Assets/DecoAR/Backend_M6/.env.meta
