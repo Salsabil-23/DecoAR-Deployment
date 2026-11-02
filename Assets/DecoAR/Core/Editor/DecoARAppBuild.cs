@@ -9,7 +9,8 @@ using UnityEngine.Rendering;
 namespace DecoAR.Core.EditorTools
 {
     // Application complete, dans l'ordre du parcours du cahier des charges :
-    // connexion (Auth) -> creer son personnage (M1) -> boutique (caisse M5) -> rayon (M3) -> AR (M4) -> caisse.
+    // connexion (Auth) -> creer son personnage (M1) -> boutique (caisse M5) -> rayon (M3) -> AR (M4) -> caisse ;
+    // depuis le profil : administration et generation 3D d'un produit (M6).
     // Les reglages partages du projet ne sont modifies que le temps du build.
     public static class DecoARAppBuild
     {
@@ -22,6 +23,8 @@ namespace DecoAR.Core.EditorTools
             "Assets/Checkout/Scenes/caisse.unity",                          // boutique et caisse (SceneNames.Shop)
             "Assets/DecoAR/M3_ProductCatalog/Scenes/M3.unity",              // rayon et fiche produit
             "Assets/DecoAR/M4_AR/Scenes/M4_AR.unity",                       // essai en realite augmentee
+            "Assets/DecoAR/m6_3D/Scenes/AdminScene.unity",                  // administration (depuis le profil)
+            "Assets/DecoAR/m6_3D/Scenes/M6_Generator.unity",                // generation 3D d'un produit (M6)
         };
 
         // La caisse change de pipeline en jeu (lumieres d'appoint) : ses variantes de shaders doivent etre compilees
