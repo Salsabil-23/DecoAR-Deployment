@@ -140,22 +140,22 @@ namespace DecoAR.M5
             var go = new GameObject("M5_BasketLabel");
             go.transform.SetParent(transform, false);
             var b = GetBounds();
-            go.transform.position = new Vector3(b.center.x, b.max.y + counterHeight, b.center.z);
+            go.transform.position = new Vector3(b.center.x, b.max.y + counterHeight + 0.05f, b.center.z);
             float s = Mathf.Max(transform.lossyScale.x, 0.0001f);
             go.transform.localScale = Vector3.one / s;
             label = go.AddComponent<TextMeshPro>();
-            label.rectTransform.sizeDelta = new Vector2(0.6f, 0.12f);
+            label.rectTransform.sizeDelta = new Vector2(1.1f, 0.1f); // « Panier DecoAR · n articles » sur une ligne
             label.alignment = TextAlignmentOptions.Center;
             label.enableAutoSizing = true; label.fontSizeMin = 0.1f; label.fontSizeMax = 2f;
             label.fontStyle = FontStyles.Bold;
-            label.color = new Color(1f, 0.95f, 0.85f);
+            label.color = new Color(0.95f, 0.82f, 0.55f); // laiton
         }
 
         void UpdateLabel()
         {
             if (!label) return;
             int n = items.Count;
-            label.text = n == 0 ? "Panier vide" : $"Panier : {n} article{(n > 1 ? "s" : "")}";
+            label.text = n == 0 ? "<b>Panier DecoAR</b>" : $"<b>Panier DecoAR</b>  ·  {n} article{(n > 1 ? "s" : "")}";
         }
 
         void LateUpdate()

@@ -86,6 +86,13 @@ namespace DecoAR.M3
             if (searchButton != null) searchButton.onClick.AddListener(() => Search(searchField != null ? searchField.text : ""));
             if (searchField != null) searchField.onSubmit.AddListener(Search);
             if (micButton != null) micButton.onClick.AddListener(ToggleVoice);
+            if (cartLabel != null)
+            {
+                // « Panier (n) » ouvre la caisse M5 (le panier y est rempli avec les articles ajoutés ici et en AR)
+                cartLabel.raycastTarget = true;
+                var cartButton = cartLabel.GetComponent<Button>() ?? cartLabel.gameObject.AddComponent<Button>();
+                cartButton.onClick.AddListener(GoToCheckout);
+            }
 
             if (inspector != null)
             {
@@ -336,6 +343,13 @@ namespace DecoAR.M3
             Toast($"{current.displayName} ajouté au panier");
         }
 
+        private void GoToCheckout()
+        {
+            if (inspector != null && inspector.Current != null) inspector.ReturnCurrent();
+            if (GameManager.Instance != null) GameManager.Instance.ClearShopPose(); // la caisse place le joueur au comptoir
+            SceneManager.LoadScene(SceneNames.Checkout);
+        }
+
         private void BackToShop()
         {
             if (inspector != null && inspector.Current != null) inspector.ReturnCurrent();
@@ -418,7 +432,7 @@ namespace DecoAR.M3
 
         private void RefreshCart(int count)
         {
-            if (cartLabel != null) cartLabel.text = $"Panier ({count})";
+            if (cartLabel != null) cartLabel.text = $"Panier ({count})  ›";
         }
 
         private void Toast(string message, float seconds = 2f)

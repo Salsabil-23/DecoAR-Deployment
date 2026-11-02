@@ -37,3 +37,10 @@
 - Sons synthétisés dans `Audio/` (remplaçables en gardant les noms) : musique, article dans le panier, caisse « cling », envol du colis, applaudissements.
 - Après paiement : cling + billets et pièces qui s'envolent (`M5MoneyBurst`), puis Aj applaudit avec les applaudissements, puis le colis s'envole.
 - Au comptoir avec un panier non vide, le bouton Panier clignote. Réglages : interrupteur « Musique d'ambiance ».
+
+## Intégration M3 (catalogue) + M4 (AR)
+- Télé « Voir le catalogue » et bouton « Voir le catalogue complet » (tiroir Suggestions) → scène M3 (fondu, panier et position sauvegardés).
+- M3 « Panier (n) › » → caisse, joueur placé au comptoir. « ‹ Boutique » (M3, M4) → caisse, joueur devant la télé (Core : `SceneNames.Shop = "caisse"`).
+- Les articles ajoutés en M3 / M4 arrivent dans le panier de la caisse (avec variante) ; ceux de la caisse repartent dans le panier partagé si on retourne au catalogue. Après paiement, tout est remis à zéro.
+- Le tiroir de gauche devient « Suggestions » (propositions, l'ajout principal se fait dans le catalogue M3).
+- Panier 3D en osier avec étiquette « DecoAR ». Menu 8 : build caisse + M3 + M4.

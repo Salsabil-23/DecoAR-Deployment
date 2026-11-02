@@ -43,6 +43,8 @@ namespace DecoAR.M5
         /// Téléphone uniquement : dans l'éditeur, la simulation XR du projet AR crée de faux capteurs.
         public bool GyroAvailable => Application.isMobilePlatform && !Application.isEditor && M5DeviceSensors.HasAny;
         public bool GyroActive => useGyro && GyroAvailable;
+        /// Vrai si le joueur a repris sa position d'avant (retour du catalogue / de l'AR).
+        public bool RestoredPose { get; private set; }
 
         CharacterController cc;
         float yaw, pitch, vy, yawOffset, gyroSpeed;
@@ -66,6 +68,16 @@ namespace DecoAR.M5
         {
             cc = GetComponent<CharacterController>();
             if (!cam && Camera.main) cam = Camera.main.transform;
+            // Retour du catalogue M3 / de l'AR M4 : on reprend là où on était (devant la télé)
+            var gm = DecoAR.Core.GameManager.Instance;
+            if (gm != null && gm.TryGetShopPose(out var pos, out var rot))
+            {
+                cc.enabled = false;
+                transform.SetPositionAndRotation(pos, Quaternion.Euler(0, rot.eulerAngles.y, 0));
+                cc.enabled = true;
+                gm.ClearShopPose();
+                RestoredPose = true;
+            }
             yaw = transform.eulerAngles.y;
             if (cam) { pitch = cam.localEulerAngles.x; if (pitch > 180f) pitch -= 360f; }
             if (Application.isMobilePlatform)
@@ -106,6 +118,15 @@ namespace DecoAR.M5
             if (!GyroAvailable) return;
             if (on) M5DeviceSensors.Enable(); else M5DeviceSensors.Disable();
             if (DecoAR.Core.GameManager.Instance != null) DecoAR.Core.GameManager.Instance.SetGyroEnabled(on);
+        }
+
+        public void Teleport(Vector3 position, float yawDeg)
+        {
+            cc.enabled = false;
+            transform.SetPositionAndRotation(position, Quaternion.Euler(0, yawDeg, 0));
+            cc.enabled = true;
+            yaw = yawDeg; vy = 0f; gyroCalibrated = false;
+            ApplyRotation();
         }
 
         /// Recale le gyroscope : la direction actuelle redevient « devant ».

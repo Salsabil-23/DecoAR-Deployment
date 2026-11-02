@@ -6,7 +6,7 @@ namespace DecoAR.M5
     /// Icônes du HUD dessinées par code (champs de distance signée) : nettes, sans fichier image, teintables.
     public static class M5Icons
     {
-        public enum Kind { Catalogue, Panier, Reglages, Profil, Fermer, Plus, Moins, Position, Chevron, Recentrer }
+        public enum Kind { Catalogue, Panier, Reglages, Profil, Fermer, Plus, Moins, Position, Chevron, Recentrer, Idee }
 
         const int Size = 128;
         static readonly Dictionary<Kind, Sprite> cache = new Dictionary<Kind, Sprite>();
@@ -66,8 +66,19 @@ namespace DecoAR.M5
                     return Min(Ring(p, V(0.5f), 0.24f, 0.05f), Circle(p, V(0.5f), 0.07f),
                                Seg(p, new Vector2(0.5f, 0.08f), new Vector2(0.5f, 0.22f), 0.03f), Seg(p, new Vector2(0.5f, 0.78f), new Vector2(0.5f, 0.92f), 0.03f),
                                Seg(p, new Vector2(0.08f, 0.5f), new Vector2(0.22f, 0.5f), 0.03f), Seg(p, new Vector2(0.78f, 0.5f), new Vector2(0.92f, 0.5f), 0.03f));
+                case Kind.Idee: // étincelles (suggestions)
+                    return Min(Diamond(p, new Vector2(0.42f, 0.44f), 0.30f, 0.075f), Diamond(p, new Vector2(0.42f, 0.44f), 0.075f, 0.30f),
+                               Diamond(p, new Vector2(0.76f, 0.78f), 0.13f, 0.035f), Diamond(p, new Vector2(0.76f, 0.78f), 0.035f, 0.13f),
+                               Circle(p, new Vector2(0.78f, 0.22f), 0.05f));
             }
             return 1f;
+        }
+
+        /// Losange (demi-largeur a, demi-hauteur b).
+        static float Diamond(Vector2 p, Vector2 c, float a, float b)
+        {
+            float k = (Mathf.Abs(p.x - c.x) / a + Mathf.Abs(p.y - c.y) / b - 1f);
+            return k * a * b / Mathf.Sqrt(a * a + b * b);
         }
 
         static Vector2 V(float v) => new Vector2(v, v);

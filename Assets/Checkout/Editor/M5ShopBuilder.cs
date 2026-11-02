@@ -310,10 +310,64 @@ namespace DecoAR.M5
             Terminal(z, new Vector3(b.max.x - 0.28f, top, b.center.z + 0.85f));
             Bouquet(z, new Vector3(b.max.x - 0.3f, top, b.min.z + 0.4f));
             Gifts(z, new Vector3(b.min.x + 0.35f, top, b.min.z + 0.55f));
+            StyleBasket(z);
             var merci = Group("Merci", z, new Vector3(b.max.x - 0.12f, top, b.max.z - 0.15f)).transform;
             Prim(PrimitiveType.Cube, "Socle", merci, new Vector3(0, 0.01f, 0), new Vector3(0.06f, 0.02f, 0.26f), brass);
             Prim(PrimitiveType.Cube, "Carte", merci, new Vector3(0, 0.12f, 0), new Vector3(0.006f, 0.2f, 0.28f), cream);
             Sign(merci, "Merci de votre\nvisite !", merci.position + new Vector3(0.006f, 0.12f, 0), -90f, 0.25f, new Color(0.3f, 0.24f, 0.18f), 0.17f);
+        }
+
+        /// Panier 3D du comptoir aux couleurs de la boutique : osier tressé, anse en cuir, étiquette « DecoAR ».
+        static void StyleBasket(Transform parent)
+        {
+            var basket = Object.FindAnyObjectByType<Basket3D>();
+            if (!basket) return;
+            var wicker = Mat("Osier", Color.white, 0f, 0.25f);
+            wicker.SetTexture("_BaseMap", WickerTexture());
+            wicker.SetTextureScale("_BaseMap", new Vector2(3f, 3f));
+            var leather = Mat("Cuir", new Color(0.42f, 0.25f, 0.15f), 0f, 0.45f);
+            foreach (var r in basket.GetComponentsInChildren<Renderer>())
+            {
+                if (r.GetComponent<TMPro.TMP_Text>() || r.name.StartsWith("M5_")) continue;
+                Undo.RecordObject(r, "M5 Panier");
+                var m = r.name.ToLowerInvariant().Contains("handle") ? leather : wicker;
+                r.sharedMaterials = Enumerable.Repeat(m, r.sharedMaterials.Length).ToArray();
+            }
+            // Étiquette côté clients (+X)
+            var b = GetBounds(basket.gameObject);
+            var tag = Group("Etiquette_Panier", parent, new Vector3(b.max.x + 0.012f, b.center.y - 0.02f, b.center.z)).transform;
+            Prim(PrimitiveType.Cube, "Cadre", tag, Vector3.zero, new Vector3(0.012f, 0.13f, 0.36f), Mat("Laiton", new Color(0.83f, 0.67f, 0.33f), 1f, 0.7f));
+            Prim(PrimitiveType.Cube, "Fond", tag, new Vector3(0.004f, 0, 0), new Vector3(0.01f, 0.11f, 0.34f), Mat("Noyer", new Color(0.33f, 0.22f, 0.15f), 0f, 0.45f));
+            Sign(tag, "DecoAR", tag.position + new Vector3(0.011f, 0, 0), -90f, 0.3f, new Color(0.9f, 0.74f, 0.4f), 0.09f);
+        }
+
+        /// Tressage d'osier (bandes croisées, tons miel).
+        static Texture2D WickerTexture()
+        {
+            string path = Root + "/Materials/M5_Osier.png";
+            var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (existing) return existing;
+            const int n = 128, cell = 16;
+            var tex = new Texture2D(n, n, TextureFormat.RGB24, false);
+            var light = new Color(0.86f, 0.70f, 0.47f); var dark = new Color(0.62f, 0.45f, 0.27f);
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    int cx = x / cell, cy = y / cell;
+                    bool horiz = (cx + cy) % 2 == 0;
+                    float u = (horiz ? y % cell : x % cell) / (float)cell;      // travers du brin
+                    float shade = Mathf.Sin(u * Mathf.PI);                       // brin arrondi
+                    float along = (horiz ? x : y) * 0.35f;
+                    var c = Color.Lerp(dark, light, shade * 0.85f + 0.1f * Mathf.Sin(along));
+                    if (u < 0.08f || u > 0.92f) c *= 0.7f;                       // creux entre brins
+                    tex.SetPixel(x, y, c);
+                }
+            tex.Apply();
+            File.WriteAllBytes(path, tex.EncodeToPNG());
+            AssetDatabase.ImportAsset(path);
+            var ti = (TextureImporter)AssetImporter.GetAtPath(path);
+            ti.wrapMode = TextureWrapMode.Repeat; ti.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
 
         /// Façade : panneau + plinthe en retrait + lattes verticales (si public).

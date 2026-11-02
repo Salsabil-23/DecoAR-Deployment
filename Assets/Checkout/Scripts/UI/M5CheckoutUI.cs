@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace DecoAR.M5
@@ -18,6 +19,7 @@ namespace DecoAR.M5
         public class Product
         {
             public string name; public float price; public Color color = Color.white; public GameObject prefab;
+            [NonSerialized] public DecoAR.Core.CartItem source; // article venu du catalogue M3 / de l'AR M4
             public Product(string n, float p, Color c) { name = n; price = p; color = c; }
         }
 
@@ -94,7 +96,9 @@ namespace DecoAR.M5
         Rect lastSafe;
         bool inZone;
         float chipUntil, badgePop;
-        static readonly string[] Titles = { "Catalogue", "Mon panier", "Réglages", "Profil" };
+        static readonly string[] Titles = { "Suggestions", "Mon panier", "Réglages", "Profil" };
+        CanvasGroup fadeGroup;
+        bool leaving, cartSaved;
 
         void Start()
         {
@@ -103,37 +107,108 @@ namespace DecoAR.M5
             if (!payment) payment = GetComponent<M5StripePayment>();
             EnsureEventSystem();
             BuildUI();
-            ImportSharedCart();
+            int imported = ImportSharedCart();
             Refresh();
-            Toast(Application.isMobilePlatform
+            if (imported > 0 && player && !player.RestoredPose && zoneCenter)
+            {
+                // Arrivée par « Panier › » du catalogue : directement au comptoir, face au vendeur
+                var desk = GameObject.Find("desk and stuff");
+                var front = desk ? GetBoundsOf(desk).center + Vector3.right * 2.2f : zoneCenter.position;
+                player.Teleport(new Vector3(front.x, player.transform.position.y, front.z), 270f);
+            }
+            if (imported > 0)
+            {
+                Toast($"Votre panier : {imported} article{(imported > 1 ? "s" : "")} du catalogue. Passez au comptoir pour payer", 4.5f, true);
+                badgePop = 1f;
+                M5ShopAudio.Item(0.2f);
+            }
+            else Toast(Application.isMobilePlatform
                 ? "Glissez à gauche pour avancer, à droite pour tourner"
                 : "ZQSD pour avancer, clic droit pour regarder", 5f);
+
+            // La télé « Voir le catalogue » ouvre le catalogue M3
+            var tv = FindAnyObjectByType<M5TVScreen>();
+            if (tv) tv.AddCatalogListener(OpenCatalogue);
         }
 
-        // Articles ajoutés depuis le catalogue M3 ou l'AR M4 (GameManager)
-        void ImportSharedCart()
+        // ---------- Liaison avec le catalogue M3 / l'AR M4 ----------
+        /// Va au catalogue M3 : le panier et la position du joueur sont confiés au GameManager pour le retour.
+        public void OpenCatalogue()
         {
+            if (leaving) return;
+            leaving = true;
+            SaveCartToShared();
+            var gm = DecoAR.Core.GameManager.Instance;
+            if (gm != null && player) gm.SaveShopPose(player.transform.position, player.transform.rotation);
+            ShowPage(Page.Aucune);
+            StartCoroutine(FadeAndLoad(DecoAR.Core.SceneNames.Catalog));
+        }
+
+        System.Collections.IEnumerator FadeAndLoad(string scene)
+        {
+            fadeGroup.blocksRaycasts = true;
+            for (float e = 0; e < 0.35f; e += Time.unscaledDeltaTime) { fadeGroup.alpha = e / 0.35f; yield return null; }
+            fadeGroup.alpha = 1f;
+            SceneManager.LoadScene(scene);
+        }
+
+        /// Les articles encore dans le panier repartent dans le panier partagé (rien n'est perdu en changeant de scène).
+        void SaveCartToShared()
+        {
+            if (cartSaved) return;
+            cartSaved = true;
             var gm = DecoAR.Core.GameManager.Instance;
             if (gm == null) return;
-            foreach (var item in gm.TakeCartItems())
+            foreach (var l in lines)
             {
-                string label = string.IsNullOrEmpty(item.variantName) ? item.name : $"{item.name} ({item.variantName})";
-                var p = catalog.Find(x => x.name == label) ?? new Product(label, item.price, item.color) { prefab = item.prefab };
-                for (int i = 0; i < Mathf.Max(1, item.quantity); i++) AddProduct(p);
+                var s = l.p.source;
+                gm.AddToCart(new DecoAR.Core.CartItem
+                {
+                    productId = s != null ? s.productId : "m5_" + l.p.name,
+                    name = s != null ? s.name : l.p.name,
+                    variantName = s != null ? s.variantName : "",
+                    color = l.p.color, price = l.p.price, quantity = l.qty, prefab = l.p.prefab,
+                });
             }
         }
 
+        void OnDestroy() => SaveCartToShared(); // toute sortie de scène (bouton d'un autre module, etc.)
+
+        // Articles ajoutés depuis le catalogue M3 ou l'AR M4 (GameManager)
+        int ImportSharedCart()
+        {
+            var gm = DecoAR.Core.GameManager.Instance;
+            if (gm == null) return 0;
+            int n = 0;
+            foreach (var item in gm.TakeCartItems())
+            {
+                string label = string.IsNullOrEmpty(item.variantName) ? item.name : $"{item.name} ({item.variantName})";
+                var p = catalog.Find(x => x.name == label)
+                     ?? lines.Find(x => x.p.name == label)?.p
+                     ?? new Product(label, item.price, item.color) { prefab = item.prefab, source = item };
+                for (int i = 0; i < Mathf.Max(1, item.quantity); i++) { AddProduct(p, true); n++; }
+            }
+            gm.SetCartCount(0); // le panier est désormais tenu par la caisse (renvoyé au GameManager si on repart)
+            return n;
+        }
+
         // ---------- Logique panier ----------
-        public void AddProduct(Product p)
+        public void AddProduct(Product p) => AddProduct(p, false);
+
+        /// silent : arrivée depuis le catalogue (pas de bulle / son / message par article).
+        void AddProduct(Product p, bool silent)
         {
             var l = lines.Find(x => x.p == p);
             if (l == null) { l = new Line { p = p }; lines.Add(l); }
             l.qty++;
             if (basket) l.items.Add(basket.AddItem(p.prefab, p.color));
-            if (vendor) vendor.ShowBubble("Excellent choix !", 2f);
-            badgePop = 1f;
-            M5ShopAudio.Item();
-            Toast($"{p.name} ajouté au panier", 2f, true);
+            if (!silent)
+            {
+                if (vendor) vendor.ShowBubble("Excellent choix !", 2f);
+                badgePop = 1f;
+                M5ShopAudio.Item();
+                Toast($"{p.name} ajouté au panier", 2f, true);
+            }
             Refresh();
         }
 
@@ -346,7 +421,8 @@ namespace DecoAR.M5
             safeArea.offsetMin = safeArea.offsetMax = Vector2.zero;
         }
 
-        string Money(float v) => v.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',') + " " + currency;
+        /// 2490 → « 2 490,000 TND » (espace des milliers, virgule décimale, 3 décimales du dinar).
+        string Money(float v) => v.ToString("#,##0.000", System.Globalization.CultureInfo.InvariantCulture).Replace(',', ' ').Replace('.', ',') + " " + currency;
 
         void Refresh()
         {
@@ -430,6 +506,7 @@ namespace DecoAR.M5
             dimGroup.alpha = Mathf.Lerp(dimGroup.alpha, open ? 1f : 0f, k);
             dimGroup.blocksRaycasts = open;
 
+            if (!leaving && fadeGroup && fadeGroup.alpha > 0f) fadeGroup.alpha = Mathf.MoveTowards(fadeGroup.alpha, 0f, Time.unscaledDeltaTime * 2.5f);
             bool chipOn = Time.time < chipUntil;
             chipGroup.alpha = Mathf.Lerp(chipGroup.alpha, chipOn ? 1f : 0f, k);
             chip.anchoredPosition = new Vector2(0, Mathf.Lerp(chip.anchoredPosition.y, chipOn ? -DockTop : 10f, k));
@@ -465,6 +542,14 @@ namespace DecoAR.M5
                 joyKnob.anchoredPosition = player.JoystickVector * (player.JoystickRadius / s);
                 joyBase.sizeDelta = Vector2.one * (player.JoystickRadius * 2f / s);
             }
+        }
+
+        static Bounds GetBoundsOf(GameObject g)
+        {
+            var rs = g.GetComponentsInChildren<Renderer>();
+            var b = new Bounds(g.transform.position, Vector3.zero);
+            for (int i = 0; i < rs.Length; i++) { if (i == 0) b = rs[i].bounds; else b.Encapsulate(rs[i].bounds); }
+            return b;
         }
 
         Vector3 BasketCenter()
@@ -524,6 +609,10 @@ namespace DecoAR.M5
             BuildChip(root);
             BuildCta(root);
             BuildPayment(root);
+            var fade = Box("Fondu", cgo.transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Color.black);
+            fade.offsetMin = fade.offsetMax = Vector2.zero;
+            fade.GetComponent<Image>().sprite = null;
+            fadeGroup = fade.gameObject.AddComponent<CanvasGroup>(); fadeGroup.alpha = 1f; fadeGroup.blocksRaycasts = false;
             ShowPage(Page.Aucune);
         }
 
@@ -536,7 +625,7 @@ namespace DecoAR.M5
 
             // Droite : catalogue + panier
             var right = Cluster(root, false);
-            FloatButton(right, M5Icons.Kind.Catalogue, Page.Catalogue);
+            FloatButton(right, M5Icons.Kind.Idee, Page.Catalogue);
             var cart = FloatButton(right, M5Icons.Kind.Panier, Page.Panier);
             cartButton = cart;
 
@@ -666,6 +755,14 @@ namespace DecoAR.M5
 
         void BuildCatalogPage(RectTransform pg)
         {
+            Label(pg, "Pour compléter votre intérieur", 22, Soft, TextAlignmentOptions.MidlineLeft, 30);
+            var full = Row(pg, 70, 12, Brass);
+            var fb = full.gameObject.AddComponent<Button>();
+            fb.targetGraphic = full.GetComponent<Image>();
+            fb.onClick.AddListener(OpenCatalogue);
+            Icon(full, M5Icons.Kind.Catalogue, 34, Ink);
+            Label(full, "<b>Voir le catalogue complet</b>", 25, Ink, TextAlignmentOptions.MidlineLeft).GetComponent<LayoutElement>().flexibleWidth = 1;
+            Icon(full, M5Icons.Kind.Chevron, 30, Ink);
             Scroll(pg, 200, out catalogContent);
             foreach (var prod in catalog)
             {

@@ -8,7 +8,7 @@ using static DecoAR.M5.M5EditorUtil;
 
 namespace DecoAR.M5
 {
-    /// Build de la caisse seule pour tester sur téléphone (Android : installé et lancé directement ; iOS : projet Xcode).
+    /// Build boutique (caisse) + catalogue M3 + AR M4 pour tester sur téléphone (Android : installé et lancé directement ; iOS : projet Xcode).
     /// Les réglages partagés du projet ne sont pas modifiés (pipeline M5 utilisé seulement le temps du build).
     public static class M5MobileBuild
     {
@@ -30,7 +30,8 @@ namespace DecoAR.M5
             Directory.CreateDirectory("Builds");
             var options = new BuildPlayerOptions
             {
-                scenes = new[] { ScenePath },
+                // la boutique (caisse) d'abord, puis le catalogue M3 et l'AR M4 qu'elle ouvre
+                scenes = new[] { ScenePath, "Assets/DecoAR/M3_ProductCatalog/Scenes/M3.unity", "Assets/DecoAR/M4_AR/Scenes/M4_AR.unity" },
                 locationPathName = output,
                 target = target,
                 options = target == BuildTarget.Android ? BuildOptions.AutoRunPlayer : BuildOptions.None,

@@ -9,7 +9,7 @@ namespace DecoAR.Core
     // Noms des scenes du parcours, partages par les modules
     public static class SceneNames
     {
-        public const string Shop = "M1_Test";      // a remplacer par la scene M2 une fois integree
+        public const string Shop = "caisse";       // la boutique M5 (caisse) : retour depuis le catalogue et l'AR
         public const string Catalog = "M3";
         public const string AR = "M4_AR";
         public const string Checkout = "caisse";
