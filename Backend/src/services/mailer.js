@@ -7,7 +7,8 @@ const nodemailer = require('nodemailer');
 //   brevo   : API HTTP Brevo (BREVO_API_KEY). A utiliser en ligne : Render/Railway gratuits bloquent le SMTP.
 function provider() {
   if (process.env.MAIL_PROVIDER) return process.env.MAIL_PROVIDER;
-  if (process.env.BREVO_API_KEY) return 'brevo';
+  // Une vraie cle API Brevo commence par "xkeysib-" (une valeur provisoire comme "aucune" est ignoree)
+  if (process.env.BREVO_API_KEY?.startsWith('xkeysib-')) return 'brevo';
   if (process.env.SMTP_USER && process.env.SMTP_PASS) return 'smtp';
   return 'console';
 }
