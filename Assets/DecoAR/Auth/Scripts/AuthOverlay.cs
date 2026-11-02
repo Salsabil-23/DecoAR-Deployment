@@ -72,7 +72,10 @@ namespace DecoAR.Auth
         {
             var settings = AuthSettings.Get();
             string scene = SceneManager.GetActiveScene().name;
-            bool show = AuthSession.IsLoggedIn && scene != settings.authScene && scene != settings.profileScene;
+            // Pas de bulle dans la boutique M5 (sa carte profil en haut à gauche ouvre le même profil)
+            // ni dans le catalogue M3 (elle cachait son bouton « ‹ Boutique », le profil reste à un toucher dans la boutique)
+            bool show = AuthSession.IsLoggedIn && scene != settings.authScene && scene != settings.profileScene
+                && scene != DecoAR.Core.SceneNames.Shop && scene != DecoAR.Core.SceneNames.Catalog;
             profileBubble.SetActive(show);
             if (!show) return;
 

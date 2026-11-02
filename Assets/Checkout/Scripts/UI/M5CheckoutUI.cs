@@ -82,7 +82,11 @@ namespace DecoAR.M5
         bool drawerLeft;
         TextMeshProUGUI profileName;
         Image profileAvatar, profileAvatarIcon;
-        const string ProfileLabel = "<b>Invité</b>\n<size=72%>Mon profil</size>";
+        TextMeshProUGUI profileTitle, profileSub, profileAction;
+        /// Prénom du compte connecté (module Auth), sinon « Invité ».
+        static string UserName => DecoAR.Auth.AuthSession.IsLoggedIn && DecoAR.Auth.AuthSession.User != null && !string.IsNullOrEmpty(DecoAR.Auth.AuthSession.User.firstName)
+            ? DecoAR.Auth.AuthSession.User.firstName : "Invité";
+        static string ProfileLabel => $"<b>{UserName}</b>\n<size=72%>Mon profil</size>";
         TextMeshProUGUI drawerTitle, chipText, ctaText, badgeText, totalText, confirmText, addressStatus, gpsLabel, payStatus, gyroSub, profileAddress;
         Image chipDot;
         RectTransform badge, gyroKnob, musicKnob, cartButton;
@@ -322,10 +326,13 @@ namespace DecoAR.M5
         }
 
         // ---------- Profil ----------
+        /// « Mon profil » ouvre le profil du module Auth (retour ici à la même place, panier conservé),
+        /// « Se connecter » ramène à l'écran de connexion si personne n'est connecté.
         void Login()
         {
-            if (onProfileRequested.GetPersistentEventCount() > 0) onProfileRequested.Invoke();
-            else Toast("La connexion arrive bientôt");
+            if (onProfileRequested.GetPersistentEventCount() > 0) { onProfileRequested.Invoke(); return; }
+            if (DecoAR.Auth.AuthSession.IsLoggedIn) DecoAR.Auth.ProfileNavigation.Open();
+            else SceneManager.LoadScene(DecoAR.Auth.AuthSettings.Get().authScene);
         }
 
         // ---------- Gyroscope ----------
@@ -710,7 +717,7 @@ namespace DecoAR.M5
             profileAvatarIcon = Icon(av, M5Icons.Kind.Profil, (DockHeight - 20f) * 0.62f, Ink);
             profileAvatarIcon.GetComponent<LayoutElement>().ignoreLayout = true;
 
-            profileName = Label(rt, "<b>Invité</b>\n<size=72%><color=#B8A48E>Mon profil</color></size>", 23, Cream, TextAlignmentOptions.MidlineLeft);
+            profileName = Label(rt, $"<b>{UserName}</b>\n<size=72%><color=#B8A48E>Mon profil</color></size>", 23, Cream, TextAlignmentOptions.MidlineLeft);
             profileName.textWrappingMode = TextWrappingModes.NoWrap;
             dockBg[(int)Page.Profil] = bg; dockRing[(int)Page.Profil] = rg;
         }
@@ -855,9 +862,10 @@ namespace DecoAR.M5
             var ale = avatar.GetComponent<LayoutElement>(); ale.preferredWidth = ale.preferredHeight = 132;
             var icon = Icon(avatar, M5Icons.Kind.Profil, 84, Ink);
             ((RectTransform)icon.transform).anchoredPosition = Vector2.zero;
-            var name = Label(headRt, "<b>Invité</b>", 32, Cream, TextAlignmentOptions.Center, 44);
+            bool logged = DecoAR.Auth.AuthSession.IsLoggedIn && DecoAR.Auth.AuthSession.User != null;
+            var name = profileTitle = Label(headRt, logged ? $"<b>{DecoAR.Auth.AuthSession.User.firstName} {DecoAR.Auth.AuthSession.User.lastName}</b>" : "<b>Invité</b>", 32, Cream, TextAlignmentOptions.Center, 44);
             name.rectTransform.sizeDelta = new Vector2(500, 44);
-            var sub = Label(headRt, "Connectez-vous pour retrouver vos commandes", 21, Soft, TextAlignmentOptions.Center, 30);
+            var sub = profileSub = Label(headRt, logged ? DecoAR.Auth.AuthSession.User.email : "Connectez-vous pour retrouver vos commandes", 21, Soft, TextAlignmentOptions.Center, 30);
             sub.rectTransform.sizeDelta = new Vector2(540, 30);
 
             var addr = Row(pg, 96, 14, Tile);
@@ -866,7 +874,7 @@ namespace DecoAR.M5
             profileAddress.GetComponent<LayoutElement>().flexibleWidth = 1;
             profileAddress.textWrappingMode = TextWrappingModes.Normal; profileAddress.overflowMode = TextOverflowModes.Ellipsis;
 
-            Btn(pg, "<b>Se connecter</b>", Sage, Login, 74, 28, TextAlignmentOptions.Center);
+            profileAction = Btn(pg, logged ? "<b>Mon profil</b>" : "<b>Se connecter</b>", Sage, Login, 74, 28, TextAlignmentOptions.Center).GetComponentInChildren<TextMeshProUGUI>();
         }
 
         void BuildChip(RectTransform root)
