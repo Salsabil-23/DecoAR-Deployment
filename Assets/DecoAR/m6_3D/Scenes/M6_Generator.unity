@@ -1656,7 +1656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec636a83dfe03b846acd857a46d7ea15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::M6Controller
-  serverUrl: http://192.168.100.5:5000
+  serverUrl: http://10.146.205.215:5000
   photoPreview: {fileID: 1482002687}
   statusText: {fileID: 1511547696}
   generateButton: {fileID: 274798969}

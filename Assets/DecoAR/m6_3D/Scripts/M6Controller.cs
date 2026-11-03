@@ -11,7 +11,7 @@ using UnityEngine.UI;
 public class M6Controller : MonoBehaviour
 {
     [Header("Backend Flask : IP du PC")]
-    public string serverUrl = "http://192.168.100.5:5000";
+    public string serverUrl = "http://10.146.205.215:5000";
 
     [Header("Interface")]
     public RawImage photoPreview;
