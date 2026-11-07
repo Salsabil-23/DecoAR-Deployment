@@ -24,7 +24,7 @@ public class M6Controller : MonoBehaviour
 
     private void Start()
     {
-        SetStatus("Sélectionnez une photo pour commencer");
+        SetStatus("Choisis une photo pour commencer");
 
         if (photoPreview != null)
             photoPreview.gameObject.SetActive(false);
@@ -100,7 +100,7 @@ public class M6Controller : MonoBehaviour
 
         if (selectedImage == null || selectedImage.Length == 0)
         {
-            SetStatus("Choisissez d'abord une photo");
+            SetStatus("Choisis d'abord une photo");
             return;
         }
 
@@ -126,7 +126,7 @@ public class M6Controller : MonoBehaviour
         if (generateButton != null)
             generateButton.interactable = false;
 
-        SetStatus("Envoi de l'image...");
+        SetStatus("Envoi de la photo…");
 
         WWWForm form = new WWWForm();
 
@@ -169,7 +169,7 @@ public class M6Controller : MonoBehaviour
 
             string jobId = response.job_id;
 
-            SetStatus("Génération 3D en cours...");
+            SetStatus("Génération 3D en cours… (environ 1 min)");
 
             float deadline =
                 Time.realtimeSinceStartup + 900f;
@@ -223,7 +223,7 @@ public class M6Controller : MonoBehaviour
                 }
             }
 
-            SetStatus("Délai dépassé : vérifiez Flask");
+            SetStatus("Le serveur ne répond pas. Réessaie dans un instant.");
         }
 
         EndBusy();
@@ -231,7 +231,7 @@ public class M6Controller : MonoBehaviour
 
     private IEnumerator DownloadModel(string url)
     {
-        SetStatus("Téléchargement du GLB...");
+        SetStatus("Téléchargement du modèle…");
 
         using (UnityWebRequest request =
             UnityWebRequest.Get(url))
@@ -265,7 +265,7 @@ public class M6Controller : MonoBehaviour
                 yield break;
             }
 
-            SetStatus("Affichage du modèle 3D...");
+            SetStatus("Affichage du modèle 3D…");
 
             if (modelViewer == null)
             {

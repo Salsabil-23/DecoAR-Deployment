@@ -1,0 +1,528 @@
+{
+  "$schema": "DecoAR tokens v1.0",
+  "unit": "ref (Canvas Unity 1920x1080, match 0.5) ; 1 ref ≈ 0.43 dp",
+  "palette": {
+    "terracotta": {
+      "50": "#FFF4EC",
+      "100": "#FDE3D2",
+      "200": "#FBC5A3",
+      "300": "#F7A574",
+      "400": "#EE824B",
+      "500": "#DF5F2A",
+      "600": "#C04A1E",
+      "700": "#983A19",
+      "800": "#6E2C16",
+      "900": "#491E11"
+    },
+    "sauge": {
+      "50": "#F3F7F1",
+      "100": "#E2ECDE",
+      "200": "#C6D8BF",
+      "300": "#A8C29F",
+      "400": "#8DAB83",
+      "500": "#73946E",
+      "600": "#5D7B59",
+      "700": "#486146",
+      "800": "#354734",
+      "900": "#232F22"
+    },
+    "laiton": {
+      "50": "#FCF7EC",
+      "100": "#F7ECD3",
+      "200": "#F0DDB1",
+      "300": "#E7CB8C",
+      "400": "#DDB86C",
+      "500": "#D1A652",
+      "600": "#B08739",
+      "700": "#8A682C",
+      "800": "#634A20",
+      "900": "#3F2F15"
+    },
+    "lin": {
+      "0": "#FFFFFF",
+      "50": "#FDF9F3",
+      "100": "#FAF2E3",
+      "150": "#F4EADA",
+      "200": "#EDE1CD",
+      "300": "#DDCDB5",
+      "400": "#C4B19A",
+      "500": "#A8937E",
+      "600": "#8C7866",
+      "700": "#6B5B4D",
+      "800": "#4A3E34",
+      "850": "#352C24",
+      "900": "#29211A",
+      "950": "#1F1A14",
+      "1000": "#15110D"
+    },
+    "brique": {
+      "300": "#F2A08F",
+      "500": "#D15C45",
+      "600": "#B94A35",
+      "700": "#9E3F2D"
+    },
+    "ardoise": {
+      "300": "#9DB7CB",
+      "500": "#5F7E96",
+      "700": "#3F576A"
+    },
+    "succes": {
+      "300": "#9ECC94",
+      "500": "#5E9A58",
+      "700": "#3F6E3B"
+    }
+  },
+  "pose": {
+    "mur": "#DB9E80",
+    "sol": "#9EC794",
+    "table": "#E6C275"
+  },
+  "gradients": {
+    "halo-ar": [
+      "#EE824B",
+      "#DDB86C"
+    ],
+    "aube": [
+      "#FFF4EC",
+      "#FDE3D2"
+    ],
+    "braise": [
+      "#EE824B",
+      "#C04A1E"
+    ]
+  },
+  "themes": {
+    "verre": {
+      "surface/glass": {
+        "hex": "#1F1A14",
+        "alpha": 0.8
+      },
+      "surface/glass-strong": {
+        "hex": "#1F1A14",
+        "alpha": 0.94
+      },
+      "surface/tile": {
+        "hex": "#FFFFFF",
+        "alpha": 0.07
+      },
+      "surface/tile-active": {
+        "hex": "#FFFFFF",
+        "alpha": 0.16
+      },
+      "surface/scrim": {
+        "hex": "#000000",
+        "alpha": 0.4
+      },
+      "border/hairline": {
+        "hex": "#FFFFFF",
+        "alpha": 0.12
+      },
+      "border/strong": {
+        "hex": "#FFFFFF",
+        "alpha": 0.22
+      },
+      "text/primary": {
+        "hex": "#FAF2E3",
+        "alpha": 1
+      },
+      "text/secondary": {
+        "hex": "#DDCDB5",
+        "alpha": 1
+      },
+      "text/tertiary": {
+        "hex": "#C4B19A",
+        "alpha": 1
+      },
+      "icon/default": {
+        "hex": "#FAF2E3",
+        "alpha": 1
+      },
+      "action/primary": {
+        "hex": "#D1A652",
+        "alpha": 1
+      },
+      "action/on-primary": {
+        "hex": "#29211A",
+        "alpha": 1
+      },
+      "action/commerce": {
+        "hex": "#5D7B59",
+        "alpha": 1
+      },
+      "action/on-commerce": {
+        "hex": "#FFFFFF",
+        "alpha": 1
+      },
+      "action/accent": {
+        "hex": "#EE824B",
+        "alpha": 1
+      },
+      "action/on-accent": {
+        "hex": "#15110D",
+        "alpha": 1
+      },
+      "action/secondary": {
+        "hex": "#FFFFFF",
+        "alpha": 0.12
+      },
+      "action/on-secondary": {
+        "hex": "#FAF2E3",
+        "alpha": 1
+      },
+      "state/selected": {
+        "hex": "#D1A652",
+        "alpha": 1
+      },
+      "state/focus-ring": {
+        "hex": "#E7CB8C",
+        "alpha": 1
+      },
+      "feedback/success": {
+        "hex": "#9ECC94",
+        "alpha": 1
+      },
+      "feedback/error": {
+        "hex": "#F2A08F",
+        "alpha": 1
+      },
+      "feedback/warning": {
+        "hex": "#DDB86C",
+        "alpha": 1
+      },
+      "feedback/info": {
+        "hex": "#9DB7CB",
+        "alpha": 1
+      },
+      "badge/bg": {
+        "hex": "#B94A35",
+        "alpha": 1
+      },
+      "badge/text": {
+        "hex": "#FFFFFF",
+        "alpha": 1
+      },
+      "price": {
+        "hex": "#E7CB8C",
+        "alpha": 1
+      }
+    },
+    "papier": {
+      "surface/background": {
+        "hex": "#FDF9F3",
+        "alpha": 1
+      },
+      "surface/card": {
+        "hex": "#FFFFFF",
+        "alpha": 1
+      },
+      "surface/sunken": {
+        "hex": "#F4EADA",
+        "alpha": 1
+      },
+      "surface/scrim": {
+        "hex": "#15110D",
+        "alpha": 0.45
+      },
+      "border/hairline": {
+        "hex": "#EDE1CD",
+        "alpha": 1
+      },
+      "border/strong": {
+        "hex": "#DDCDB5",
+        "alpha": 1
+      },
+      "text/primary": {
+        "hex": "#29211A",
+        "alpha": 1
+      },
+      "text/secondary": {
+        "hex": "#6B5B4D",
+        "alpha": 1
+      },
+      "text/tertiary": {
+        "hex": "#8C7866",
+        "alpha": 1
+      },
+      "icon/default": {
+        "hex": "#4A3E34",
+        "alpha": 1
+      },
+      "action/primary": {
+        "hex": "#C04A1E",
+        "alpha": 1
+      },
+      "action/on-primary": {
+        "hex": "#FFFFFF",
+        "alpha": 1
+      },
+      "action/commerce": {
+        "hex": "#5D7B59",
+        "alpha": 1
+      },
+      "action/on-commerce": {
+        "hex": "#FFFFFF",
+        "alpha": 1
+      },
+      "action/accent": {
+        "hex": "#D1A652",
+        "alpha": 1
+      },
+      "action/on-accent": {
+        "hex": "#29211A",
+        "alpha": 1
+      },
+      "action/secondary": {
+        "hex": "#F4EADA",
+        "alpha": 1
+      },
+      "action/on-secondary": {
+        "hex": "#29211A",
+        "alpha": 1
+      },
+      "action/link": {
+        "hex": "#983A19",
+        "alpha": 1
+      },
+      "state/selected": {
+        "hex": "#C04A1E",
+        "alpha": 1
+      },
+      "state/focus-ring": {
+        "hex": "#F7A574",
+        "alpha": 1
+      },
+      "feedback/success": {
+        "hex": "#3F6E3B",
+        "alpha": 1
+      },
+      "feedback/error": {
+        "hex": "#9E3F2D",
+        "alpha": 1
+      },
+      "feedback/warning": {
+        "hex": "#8A682C",
+        "alpha": 1
+      },
+      "feedback/info": {
+        "hex": "#3F576A",
+        "alpha": 1
+      },
+      "badge/bg": {
+        "hex": "#B94A35",
+        "alpha": 1
+      },
+      "badge/text": {
+        "hex": "#FFFFFF",
+        "alpha": 1
+      },
+      "price": {
+        "hex": "#983A19",
+        "alpha": 1
+      }
+    }
+  },
+  "typography": {
+    "family": "Outfit",
+    "display": {
+      "size": 72,
+      "weight": 700,
+      "lineHeight": 1.05,
+      "letterSpacingEm": -0.02,
+      "usage": "Splash, grands titres d'onboarding",
+      "dp": 30.7
+    },
+    "titre-1": {
+      "size": 56,
+      "weight": 600,
+      "lineHeight": 1.1,
+      "letterSpacingEm": -0.015,
+      "usage": "Titre d'écran (Auth, Profil, Admin)",
+      "dp": 23.9
+    },
+    "titre-2": {
+      "size": 46,
+      "weight": 600,
+      "lineHeight": 1.15,
+      "letterSpacingEm": -0.01,
+      "usage": "Titre de tiroir, de fiche, de fenêtre",
+      "dp": 19.6
+    },
+    "titre-3": {
+      "size": 40,
+      "weight": 600,
+      "lineHeight": 1.2,
+      "letterSpacingEm": -0.005,
+      "usage": "Section, nom de produit dans la fiche",
+      "dp": 17.0
+    },
+    "corps-l": {
+      "size": 38,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "letterSpacingEm": 0,
+      "usage": "Texte d'introduction, consignes AR",
+      "dp": 16.2
+    },
+    "corps": {
+      "size": 34,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "letterSpacingEm": 0,
+      "usage": "Texte courant, champs, lignes de liste",
+      "dp": 14.5
+    },
+    "label": {
+      "size": 32,
+      "weight": 500,
+      "lineHeight": 1.25,
+      "letterSpacingEm": 0.005,
+      "usage": "Onglets, boutons secondaires, chips",
+      "dp": 13.6
+    },
+    "bouton": {
+      "size": 36,
+      "weight": 600,
+      "lineHeight": 1.0,
+      "letterSpacingEm": 0.005,
+      "usage": "Texte des boutons principaux",
+      "dp": 15.3
+    },
+    "legende": {
+      "size": 28,
+      "weight": 500,
+      "lineHeight": 1.3,
+      "letterSpacingEm": 0.01,
+      "usage": "Légendes, étiquettes d'outils, mentions",
+      "dp": 11.9
+    },
+    "surtitre": {
+      "size": 24,
+      "weight": 600,
+      "lineHeight": 1.2,
+      "letterSpacingEm": 0.08,
+      "usage": "SURTITRE en capitales (rayon, étape)",
+      "dp": 10.2
+    },
+    "prix-xl": {
+      "size": 64,
+      "weight": 700,
+      "lineHeight": 1.0,
+      "letterSpacingEm": -0.02,
+      "usage": "Prix dans la fiche produit",
+      "dp": 27.3
+    },
+    "prix": {
+      "size": 36,
+      "weight": 600,
+      "lineHeight": 1.0,
+      "letterSpacingEm": 0,
+      "usage": "Prix dans les cartes et lignes",
+      "dp": 15.3
+    }
+  },
+  "space": {
+    "0": 0,
+    "1": 8,
+    "2": 12,
+    "3": 16,
+    "4": 24,
+    "5": 32,
+    "6": 48,
+    "7": 64,
+    "8": 96,
+    "9": 128
+  },
+  "radius": {
+    "xs": 12,
+    "sm": 20,
+    "md": 28,
+    "lg": 40,
+    "xl": 56,
+    "pill": 999
+  },
+  "size": {
+    "touch-min": 104,
+    "hud-button": 112,
+    "icon-button": 96,
+    "button-height": 112,
+    "button-height-compact": 88,
+    "field-height": 104,
+    "swatch": 88,
+    "badge": 40,
+    "icon-sm": 40,
+    "icon-md": 52,
+    "icon-lg": 64,
+    "screen-margin": 48,
+    "gap-hud": 20,
+    "drawer-width": 760,
+    "product-card": [
+      360,
+      184
+    ],
+    "stroke-hairline": 2.5,
+    "stroke-icon": 2
+  },
+  "motion": {
+    "duration": {
+      "instant": 90,
+      "rapide": 150,
+      "base": 240,
+      "lent": 360,
+      "scene": 450
+    },
+    "easing": {
+      "standard": [
+        0.2,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "entree": [
+        0.05,
+        0.7,
+        0.1,
+        1.0
+      ],
+      "sortie": [
+        0.3,
+        0.0,
+        0.8,
+        0.15
+      ],
+      "ressort": {
+        "stiffness": 380,
+        "damping": 22
+      }
+    },
+    "respiration": {
+      "amplitude": 0.025,
+      "periode_ms": 2400
+    },
+    "toast_ms": 2600
+  },
+  "haptic": {
+    "leger": "toucher, coloris, onglet",
+    "moyen": "pose AR, ajout panier",
+    "fort": "paiement confirmé, erreur bloquante"
+  },
+  "elevation": {
+    "glass": {
+      "color": "#000000",
+      "alpha": 0.38,
+      "offsetY": 6,
+      "blur": 16
+    },
+    "float": {
+      "color": "#000000",
+      "alpha": 0.45,
+      "offsetY": 12,
+      "blur": 32
+    },
+    "card": {
+      "color": "#29211A",
+      "alpha": 0.1,
+      "offsetY": 4,
+      "blur": 16
+    }
+  }
+}

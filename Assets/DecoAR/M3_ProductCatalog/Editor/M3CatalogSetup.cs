@@ -23,7 +23,7 @@ namespace DecoAR.M3.EditorTools
         const string MatFolder = Root + "/Materials";
         const string CatalogPath = Root + "/Data/M3_ProductCatalog.asset";
         const string ScenePath = Root + "/Scenes/M3.unity";
-        const string LogoPath = "Assets/DecoAR/Core/Icons/DecoAR_Icon.png";
+        const string SignPath = "Assets/DecoAR/Design/Brand/Enseigne/enseigne-etagere.png";
 
         static readonly (string from, string to)[] Packs =
         {
@@ -375,7 +375,7 @@ namespace DecoAR.M3.EditorTools
 
             // Caméra : l'étagère entière entre la barre du haut et la liste des produits
             var cam = Camera.main;
-            cam.transform.SetPositionAndRotation(new Vector3(0f, 1.42f, -2.75f), Quaternion.Euler(1.5f, 0f, 0f));
+            cam.transform.SetPositionAndRotation(new Vector3(0f, 1.38f, -3.05f), Quaternion.Euler(0f, 0f, 0f)); // enseigne sous la barre du haut, planches au-dessus de la liste
             cam.fieldOfView = 50f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.94f, 0.90f, 0.84f);
@@ -402,15 +402,15 @@ namespace DecoAR.M3.EditorTools
         {
             var decor = new GameObject("Decor");
             Cube("Sol", decor.transform, new Vector3(0, -0.05f, 0.5f), new Vector3(14f, 0.1f, 10f), Mat("M3_Sol_Chene", new Color(0.70f, 0.55f, 0.42f), 0.35f));
-            Cube("Mur du fond", decor.transform, new Vector3(0, 2f, 1.45f), new Vector3(14f, 4f, 0.1f), Mat("M3_Mur_Creme", new Color(0.93f, 0.89f, 0.82f), 0.1f));
-            Cube("Plinthe", decor.transform, new Vector3(0, 0.05f, 1.39f), new Vector3(14f, 0.1f, 0.03f), Mat("M3_Plinthe", new Color(0.97f, 0.95f, 0.91f), 0.3f));
+            Cube("Mur du fond", decor.transform, new Vector3(0, 2f, 1.45f), new Vector3(14f, 4f, 0.1f), Mat("M3_Mur_Creme", Hex("#EDE1CD"), 0.1f));
+            Cube("Plinthe", decor.transform, new Vector3(0, 0.05f, 1.39f), new Vector3(14f, 0.1f, 0.03f), Mat("M3_Plinthe", Hex("#FDF9F3"), 0.3f));
             // Soubassement terracotta derrière l'étagère (couleur DecoAR)
-            Cube("Panneau DecoAR", decor.transform, new Vector3(0, 1.3f, 1.39f), new Vector3(4.3f, 2.6f, 0.02f), Mat("M3_Panneau_Terracotta", new Color(0.74f, 0.46f, 0.33f), 0.15f));
+            Cube("Panneau DecoAR", decor.transform, new Vector3(0, 1.3f, 1.39f), new Vector3(4.3f, 2.6f, 0.02f), Mat("M3_Panneau_Terracotta", Hex("#DF5F2A"), 0.15f));
 
             // Tapis sable bordé terracotta devant l'étagère
-            Cube("Tapis bordure", decor.transform, new Vector3(0f, 0.004f, -0.25f), new Vector3(4.4f, 0.008f, 2.4f), Mat("M3_Tapis_Bordure", new Color(0.74f, 0.46f, 0.33f), 0.05f))
+            Cube("Tapis bordure", decor.transform, new Vector3(0f, 0.004f, -0.25f), new Vector3(4.4f, 0.008f, 2.4f), Mat("M3_Tapis_Bordure", Hex("#C04A1E"), 0.05f))
                 .GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            Cube("Tapis", decor.transform, new Vector3(0f, 0.006f, -0.25f), new Vector3(4.2f, 0.008f, 2.2f), Mat("M3_Tapis", new Color(0.91f, 0.85f, 0.74f), 0.05f))
+            Cube("Tapis", decor.transform, new Vector3(0f, 0.006f, -0.25f), new Vector3(4.2f, 0.008f, 2.2f), Mat("M3_Tapis", Hex("#F4EADA"), 0.05f))
                 .GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             Prop(decor.transform, "Plants_19", new Vector3(-2.9f, 0f, 0.95f), 20f, 2.3f);
             Prop(decor.transform, "PottedPlant_Tall_1", new Vector3(2.85f, 0f, 0.95f), -30f, 1.2f);
@@ -424,10 +424,10 @@ namespace DecoAR.M3.EditorTools
             var root = new GameObject("M3_Etagere");
             root.transform.position = new Vector3(0f, 0f, 1.0f);
             var shelf = root.AddComponent<M3Shelf>();
-            var laque = Mat("M3_Etagere_Laque", new Color(0.95f, 0.92f, 0.86f), 0.45f);
-            var fond = Mat("M3_Etagere_Fond", new Color(0.52f, 0.61f, 0.50f), 0.1f);
-            var led = Mat("M3_Etagere_Lumiere", new Color(1f, 0.86f, 0.62f), 0.2f, emission: new Color(1f, 0.78f, 0.5f) * 2.2f);
-            var tagMat = Mat("M3_Etiquette", new Color(0.99f, 0.97f, 0.93f), 0.2f);
+            var laque = Mat("M3_Etagere_Laque", Hex("#F4EADA"), 0.45f);
+            var fond = Mat("M3_Etagere_Fond", Hex("#73946E"), 0.1f);
+            var led = Mat("M3_Etagere_Lumiere", Hex("#D1A652"), 0.2f, emission: Hex("#D1A652") * 1.5f);
+            var tagMat = Mat("M3_Etiquette", Hex("#FDF9F3"), 0.2f);
 
             var src = AssetDatabase.LoadAssetAtPath<GameObject>(FindPrefab("Bookshelf_Tall"));
             var slots = new List<Transform>[3] { new List<Transform>(), new List<Transform>(), new List<Transform>() };
@@ -520,45 +520,50 @@ namespace DecoAR.M3.EditorTools
             return open;
         }
 
-        /// Enseigne posée sur l'étagère : logo DecoAR, nom de la boutique, rayon affiché.
+        /// Enseigne posée sur l'étagère : texture du design system (symbole, « DecoAR », « RAYON »),
+        /// le nom du rayon est écrit à côté en TMP 3D, laiton 400 (docs/05-composants.md).
         static TMP_Text BuildSign(Transform shelf, float top)
         {
             var sign = new GameObject("Enseigne DecoAR").transform;
             sign.SetParent(shelf, false);
-            sign.localPosition = new Vector3(0f, top + 0.22f, -0.05f);
-            Cube("Panneau", sign, sign.position, new Vector3(2.3f, 0.4f, 0.05f), Mat("M3_Enseigne", new Color(0.20f, 0.16f, 0.12f), 0.35f));
-            Cube("Liseré", sign, sign.position + new Vector3(0, -0.2f, -0.02f), new Vector3(2.3f, 0.018f, 0.02f), Mat("M3_Laiton", new Color(0.82f, 0.65f, 0.32f), 0.7f, metallic: 0.8f));
-            Cube("Pied gauche", sign, sign.position + new Vector3(-0.8f, -0.13f, 0.03f), new Vector3(0.04f, 0.26f, 0.03f), Mat("M3_Laiton", new Color(0.82f, 0.65f, 0.32f), 0.7f, metallic: 0.8f));
-            Cube("Pied droit", sign, sign.position + new Vector3(0.8f, -0.13f, 0.03f), new Vector3(0.04f, 0.26f, 0.03f), Mat("M3_Laiton", new Color(0.82f, 0.65f, 0.32f), 0.7f, metallic: 0.8f));
+            sign.localPosition = new Vector3(0f, top + 0.33f, -0.05f);
+            const float W = 2.3f, H = W / 4f; // texture 1024 × 256
+            Cube("Panneau", sign, sign.position + new Vector3(0, 0, 0.03f), new Vector3(W + 0.02f, H + 0.02f, 0.05f), Mat("M3_Enseigne", Hex("#29211A"), 0.35f));
+            var laiton = Mat("M3_Laiton", Hex("#D1A652"), 0.7f, metallic: 0.8f);
+            Cube("Pied gauche", sign, sign.position + new Vector3(-0.8f, -H * 0.5f - 0.1f, 0.04f), new Vector3(0.04f, 0.2f, 0.03f), laiton);
+            Cube("Pied droit", sign, sign.position + new Vector3(0.8f, -H * 0.5f - 0.1f, 0.04f), new Vector3(0.04f, 0.2f, 0.03f), laiton);
 
-            var logoTex = AssetDatabase.LoadAssetAtPath<Texture2D>(LogoPath);
-            if (logoTex != null)
-            {
-                var logo = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                logo.name = "Logo DecoAR";
-                Object.DestroyImmediate(logo.GetComponent<Collider>());
-                logo.transform.SetParent(sign, false);
-                logo.transform.localPosition = new Vector3(-0.86f, 0f, -0.03f);
-                logo.transform.localScale = new Vector3(0.3f, 0.3f, 1f);
-                var m = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-                m.SetTexture("_BaseMap", logoTex);
-                m.SetFloat("_Surface", 1f); m.SetFloat("_Blend", 0f);
-                m.SetOverrideTag("RenderType", "Transparent");
-                m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-                m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                m.SetFloat("_ZWrite", 0f);
-                m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                SaveMat(m, "M3_Logo");
-                logo.GetComponent<Renderer>().sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>($"{MatFolder}/M3_Logo.mat");
-            }
+            var face = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            face.name = "Face DecoAR";
+            Object.DestroyImmediate(face.GetComponent<Collider>());
+            face.transform.SetParent(sign, false);
+            face.transform.localPosition = new Vector3(0f, 0f, -0.002f);
+            face.transform.localScale = new Vector3(W, H, 1f);
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(SignPath);
+            var m = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+            m.SetTexture("_BaseMap", tex);
+            m.SetFloat("_Surface", 1f); m.SetFloat("_Blend", 0f);
+            m.SetOverrideTag("RenderType", "Transparent");
+            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            m.SetFloat("_ZWrite", 0f);
+            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            SaveMat(m, "M3_Enseigne_Face");
+            face.GetComponent<Renderer>().sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>($"{MatFolder}/M3_Enseigne_Face.mat");
+            face.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
-            var brand = Text3D(sign, "Marque", "<b>DecoAR</b>", new Vector3(-0.22f, 0.055f, -0.03f), new Vector2(1.0f, 0.2f), 1.45f, new Color(0.98f, 0.95f, 0.89f), TextAlignmentOptions.Left);
-            brand.characterSpacing = 4f;
-            var title = Text3D(sign, "Rayon", "Salon", new Vector3(-0.22f, -0.085f, -0.03f), new Vector2(1.0f, 0.12f), 0.85f, new Color(0.86f, 0.70f, 0.42f), TextAlignmentOptions.Left);
-            Text3D(sign, "Slogan", "Le catalogue en 3D", new Vector3(0.62f, -0.085f, -0.03f), new Vector2(0.7f, 0.12f), 0.6f, new Color(0.72f, 0.64f, 0.56f), TextAlignmentOptions.Right);
+            // « RAYON » est imprimé sur la texture (x ≈ 0,30 → 0,42, y ≈ 0,73 depuis le haut) : le nom suit, sur la même ligne
+            var title = Text3D(sign, "Rayon", "SALON", new Vector3((0.435f - 0.5f) * W, (0.5f - 0.732f) * H, -0.006f), new Vector2(1.2f, 0.12f), 0.66f, Hex("#DDB86C"), TextAlignmentOptions.Left);
+            title.rectTransform.pivot = new Vector2(0f, 0.5f);
+            title.characterSpacing = 8f;
+            var semi = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/DecoAR/Design/Resources/DecoAR/Fonts/Outfit-SemiBold SDF.asset");
+            if (semi != null) title.font = semi;
+            title.text = "·  SALON";
             return title;
         }
+
+        static Color Hex(string hex) => ColorUtility.TryParseHtmlString(hex, out var c) ? c : Color.magenta;
 
         static TextMeshPro Text3D(Transform parent, string name, string text, Vector3 local, Vector2 size, float fontSize, Color c, TextAlignmentOptions align)
         {

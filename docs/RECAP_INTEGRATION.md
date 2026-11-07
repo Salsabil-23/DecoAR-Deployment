@@ -120,4 +120,4 @@ Les fichiers suivants ne sont pas commités non plus :
 ## 8. Documents liés
 
 - System design : [`docs/SYSTEM_DESIGN.md`](SYSTEM_DESIGN.md)
-- Logo et icône : [`docs/logo/`](logo/)
+- Logo et icône : [`docs/logo/`](logo/), design system complet : [`DesignSystem/`](../DesignSystem/README.md)

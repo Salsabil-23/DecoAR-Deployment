@@ -58,16 +58,16 @@ namespace DecoAR.M5
         class Line { public Product p; public int qty; public readonly List<GameObject> items = new List<GameObject>(); }
         readonly List<Line> lines = new List<Line>();
 
-        // Palette boutique déco
-        static readonly Color Glass = new Color(0.12f, 0.10f, 0.08f, 0.72f);
-        static readonly Color GlassStrong = new Color(0.12f, 0.10f, 0.08f, 0.94f);
-        static readonly Color Cream = new Color(0.98f, 0.95f, 0.89f);
-        static readonly Color Soft = new Color(0.72f, 0.64f, 0.56f);
-        static readonly Color Sage = new Color(0.45f, 0.58f, 0.43f);
-        static readonly Color Brass = new Color(0.82f, 0.65f, 0.32f);
-        static readonly Color Ink = new Color(0.16f, 0.13f, 0.10f);
-        static readonly Color Tile = new Color(1f, 1f, 1f, 0.07f);
-        static readonly Color Muted = new Color(0.55f, 0.47f, 0.40f);
+        // Palette du design system DecoAR, thème « Verre » (DecoAR.Design)
+        static readonly Color Glass = DecoAR.Design.ThemeVerre.SurfaceGlass;
+        static readonly Color GlassStrong = DecoAR.Design.ThemeVerre.SurfaceGlassStrong;
+        static readonly Color Cream = DecoAR.Design.ThemeVerre.TextPrimary;
+        static readonly Color Soft = DecoAR.Design.ThemeVerre.TextSecondary;
+        static readonly Color Sage = DecoAR.Design.ThemeVerre.ActionCommerce;
+        static readonly Color Brass = DecoAR.Design.ThemeVerre.ActionPrimary;
+        static readonly Color Ink = DecoAR.Design.ThemeVerre.ActionOnPrimary;
+        static readonly Color Tile = DecoAR.Design.ThemeVerre.SurfaceTile;
+        static readonly Color Muted = DecoAR.Design.DecoPalette.Lin600;
 
         const float DrawerWidth = 620f, DockTop = 24f, DockHeight = 84f;
         const string AddressKey = "M5_Adresse";
@@ -94,7 +94,7 @@ namespace DecoAR.M5
         M5ThirdPerson view;
         TextMeshProUGUI musicSub;
         bool cartBlinking;
-        static readonly Color RingIdle = new Color(1, 1, 1, 0.16f), RingOn = new Color(1f, 0.88f, 0.6f, 0.9f);
+        static readonly Color RingIdle = DecoAR.Design.ThemeVerre.BorderHairline, RingOn = DecoAR.Design.ThemeVerre.StateFocusRing;
         Button confirmBtn, gpsBtn, recenterBtn, clearBtn;
         TMP_InputField addressField;
         M5LocationService location;
@@ -123,12 +123,12 @@ namespace DecoAR.M5
             }
             if (imported > 0)
             {
-                Toast($"Votre panier : {imported} article{(imported > 1 ? "s" : "")} du catalogue. Passez au comptoir pour payer", 4.5f, true);
+                Toast($"Votre panier : {imported} article{(imported > 1 ? "s" : "")} du catalogue. Passe au comptoir pour payer", 4.5f, true);
                 badgePop = 1f;
                 M5ShopAudio.Item(0.2f);
             }
             else Toast(Application.isMobilePlatform
-                ? "Glissez à gauche pour avancer, à droite pour tourner"
+                ? "Glisse à gauche pour avancer, à droite pour tourner"
                 : "ZQSD pour avancer, clic droit pour regarder", 5f);
 
             // La télé « Voir le catalogue » ouvre le catalogue M3
@@ -245,11 +245,11 @@ namespace DecoAR.M5
 
         public void ConfirmOrder()
         {
-            if (lines.Count == 0) { Toast("Votre panier est vide"); return; }
-            if (!inZone && zoneCenter) { Toast("Rendez-vous au comptoir pour payer"); return; }
+            if (lines.Count == 0) { Toast("Ton panier est vide"); return; }
+            if (!inZone && zoneCenter) { Toast("Rends-toi au comptoir pour payer"); return; }
             if (string.IsNullOrEmpty(DeliveryAddress))
             {
-                Toast("Ajoutez votre adresse de livraison", 3f);
+                Toast("Ajoute ton adresse de livraison", 3f);
                 ShowPage(Page.Panier);
                 if (addressField) addressField.Select();
                 return;
@@ -321,8 +321,8 @@ namespace DecoAR.M5
             {
                 gpsBtn.interactable = true;
                 gpsLabel.text = GpsText;
-                if (!string.IsNullOrEmpty(addr)) { addressField.text = addr; Toast("Adresse ajoutée depuis votre position", 2.5f, true); }
-                addressStatus.text = err ?? "<color=#A8C79E>Adresse trouvée, vous pouvez la modifier.</color>";
+                if (!string.IsNullOrEmpty(addr)) { addressField.text = addr; Toast("Adresse ajoutée depuis ta position", 2.5f, true); }
+                addressStatus.text = err ?? "<color=#A8C79E>Adresse trouvée, tu peux la modifier.</color>";
             });
         }
 
@@ -341,7 +341,7 @@ namespace DecoAR.M5
         {
             if (!player || !player.GyroAvailable) { Toast("Le gyroscope est disponible sur téléphone"); return; }
             player.SetGyro(!player.useGyro);
-            Toast(player.useGyro ? "Tournez le téléphone pour regarder" : "Glissez à droite pour regarder");
+            Toast(player.useGyro ? "Tourne le téléphone pour regarder" : "Glisse à droite pour regarder");
             RefreshSettings();
         }
 
@@ -362,7 +362,7 @@ namespace DecoAR.M5
             bool avail = player && player.GyroAvailable, on = avail && player.useGyro;
             if (gyroTrack) gyroTrack.color = on ? Sage : new Color(1, 1, 1, 0.18f);
             if (gyroKnob) gyroKnob.anchoredPosition = new Vector2(on ? 22f : -22f, 0);
-            if (gyroSub) gyroSub.text = avail ? "Tournez le téléphone pour regarder" : "Disponible sur téléphone";
+            if (gyroSub) gyroSub.text = avail ? "Tourne le téléphone pour regarder" : "Disponible sur téléphone";
             if (recenterBtn) recenterBtn.interactable = on;
         }
 
@@ -443,7 +443,7 @@ namespace DecoAR.M5
             for (int i = cartContent.childCount - 1; i >= 0; i--) Destroy(cartContent.GetChild(i).gameObject);
             if (lines.Count == 0)
             {
-                var empty = Label(cartContent, "Votre panier est vide.\n<size=80%><color=#B8A48E>Ajoutez des articles depuis le catalogue.</color></size>", 26, Cream, TextAlignmentOptions.Center, 110);
+                var empty = Label(cartContent, "Ton panier est vide.\n<size=80%><color=#B8A48E>Ajoute un coup de cœur depuis le catalogue.</color></size>", 26, Cream, TextAlignmentOptions.Center, 110);
                 empty.textWrappingMode = TextWrappingModes.Normal;
                 var browse = Btn(cartContent, "Parcourir le catalogue", Tile, () => ShowPage(Page.Catalogue), 60, 24, TextAlignmentOptions.Center);
                 browse.GetComponentInChildren<TextMeshProUGUI>().color = Brass;
@@ -456,7 +456,7 @@ namespace DecoAR.M5
             clearBtn.gameObject.SetActive(lines.Count > 0);
             string verb = payment && payment.IsConfigured ? "Payer" : "Confirmer";
             confirmText.text = lines.Count == 0 ? "Panier vide"
-                : canPay ? $"<b>{verb} · {Money(Total)}</b>" : "Rendez-vous au comptoir pour payer";
+                : canPay ? $"<b>{verb} · {Money(Total)}</b>" : "Rends-toi au comptoir pour payer";
             ctaText.text = $"<b>{verb}</b>  ·  {Money(Total)}";
         }
 
@@ -481,7 +481,7 @@ namespace DecoAR.M5
             chipText.text = msg;
             var pref = chipText.GetPreferredValues(msg, 860f, 0f);
             chip.sizeDelta = new Vector2(Mathf.Min(pref.x, 860f) + 94f, Mathf.Max(64f, pref.y + 30f));
-            chipDot.color = success ? new Color(0.62f, 0.80f, 0.58f) : Brass;
+            chipDot.color = success ? (Color)DecoAR.Design.ThemeVerre.FeedbackSuccess : Brass;
             chipUntil = Time.time + duration;
         }
 
@@ -499,7 +499,7 @@ namespace DecoAR.M5
                     inZone = now;
                     if (inZone)
                     {
-                        Toast(lines.Count > 0 ? "Bienvenue à la caisse ! Touchez Payer pour finaliser" : "Bienvenue à la caisse ! Votre panier est vide", 3.5f);
+                        Toast(lines.Count > 0 ? "Bienvenue à la caisse ! Touche Payer pour finaliser" : "Bienvenue à la caisse ! Ton panier est vide", 3.5f);
                         if (focusBasketOnEnter && player) player.FocusOn(basket ? BasketCenter() : zoneCenter.position);
                     }
                     Refresh();
@@ -590,7 +590,7 @@ namespace DecoAR.M5
             canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 50;
             var scaler = cgo.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080); scaler.matchWidthOrHeight = 0.5f;
+            scaler.referenceResolution = DecoAR.UI.DecoUI.Reference; scaler.matchWidthOrHeight = 0.5f; // tailles du design system
             // Zone sûre : rien sous l'encoche / les bords arrondis du téléphone
             safeArea = new GameObject("ZoneSure", typeof(RectTransform)).GetComponent<RectTransform>();
             safeArea.SetParent(cgo.transform, false);
@@ -606,7 +606,7 @@ namespace DecoAR.M5
             joyBase.gameObject.SetActive(false);
 
             // Voile : toucher hors du tiroir le referme
-            var dim = Box("Voile", root, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0, 0, 0, 0.22f));
+            var dim = Box("Voile", root, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, DecoAR.Design.ThemeVerre.SurfaceScrim);
             dim.offsetMin = dim.offsetMax = Vector2.zero;
             dim.GetComponent<Image>().sprite = null;
             dim.gameObject.AddComponent<Button>().onClick.AddListener(() => ShowPage(Page.Aucune));
@@ -617,10 +617,7 @@ namespace DecoAR.M5
             BuildChip(root);
             BuildCta(root);
             BuildPayment(root);
-            var fade = Box("Fondu", cgo.transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Color.black);
-            fade.offsetMin = fade.offsetMax = Vector2.zero;
-            fade.GetComponent<Image>().sprite = null;
-            fadeGroup = fade.gameObject.AddComponent<CanvasGroup>(); fadeGroup.alpha = 1f; fadeGroup.blocksRaycasts = false;
+            fadeGroup = DecoAR.UI.DecoUI.Fade((RectTransform)cgo.transform); // fondu avec le symbole DecoAR
             ShowPage(Page.Aucune);
         }
 
@@ -639,7 +636,7 @@ namespace DecoAR.M5
             cartButton = cart;
 
             // Pastille du nombre d'articles sur l'icône Panier
-            badge = Box("Badge", cart, Vector2.one, Vector2.one, new Vector2(-8, -8), new Vector2(32, 32), new Color(0.82f, 0.36f, 0.27f));
+            badge = Box("Badge", cart, Vector2.one, Vector2.one, new Vector2(-8, -8), new Vector2(32, 32), DecoAR.Design.ThemeVerre.BadgeBg);
             var bi = badge.GetComponent<Image>(); bi.sprite = circle; bi.type = Image.Type.Simple; bi.raycastTarget = false;
             badgeText = Label(badge, "", 18, Color.white, TextAlignmentOptions.Center);
             badgeText.fontStyle = FontStyles.Bold;
@@ -796,7 +793,7 @@ namespace DecoAR.M5
 
         void BuildCatalogPage(RectTransform pg)
         {
-            Label(pg, "Pour compléter votre intérieur", 22, Soft, TextAlignmentOptions.MidlineLeft, 30);
+            Label(pg, "Pour compléter ton intérieur", 22, Soft, TextAlignmentOptions.MidlineLeft, 30);
             var full = Row(pg, 70, 12, Brass);
             var fb = full.gameObject.AddComponent<Button>();
             fb.targetGraphic = full.GetComponent<Image>();
@@ -828,7 +825,7 @@ namespace DecoAR.M5
             Separator(body);
 
             Label(body, "<b>Adresse de livraison</b>", 22, Soft, TextAlignmentOptions.MidlineLeft, 34);
-            addressField = InputField(body, "Saisissez votre adresse…", 84);
+            addressField = InputField(body, "Saisis ton adresse…", 84);
             addressField.text = PlayerPrefs.GetString(AddressKey, "");
             var gpsRow = Row(body, 52, 8, Color.clear);
             gpsBtn = gpsRow.gameObject.AddComponent<Button>();
@@ -862,7 +859,7 @@ namespace DecoAR.M5
             var help = Label(pg, "<b>Commandes</b>\n" +
                 "<color=#D9CDBF>• Moitié gauche : glisser pour avancer\n" +
                 "• Moitié droite : glisser pour tourner\n" +
-                "• Tournez le téléphone pour regarder\n" +
+                "• Tourne le téléphone pour regarder\n" +
                 "• PC : ZQSD + clic droit</color>", 22, Soft, TextAlignmentOptions.TopLeft, 170);
             help.textWrappingMode = TextWrappingModes.Normal;
             RefreshSettings();
@@ -899,7 +896,7 @@ namespace DecoAR.M5
             bool logged = DecoAR.Auth.AuthSession.IsLoggedIn && DecoAR.Auth.AuthSession.User != null;
             var name = profileTitle = Label(headRt, logged ? $"<b>{DecoAR.Auth.AuthSession.User.firstName} {DecoAR.Auth.AuthSession.User.lastName}</b>" : "<b>Invité</b>", 32, Cream, TextAlignmentOptions.Center, 44);
             name.rectTransform.sizeDelta = new Vector2(500, 44);
-            var sub = profileSub = Label(headRt, logged ? DecoAR.Auth.AuthSession.User.email : "Connectez-vous pour retrouver vos commandes", 21, Soft, TextAlignmentOptions.Center, 30);
+            var sub = profileSub = Label(headRt, logged ? DecoAR.Auth.AuthSession.User.email : "Connecte-toi pour retrouver tes commandes", 21, Soft, TextAlignmentOptions.Center, 30);
             sub.rectTransform.sizeDelta = new Vector2(540, 30);
 
             var addr = Row(pg, 96, 14, Tile);
@@ -961,7 +958,7 @@ namespace DecoAR.M5
             Label(box, "<b>Paiement sécurisé</b>  <size=70%><color=#B8A48E>par Stripe</color></size>", 36, Cream, TextAlignmentOptions.Center, 56);
             payStatus = Label(box, "", 24, Soft, TextAlignmentOptions.Center, 80);
             payStatus.textWrappingMode = TextWrappingModes.Normal;
-            Btn(box, "Rouvrir la page de paiement", new Color(0.33f, 0.45f, 0.55f), () => payment.ReopenPage(), 68, 26, TextAlignmentOptions.Center);
+            Btn(box, "Rouvrir la page de paiement", DecoAR.Design.DecoPalette.Ardoise500, () => payment.ReopenPage(), 68, 26, TextAlignmentOptions.Center);
             Btn(box, "Annuler", Muted, () => payment.Cancel(), 58, 26, TextAlignmentOptions.Center);
             ShowPayment(false);
         }

@@ -7,8 +7,8 @@ using UnityEditor.Android;
 
 namespace DecoAR.Core.EditorTools
 {
-    // Icone DecoAR (docs/logo) dans les Player Settings : icone par defaut (iOS et autres),
-    // et sur Android l'icone adaptative. Les PNG viennent de docs/logo/generer_icones.py
+    // Icone DecoAR (design system, DesignSystem/app-icon) dans les Player Settings : icone par defaut (iOS et autres),
+    // et sur Android l'icone adaptative (couches 432 px du design system).
     public static class AppIconSetup
     {
         const string Folder = "Assets/DecoAR/Core/Icons/";
@@ -40,7 +40,7 @@ namespace DecoAR.Core.EditorTools
         {
             var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(Folder + file);
             if (texture == null)
-                Debug.LogError($"[DecoAR] {Folder}{file} introuvable : lancer docs/logo/generer_icones.py");
+                Debug.LogError($"[DecoAR] {Folder}{file} introuvable : copier les icones de DesignSystem/app-icon");
             return texture;
         }
     }

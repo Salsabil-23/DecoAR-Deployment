@@ -12,7 +12,7 @@ namespace DecoAR.M3
         [SerializeField] float slotSize = 0.32f;          // cote max d'un produit sur l'etagere (m)
         [SerializeField] Color highlightColor = new Color(1f, 0.78f, 0.3f);
         [Header("Enseigne et étiquettes")]
-        [SerializeField] TMP_Text title;                  // nom du rayon sur l'enseigne DecoAR
+        [SerializeField] TMP_Text title;                  // nom du rayon sur l'enseigne DecoAR (après « RAYON »)
         [SerializeField] float tagDepth = 0.24f;          // distance de l'étiquette prix devant le produit (m)
         [SerializeField] Material tagMaterial;
 
@@ -53,7 +53,7 @@ namespace DecoAR.M3
 
         public void SetTitle(string text)
         {
-            if (title != null) title.text = text;
+            if (title != null) title.text = "·  " + text.ToUpperInvariant(); // suit « RAYON » sur l'enseigne
         }
 
         // Étiquette de prix posée sur le bord de la planche, inclinée vers le client

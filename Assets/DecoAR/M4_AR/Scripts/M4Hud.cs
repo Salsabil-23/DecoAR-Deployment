@@ -104,7 +104,7 @@ namespace DecoAR.AR
                     ? "<color=#9FCB94>●</color> Taille réelle"
                     : $"<color=#E0B35A>●</color> {pct:0} % de la taille réelle";
             }
-            else sizeText.text = gate.Placement == PlacementType.Mur ? "Visez un mur bien éclairé" : "Visez le sol, bougez doucement le téléphone";
+            else sizeText.text = gate.Placement == PlacementType.Mur ? "Vise un mur bien éclairé" : "Vise le sol, bouge doucement le téléphone";
 
             if (!leaving && fadeGroup.alpha > 0f) fadeGroup.alpha = Mathf.MoveTowards(fadeGroup.alpha, 0f, Time.unscaledDeltaTime * 2.5f);
             badgePop = Mathf.MoveTowards(badgePop, 0f, Time.unscaledDeltaTime * 3f);
@@ -146,9 +146,9 @@ namespace DecoAR.AR
 
             // En haut à droite : aide + panier
             var right = Cluster(false);
-            DecoUI.FloatButton(right, M5Icons.Kind.Toucher, BarHeight, () => guideOpen = !guideOpen, out _, out _);
+            DecoUI.FloatButton(right, M5Icons.Kind.Aide, BarHeight, () => guideOpen = !guideOpen, out _, out _);
             var cart = DecoUI.FloatButton(right, M5Icons.Kind.Panier, BarHeight, () => { GameManager.Instance?.ClearShopPose(); Go(SceneNames.Checkout); }, out _, out _);
-            badge = DecoUI.Box("Badge", cart.transform, Vector2.one, Vector2.one, new Vector2(-8, -8), new Vector2(32, 32), new Color(0.82f, 0.36f, 0.27f));
+            badge = DecoUI.Box("Badge", cart.transform, Vector2.one, Vector2.one, new Vector2(-8, -8), new Vector2(32, 32), DecoUI.Badge);
             var bi = badge.GetComponent<Image>(); bi.sprite = DecoUI.Circle; bi.type = Image.Type.Simple; bi.raycastTarget = false;
             badge.GetComponent<LayoutElement>().ignoreLayout = true;
             badgeText = DecoUI.Label(badge, "", 18, Color.white, TextAlignmentOptions.Center);
@@ -205,10 +205,7 @@ namespace DecoAR.AR
             BuildGuide();
             toast = DecoToast.Create(root, Top + BarHeight + 40f);
 
-            var fade = DecoUI.Box("Fondu", root, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.08f, 0.06f, 0.05f));
-            fade.offsetMin = fade.offsetMax = new Vector2(-200, -200);
-            fade.GetComponent<Image>().sprite = null;
-            fadeGroup = fade.gameObject.AddComponent<CanvasGroup>(); fadeGroup.alpha = 1f; fadeGroup.blocksRaycasts = false;
+            fadeGroup = DecoUI.Fade(root);
         }
 
         void AddToCart()
@@ -230,13 +227,13 @@ namespace DecoAR.AR
             guide.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             guideGroup = guide.gameObject.AddComponent<CanvasGroup>(); guideGroup.alpha = 0; guideGroup.blocksRaycasts = false;
 
-            DecoUI.Label(guide, "<b>Votre produit est posé !</b>", 34, DecoUI.Cream, TextAlignmentOptions.Center, 48);
-            DecoUI.Label(guide, "Ajustez-le directement avec vos doigts", 22, DecoUI.Soft, TextAlignmentOptions.Center, 32);
-            Gesture(M5Icons.Kind.Deplacer, "Déplacer", "Glissez le produit avec un doigt");
-            Gesture(M5Icons.Kind.Pincer, "Changer la taille", "Pincez ou écartez deux doigts sur le produit");
-            Gesture(M5Icons.Kind.Pivoter, "Tourner", "Faites pivoter deux doigts sur le produit");
-            Gesture(M5Icons.Kind.Toucher, "Changer de place", "Touchez une autre zone du sol ou du mur");
-            DecoUI.Label(guide, "<color=#B8A48E>« Taille réelle » remet le produit à ses vraies dimensions.</color>", 20, DecoUI.Soft, TextAlignmentOptions.Center, 34);
+            DecoUI.Label(guide, "<b>Posé ! Tu peux l'ajuster du doigt</b>", 34, DecoUI.Cream, TextAlignmentOptions.Center, 48);
+            DecoUI.Label(guide, "Ajuste-le directement avec tes doigts", 22, DecoUI.Soft, TextAlignmentOptions.Center, 32);
+            Gesture(M5Icons.Kind.Deplacer, "Déplacer", "Glisse l'objet avec un doigt");
+            Gesture(M5Icons.Kind.Pincer, "Changer la taille", "Pince ou écarte deux doigts sur l'objet");
+            Gesture(M5Icons.Kind.Pivoter, "Tourner", "Fais tourner deux doigts sur l'objet");
+            Gesture(M5Icons.Kind.Toucher, "Changer de place", "Touche un autre endroit du sol ou du mur");
+            DecoUI.Label(guide, "<color=#B8A48E>« Taille réelle » remet l'objet à ses vraies dimensions.</color>", 20, DecoUI.Soft, TextAlignmentOptions.Center, 34);
             DecoUI.Pill(guide, "<b>C'est compris</b>", DecoUI.Brass, DecoUI.Ink, () => guideOpen = false, 76, 27);
         }
 

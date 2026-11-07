@@ -87,7 +87,7 @@ namespace DecoAR.M3
                 if (previous != null && previous.category == category)
                     SelectProduct(previous, gm.SelectedVariantIndex);
             }
-            else toast.Show("Touchez un produit sur l'étagère ou dans la liste", 3.5f);
+            else toast.Show("Touche un objet pour le voir de près", 3.5f);
         }
 
         private void OnDestroy()
@@ -117,7 +117,7 @@ namespace DecoAR.M3
                 t.color = on ? DecoUI.Ink : DecoUI.Cream;
                 t.fontStyle = on ? FontStyles.Bold : FontStyles.Normal;
             }
-            stripTitle.text = $"<b>{zone}</b>  <color=#B8A48E>·  {products.Count} produit{(products.Count > 1 ? "s" : "")}  ·  touchez un produit pour l'inspecter</color>";
+            stripTitle.text = $"<b>{zone}</b>  <color=#B8A48E>·  {products.Count} produit{(products.Count > 1 ? "s" : "")}  ·  touche un objet pour le voir de près</color>";
             Debug.Log($"[M3] Zone {zone} : {products.Count} produits");
         }
 
@@ -145,7 +145,7 @@ namespace DecoAR.M3
                 var name = DecoUI.Label(card, $"<b>{p.displayName}</b>", 23, DecoUI.Cream, TextAlignmentOptions.TopLeft, 56);
                 name.textWrappingMode = TextWrappingModes.Normal; name.overflowMode = TextOverflowModes.Ellipsis;
                 name.rectTransform.offsetMin = name.rectTransform.offsetMax = Vector2.zero;
-                var price = DecoUI.Label(card, p.PriceLabel, 23, DecoUI.Brass, TextAlignmentOptions.MidlineLeft, 28);
+                var price = DecoUI.Label(card, p.PriceLabel, 23, DecoUI.Price, TextAlignmentOptions.MidlineLeft, 28);
                 price.fontStyle = FontStyles.Bold;
                 cards.Add((p, ring));
             }
@@ -274,7 +274,7 @@ namespace DecoAR.M3
             if (current == null || leaving) return;
             if (current.prefab == null)
             {
-                toast.Show("Modèle 3D manquant pour ce produit");
+                toast.Show("Modèle 3D manquant pour cet objet");
                 return;
             }
             StoreSelection();
@@ -378,7 +378,7 @@ namespace DecoAR.M3
 
             if (!M3VoiceSearch.IsAvailable)
             {
-                OnVoiceFailed("Recherche vocale indisponible ici : tapez votre recherche.");
+                OnVoiceFailed("Recherche vocale indisponible ici : tape ta recherche.");
                 return;
             }
 
@@ -387,10 +387,10 @@ namespace DecoAR.M3
             {
                 PlayerPrefs.SetInt(MicExplainedKey, 1);
                 PlayerPrefs.Save();
-                toast.Show("Le micro sert uniquement à rechercher un produit par la voix. Touchez à nouveau le micro pour parler.", 5f);
+                toast.Show("Le micro sert uniquement à rechercher un produit par la voix. Touche à nouveau le micro pour parler.", 5f);
                 return;
             }
-            toast.Show("Je vous écoute… dites un nom de produit", 4f);
+            toast.Show("Je t'écoute… dis un nom d'objet", 4f);
             voice.StartListening();
         }
 
@@ -455,10 +455,7 @@ namespace DecoAR.M3
             BuildHint();
             toast = DecoToast.Create(root, Top + BarHeight + 18f);
 
-            var fade = DecoUI.Box("Fondu", root, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.08f, 0.06f, 0.05f));
-            fade.offsetMin = fade.offsetMax = new Vector2(-200, -200);
-            fade.GetComponent<Image>().sprite = null;
-            fadeGroup = fade.gameObject.AddComponent<CanvasGroup>(); fadeGroup.alpha = 1f; fadeGroup.blocksRaycasts = false;
+            fadeGroup = DecoUI.Fade(root);
         }
 
         private void BuildTopBar()
@@ -488,7 +485,7 @@ namespace DecoAR.M3
             rh.childControlWidth = rh.childControlHeight = false; rh.childForceExpandWidth = rh.childForceExpandHeight = false;
             DecoUI.FloatButton(right, M5Icons.Kind.Loupe, BarHeight, ToggleSearch, out _, out _);
             var cart = DecoUI.FloatButton(right, M5Icons.Kind.Panier, BarHeight, GoToCheckout, out _, out _);
-            badge = DecoUI.Box("Badge", cart.transform, Vector2.one, Vector2.one, new Vector2(-8, -8), new Vector2(32, 32), new Color(0.82f, 0.36f, 0.27f));
+            badge = DecoUI.Box("Badge", cart.transform, Vector2.one, Vector2.one, new Vector2(-8, -8), new Vector2(32, 32), DecoUI.Badge);
             var bi = badge.GetComponent<Image>(); bi.sprite = DecoUI.Circle; bi.type = Image.Type.Simple; bi.raycastTarget = false;
             badge.GetComponent<LayoutElement>().ignoreLayout = true;
             badgeText = DecoUI.Label(badge, "", 18, Color.white, TextAlignmentOptions.Center);
@@ -574,8 +571,8 @@ namespace DecoAR.M3
             sh.rectTransform.offsetMin = new Vector2(-30, -34); sh.rectTransform.offsetMax = new Vector2(30, 20);
             DecoUI.Layer(sheet, "Fond", DecoUI.PillShape, DecoUI.GlassStrong, true);
             DecoUI.Layer(sheet, "Liseré", DecoUI.RingSprite, new Color(1, 1, 1, 0.10f), false);
-            var v = DecoUI.Column(sheet, 12, 26);
-            v.padding = new RectOffset(28, 28, 24, 24);
+            var v = DecoUI.Column(sheet, 10, 22);
+            v.padding = new RectOffset(26, 26, 20, 18);
 
             var head = DecoUI.Row(sheet, 0, 10, Color.clear, 0, 0);
             var titles = new GameObject("Titres", typeof(RectTransform), typeof(LayoutElement)).GetComponent<RectTransform>();
@@ -592,13 +589,13 @@ namespace DecoAR.M3
             var close = DecoUI.IconButton(head, M5Icons.Kind.Fermer, 56, new Color(1, 1, 1, 0.1f), DecoUI.Cream, PutBack);
             close.GetComponent<LayoutElement>().flexibleWidth = 0;
 
-            sheetPrice = DecoUI.Label(sheet, "", 40, DecoUI.Brass, TextAlignmentOptions.MidlineLeft, 52);
+            sheetPrice = DecoUI.Label(sheet, "", 40, DecoUI.Price, TextAlignmentOptions.MidlineLeft, 52);
             sheetPrice.fontStyle = FontStyles.Bold;
             sheetPrice.rectTransform.offsetMin = Vector2.zero;
             DecoUI.Separator(sheet);
 
             DecoUI.Scroll(sheet, false, 14, out var body);
-            var size = DecoUI.Row(body, 76, 14, DecoUI.Tile);
+            var size = DecoUI.Row(body, 66, 14, DecoUI.Tile);
             DecoUI.Icon(size, M5Icons.Kind.Taille, 34, DecoUI.Brass);
             sheetSize = DecoUI.Label(size, "", 21, DecoUI.Cream, TextAlignmentOptions.MidlineLeft);
             sheetSize.GetComponent<LayoutElement>().flexibleWidth = 1;
@@ -616,9 +613,9 @@ namespace DecoAR.M3
             sheetDescription.rectTransform.offsetMin = Vector2.zero;
             sheetDescription.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            DecoUI.Pill(sheet, "<b>Voir chez moi en AR</b>", DecoUI.Brass, DecoUI.Ink, ViewInAR, 80, 27, M5Icons.Kind.Cube);
-            DecoUI.Pill(sheet, "<b>Ajouter au panier</b>", DecoUI.Sage, Color.white, AddToCart, 72, 25, M5Icons.Kind.Panier);
-            var put = DecoUI.Pill(sheet, "Reposer sur l'étagère", new Color(1, 1, 1, 0f), DecoUI.Soft, PutBack, 44, 21);
+            DecoUI.Pill(sheet, "<b>Voir chez moi</b>", DecoUI.Brass, DecoUI.Ink, ViewInAR, 66, 26, M5Icons.Kind.Cube);
+            DecoUI.Pill(sheet, "<b>Ajouter au panier</b>", DecoUI.Sage, Color.white, AddToCart, 60, 24, M5Icons.Kind.Panier);
+            var put = DecoUI.Pill(sheet, "Reposer sur l'étagère", new Color(1, 1, 1, 0f), DecoUI.Soft, PutBack, 36, 21);
             put.GetComponent<Image>().raycastTarget = true;
         }
 
@@ -633,11 +630,11 @@ namespace DecoAR.M3
             h.childControlWidth = h.childControlHeight = true; h.childForceExpandWidth = h.childForceExpandHeight = false;
             inspectHint.gameObject.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             DecoUI.Icon(inspectHint, M5Icons.Kind.Pivoter, 30, DecoUI.Brass);
-            DecoUI.Label(inspectHint, "Glissez pour tourner", 21, DecoUI.Cream, TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = Vector2.zero;
+            DecoUI.Label(inspectHint, "Glisse pour tourner", 21, DecoUI.Cream, TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = Vector2.zero;
             DecoUI.Icon(inspectHint, M5Icons.Kind.Pincer, 30, DecoUI.Brass);
-            DecoUI.Label(inspectHint, "Pincez pour zoomer", 21, DecoUI.Cream, TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = Vector2.zero;
+            DecoUI.Label(inspectHint, "Pince pour zoomer", 21, DecoUI.Cream, TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = Vector2.zero;
             DecoUI.Icon(inspectHint, M5Icons.Kind.Toucher, 30, DecoUI.Brass);
-            DecoUI.Label(inspectHint, "Secouez pour reposer", 21, DecoUI.Cream, TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = Vector2.zero;
+            DecoUI.Label(inspectHint, "Secoue pour reposer", 21, DecoUI.Cream, TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = Vector2.zero;
         }
 
         private static string PlacementLabel(ProductPlacement placement)

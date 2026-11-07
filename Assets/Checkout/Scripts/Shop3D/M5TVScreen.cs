@@ -20,7 +20,7 @@ namespace DecoAR.M5
         [Header("Contenu")]
         public string title = "Voir le catalogue";
         public string subtitle = "Découvrez toute notre collection déco";
-        public string callToAction = "Touchez l'écran";
+        public string callToAction = "Touche l'écran";
         public Color colorA = new Color(0.36f, 0.50f, 0.40f);
         public Color colorB = new Color(0.80f, 0.60f, 0.30f);
         [Header("Lumière")]
@@ -102,7 +102,7 @@ namespace DecoAR.M5
             line.localScale = new Vector3(lineW, 1f, 1f);
             flash.color = new Color(1, 1, 1, on ? Mathf.Clamp01(1f - (e - 0.3f) / 0.35f) * open * 0.85f : 0f);
             standbyGroup.alpha = Mathf.Lerp(standbyGroup.alpha, on ? 0f : 1f, Time.deltaTime * 6f);
-            logoText.alpha = 0.18f + 0.1f * Mathf.Sin(t * 1.2f);
+            logoText.alpha = 0.75f + 0.2f * Mathf.Sin(t * 1.2f); // logo de veille qui respire doucement
 
             if (open > 0.001f)
             {
@@ -206,8 +206,16 @@ namespace DecoAR.M5
             standbyGroup = Group("Veille", crt).gameObject.AddComponent<CanvasGroup>();
             var refl = Img("Reflet", (RectTransform)standbyGroup.transform, Vector2.zero, new Vector2(W * 1.6f, H * 0.35f), new Color(1, 1, 1, 0.035f));
             refl.rectTransform.localRotation = Quaternion.Euler(0, 0, 28f);
-            logoText = Txt("Logo", (RectTransform)standbyGroup.transform, "DecoAR", 120, new Color(1, 1, 1, 0.2f), new Vector2(W, 200), FontStyles.Bold);
-            logoText.characterSpacing = 20;
+            // Veille : symbole « Maison AR » + mot-symbole DecoAR (design system)
+            var symbol = new GameObject("Symbole", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            symbol.transform.SetParent(standbyGroup.transform, false);
+            symbol.sprite = DecoAR.Design.DecoBrand.SymbolSprite; symbol.preserveAspect = true; symbol.raycastTarget = false;
+            symbol.rectTransform.sizeDelta = Vector2.one * 230f;
+            symbol.rectTransform.anchoredPosition = new Vector2(0, 70f);
+            logoText = Txt("Logo", (RectTransform)standbyGroup.transform, DecoAR.Design.DecoBrand.Wordmark(true), 110, Color.white, new Vector2(W, 160), FontStyles.Normal);
+            logoText.rectTransform.anchoredPosition = new Vector2(0, -120f);
+            var semi = DecoAR.Design.DecoUI.Font(600);
+            if (semi != null) logoText.font = semi;
 
             // Écran allumé
             screen = Group("Allume", crt);

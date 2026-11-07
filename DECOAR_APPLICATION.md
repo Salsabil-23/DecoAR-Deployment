@@ -306,6 +306,8 @@ Une vraie boutique de décoration en 3D, avec une caisse, un vendeur, un panier 
 
 ## 6. Langage visuel actuel
 
+> **Mis à jour :** le design system officiel est maintenant dans [`DesignSystem/`](DesignSystem/README.md) (palette, Outfit, icônes, composants, logo « Maison AR »). Il est intégré dans Unity sous `Assets/DecoAR/Design/`. Cette section décrit l'état d'avant, qui a servi à le concevoir.
+
 ### 6.1 Couleurs de la marque (logo)
 
 | Nom | Hex | Usage |
@@ -421,7 +423,7 @@ Il y a 26 icônes, dessinées par code et teintables :
 
 ### 6.6 Logo et icône d'application
 
-Les fichiers sont dans `docs/logo/` (`decoar-logo.svg`, `decoar-icone.svg`) et `Assets/DecoAR/Core/Icons/`.
+Les fichiers sont dans `docs/logo/` et `Assets/DecoAR/Core/Icons/`. Le logo officiel « Maison AR » et toutes ses déclinaisons sont dans `DesignSystem/logo/`.
 
 Le symbole est une maison et un cube AR, en crème sur un fond terracotta. L'icône Android est adaptative (avant-plan et arrière-plan séparés).
 

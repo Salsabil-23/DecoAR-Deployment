@@ -247,7 +247,7 @@ namespace DecoAR.M5
             }
             shake = 1f;
             errorUntil = Time.unscaledTime + 2.5f;
-            errorText.text = string.IsNullOrEmpty(field.text) ? "Saisissez le mot de passe" : "Mot de passe incorrect";
+            errorText.text = string.IsNullOrEmpty(field.text) ? "Saisis le mot de passe" : "Mot de passe incorrect";
             field.text = "";
             field.ActivateInputField();
             M5Haptics.Strong();
@@ -357,9 +357,9 @@ namespace DecoAR.M5
             loginGroup = loginPanel.gameObject.AddComponent<CanvasGroup>(); loginGroup.alpha = 0; loginGroup.interactable = loginGroup.blocksRaycasts = false;
             var card = DecoUI.Box("Carte", loginPanel, new Vector2(0.5f, 0.56f), new Vector2(0.5f, 0.56f), Vector2.zero, new Vector2(620, 520), Color.clear);
             DecoUI.Glassy(card, new Color(0.12f, 0.10f, 0.08f, 0.82f), DecoUI.Rounded);
-            var av = DecoUI.Box("Avatar", card, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -92), new Vector2(124, 124), DecoUI.Terracotta);
+            var av = DecoUI.Box("Avatar", card, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -92), new Vector2(124, 124), Color.clear); // le symbole a sa propre plaque : pas de pastille derrière
             av.GetComponent<Image>().sprite = DecoUI.Circle; av.GetComponent<Image>().type = Image.Type.Simple;
-            var avLogo = Raw(av, "Logo", logoMark != null ? logoMark : logo); DecoUI.Stretch(avLogo.rectTransform, logoMark != null ? 6f : 14f);
+            var avLogo = Raw(av, "Logo", logoMark != null ? logoMark : logo); DecoUI.Stretch(avLogo.rectTransform, 0f);
             Text(card, "<b>Administrateur</b>", 40, DecoUI.Cream, new Vector2(0.5f, 1f), new Vector2(560, 56), new Vector2(0, -190));
             Text(card, "Catalogue 3D de la boutique DecoAR", 24, DecoUI.Soft, new Vector2(0.5f, 1f), new Vector2(560, 36), new Vector2(0, -232));
 
@@ -431,10 +431,8 @@ namespace DecoAR.M5
         void BuildFade()
         {
             var root = DecoUI.Canvas(transform, "Fondu_Admin", 200);
-            var f = DecoUI.Box("Noir", root, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Night);
-            f.offsetMin = f.offsetMax = new Vector2(-200, -200);
-            f.GetComponent<Image>().sprite = null; f.GetComponent<Image>().raycastTarget = false;
-            fadeGroup = f.gameObject.AddComponent<CanvasGroup>(); fadeGroup.alpha = 0; fadeGroup.blocksRaycasts = false;
+            fadeGroup = DecoUI.Fade(root);
+            fadeGroup.alpha = 0;
         }
 
         RectTransform Panel(string name)

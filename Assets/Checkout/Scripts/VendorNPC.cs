@@ -18,7 +18,7 @@ namespace DecoAR.M5
         [Header("Bulle")]
         public bool showBubble = true;
         public string greetText = "Bonjour ! Prêt à passer commande ?";
-        public string confirmText = "Merci pour votre commande !";
+        public string confirmText = "Merci pour ta commande !";
         public float bubbleHeight = 2.1f;
         public float bubbleDuration = 4f;
 

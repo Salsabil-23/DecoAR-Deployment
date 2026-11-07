@@ -34,7 +34,7 @@ namespace DecoAR.AR
             {
                 if (gate != null)
                     gate.ShowTemporary(success
-                        ? "Photo enregistrée dans la galerie"
+                        ? "Photo enregistrée dans ta galerie"
                         : "Photo non enregistrée (autorisation refusée ?)");
                 Destroy(tex);
                 busy = false;

@@ -54,13 +54,13 @@ namespace DecoAR.M5
                     cb.PermissionGranted += _ => granted = true;
                     cb.PermissionDenied += _ => granted = false;
                     Permission.RequestUserPermission(Permission.FineLocation, cb);
-                    onStatus?.Invoke("Autorisez l'accès à votre position…");
+                    onStatus?.Invoke("Autorise l'accès à ta position…");
                     while (granted == null) yield return null;
                     if (granted == false) { Finish(onDone, null, "Accès à la position refusé."); yield break; }
                 }
                 if (!Input.location.isEnabledByUser) { Finish(onDone, null, "Activez la localisation (GPS) du téléphone."); yield break; }
 #endif
-                onStatus?.Invoke("Recherche de votre position…");
+                onStatus?.Invoke("Recherche de ta position…");
                 Input.location.Start(10f, 5f);
                 float t = 0;
                 while (Input.location.status == LocationServiceStatus.Initializing && t < gpsTimeout) { t += Time.unscaledDeltaTime; yield return null; }

@@ -101,11 +101,11 @@ namespace DecoAR.AR
             }
 
             if (HasMatchingPlane())
-                messageText.text = "Touchez la surface pour poser le produit";
+                messageText.text = "Touche la surface pour poser l'objet";
             else
                 messageText.text = placementType == PlacementType.Mur
-                    ? "Balayez lentement le mur"
-                    : "Balayez lentement le sol";
+                    ? "Balaie lentement le mur"
+                    : "Balaie lentement le sol";
         }
 
         public void SetProductPrefab(GameObject prefab, Vector3 productSizeCm)
@@ -188,7 +188,7 @@ namespace DecoAR.AR
         {
             if (productPrefab == null)
             {
-                ShowTemporary("Aucun produit choisi : revenez au catalogue");
+                ShowTemporary("Aucun objet choisi : reviens au catalogue");
                 return;
             }
 
@@ -201,9 +201,9 @@ namespace DecoAR.AR
             if (!valid)
             {
                 Debug.Log($"[M4] Placement refuse : {placementType} sur une surface incompatible");
-                ShowTemporary(placementType == PlacementType.Mur ? "Ce produit se pose sur un mur"
-                    : placementType == PlacementType.Sol ? "Ce produit se pose sur le sol"
-                    : "Ce produit se pose sur le sol ou une table");
+                ShowTemporary(placementType == PlacementType.Mur ? "Cet objet se pose sur un mur : vise un mur"
+                    : placementType == PlacementType.Sol ? "Cet objet se pose au sol : vise le sol"
+                    : "Cet objet se pose au sol ou sur une table");
                 return;
             }
 

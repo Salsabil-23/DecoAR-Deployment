@@ -17,15 +17,18 @@ namespace DecoAR.M6
         /// Modele du catalogue a afficher en arrivant sur l'ecran de generation (« Voir en 3D »).
         static M6Catalog.Item pendingView;
 
-        static readonly Color Bg = new Color(0.17f, 0.14f, 0.11f);
-        static readonly Color Card = new Color(0.98f, 0.97f, 0.95f);
-        static readonly Color Field = new Color(0.95f, 0.93f, 0.89f);
-        static readonly Color Accent = new Color(0.78f, 0.45f, 0.29f);
-        static readonly Color Ink = new Color(0.2f, 0.16f, 0.12f);
-        static readonly Color Muted = new Color(0.55f, 0.5f, 0.45f);
-        static readonly Color Sage = new Color(0.45f, 0.58f, 0.43f);
-        static readonly Color Cream = new Color(0.98f, 0.95f, 0.89f);
-        static readonly Color Line = new Color(0.88f, 0.85f, 0.8f);
+        // Thème « Papier » du design system (docs/11-etats-et-ecrans.md : M6 quitte le fond brun) ;
+        // la visionneuse reste sombre pour faire ressortir le modèle.
+        static readonly Color Bg = DecoAR.Design.ThemePapier.SurfaceBackground;
+        static readonly Color Card = DecoAR.Design.ThemePapier.SurfaceCard;
+        static readonly Color Field = DecoAR.Design.ThemePapier.SurfaceSunken;
+        static readonly Color Accent = DecoAR.Design.ThemePapier.ActionPrimary;
+        static readonly Color Ink = DecoAR.Design.ThemePapier.TextPrimary;
+        static readonly Color Muted = DecoAR.Design.ThemePapier.TextTertiary;
+        static readonly Color Sage = DecoAR.Design.ThemePapier.ActionCommerce;
+        static readonly Color Cream = DecoAR.Design.DecoPalette.Lin100;
+        static readonly Color Line = DecoAR.Design.ThemePapier.BorderHairline;
+        static readonly Color ViewerBg = DecoAR.Design.DecoPalette.Lin850;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Init()
@@ -95,10 +98,10 @@ namespace DecoAR.M6
                 else SceneManager.LoadScene(DecoAR.Core.SceneNames.Shop); // retour devant le PC de la caisse
             }, 300, 76, 28);
             Place(b, new Vector2(0, 0.5f), new Vector2(36, 0), new Vector2(0, 0.5f));
-            var logo = Box("Logo", topBar, circle, Accent, new Vector2(0, 0.5f), new Vector2(395, 0), new Vector2(70, 70));
-            Label(logo, "D", 40, Color.white, TextAlignmentOptions.Center, FontStyles.Bold);
-            var title = Label(topBar, generator ? "<b>Génération 3D</b>\n<size=55%><color=#B8A48E>Une photo du produit › un modèle 3D › le catalogue</color></size>"
-                                               : "<b>Administration</b>\n<size=55%><color=#B8A48E>Catalogue des produits 3D de la boutique</color></size>", 40, Cream, TextAlignmentOptions.MidlineLeft);
+            var logo = Box("Logo", topBar, DecoAR.Design.DecoBrand.SymbolSprite, Color.white, new Vector2(0, 0.5f), new Vector2(395, 0), new Vector2(84, 84));
+            logo.GetComponent<Image>().type = Image.Type.Simple; logo.GetComponent<Image>().preserveAspect = true;
+            var title = Label(topBar, generator ? "<b>Génération 3D</b>\n<size=55%><color=#6B5B4D>Une photo du produit › un modèle 3D › le catalogue</color></size>"
+                                               : "<b>Administration</b>\n<size=55%><color=#6B5B4D>Catalogue des produits 3D de la boutique</color></size>", 40, Ink, TextAlignmentOptions.MidlineLeft);
             title.rectTransform.anchorMin = new Vector2(0, 0); title.rectTransform.anchorMax = new Vector2(1, 1);
             title.rectTransform.offsetMin = new Vector2(450, 0); title.rectTransform.offsetMax = new Vector2(-36, 0);
         }
@@ -116,13 +119,15 @@ namespace DecoAR.M6
             corners.GetComponent<Image>().raycastTarget = false;
             var frame = Box("Bordure", viewer, ring, new Color(0.82f, 0.65f, 0.32f, 0.6f), Vector2.zero, Vector2.zero, Vector2.zero, true);
             frame.GetComponent<Image>().type = Image.Type.Sliced; frame.GetComponent<Image>().raycastTarget = false;
-            viewerTitle = Label(viewer, "", 30, Ink, TextAlignmentOptions.TopLeft, FontStyles.Bold);
+            viewerTitle = Label(viewer, "", 30, Cream, TextAlignmentOptions.TopLeft, FontStyles.Bold);
+            if (modelViewer != null && modelViewer.viewerCamera != null) modelViewer.viewerCamera.backgroundColor = ViewerBg;
             Place(viewerTitle.rectTransform, new Vector2(0, 1), new Vector2(36, -30), new Vector2(0, 1), new Vector2(900, 50));
             var empty = Rect("Vide", viewer, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(700, 300));
             emptyGroup = empty.gameObject.AddComponent<CanvasGroup>(); emptyGroup.blocksRaycasts = false;
-            var cube = Box("Cube", empty, rounded, new Color(0.78f, 0.45f, 0.29f, 0.15f), new Vector2(0.5f, 0.5f), new Vector2(0, 60), new Vector2(150, 150));
-            Label(cube, "3D", 56, Accent, TextAlignmentOptions.Center, FontStyles.Bold);
-            var et = Label(empty, "<b>Votre modèle 3D apparaîtra ici</b>\n<size=75%><color=#8C8073>Prenez une photo du produit puis lancez la génération</color></size>", 32, Ink, TextAlignmentOptions.Center);
+            // Illustration du design system (assets/etats-vides/modele-3d-attente)
+            var cube = Box("Illustration", empty, Resources.Load<Sprite>("DecoAR/EtatsVides/modele-3d-attente"), Color.white, new Vector2(0.5f, 0.5f), new Vector2(0, 70), new Vector2(240, 180));
+            cube.GetComponent<Image>().type = Image.Type.Simple; cube.GetComponent<Image>().preserveAspect = true;
+            var et = Label(empty, "<b>Ton modèle 3D apparaîtra ici</b>\n<size=75%><color=#DDCDB5>Prends une photo du produit pour commencer</color></size>", 32, Cream, TextAlignmentOptions.Center);
             Place(et.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0, -90), new Vector2(0.5f, 0.5f), new Vector2(700, 100));
 
             var tools = Rect("Outils", viewer, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-30, -30), new Vector2(0, 70));
@@ -137,7 +142,7 @@ namespace DecoAR.M6
 
             var hint = Box("Aide", viewer, rounded, new Color(0.17f, 0.14f, 0.11f, 0.75f), new Vector2(0.5f, 0), new Vector2(0, 36), new Vector2(820, 56));
             hint.GetComponent<Image>().raycastTarget = false;
-            Label(hint, "Glissez pour tourner  •  pincez pour zoomer  •  double toucher pour recentrer", 22, Cream, TextAlignmentOptions.Center);
+            Label(hint, "Glisse pour tourner  ·  pince pour zoomer  ·  touche deux fois pour recentrer", 22, Cream, TextAlignmentOptions.Center);
             hintGroup = hint.gameObject.AddComponent<CanvasGroup>(); hintGroup.blocksRaycasts = false; hintGroup.alpha = 0;
 
             // Panneau des etapes
@@ -217,8 +222,8 @@ namespace DecoAR.M6
 
         void AddToCatalog()
         {
-            if (modelViewer == null || !modelViewer.HasModel) { Toast("Générez d'abord un modèle 3D"); return; }
-            if (string.IsNullOrWhiteSpace(nameField.text)) { Toast("Donnez un nom au produit"); nameField.Select(); return; }
+            if (modelViewer == null || !modelViewer.HasModel) { Toast("Génère d'abord un modèle 3D"); return; }
+            if (string.IsNullOrWhiteSpace(nameField.text)) { Toast("Donne un nom au produit"); nameField.Select(); return; }
             try
             {
                 var item = M6Catalog.Add(modelViewer.CurrentPath, nameField.text, category);
@@ -273,8 +278,13 @@ namespace DecoAR.M6
             countLabel.text = items.Count == 0 ? "Catalogue 3D" : $"{items.Count} produit{(items.Count > 1 ? "s" : "")} 3D";
             if (items.Count == 0)
             {
-                var e = Label(listContent, "<b>Aucun produit 3D pour l'instant</b>\n<size=80%><color=#8C8073>Générez votre premier modèle à partir d'une photo du produit.</color></size>", 30, Ink, TextAlignmentOptions.Center);
-                e.gameObject.AddComponent<LayoutElement>().preferredHeight = 220;
+                // État vide du design system : illustration + titre + phrase
+                var art = new GameObject("Illustration", typeof(RectTransform), typeof(Image), typeof(LayoutElement)).GetComponent<Image>();
+                art.transform.SetParent(listContent, false);
+                art.sprite = Resources.Load<Sprite>("DecoAR/EtatsVides/catalogue-3d-vide"); art.preserveAspect = true; art.raycastTarget = false;
+                art.GetComponent<LayoutElement>().preferredHeight = 240;
+                var e = Label(listContent, "<b>Aucun produit 3D pour l'instant</b>\n<size=80%><color=#6B5B4D>Génère ton premier modèle à partir d'une photo.</color></size>", 30, Ink, TextAlignmentOptions.Center);
+                e.gameObject.AddComponent<LayoutElement>().preferredHeight = 110;
                 return;
             }
             foreach (var item in items)

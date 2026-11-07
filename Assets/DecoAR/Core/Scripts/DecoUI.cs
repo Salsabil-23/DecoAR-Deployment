@@ -1,4 +1,5 @@
 using System;
+using DecoAR.Design;
 using DecoAR.M5;
 using TMPro;
 using UnityEngine;
@@ -8,21 +9,35 @@ using UnityEngine.UI;
 
 namespace DecoAR.UI
 {
-    // Briques d'interface communes (même style que le HUD de la boutique M5) : verre fumé, crème, laiton,
-    // pastilles arrondies, icônes vectorielles M5Icons. Utilisées par le catalogue M3 et l'AR M4.
+    // Briques d'interface communes, thème « Verre » du design system DecoAR (docs/02-couleurs.md) :
+    // verre fumé chaud, texte lin, laiton = essaie-le / prix, sauge = achète. Icônes M5Icons (design system).
+    // Utilisées par le catalogue M3, l'AR M4 et le poste admin de la boutique.
     public static class DecoUI
     {
-        public static readonly Color Glass = new Color(0.12f, 0.10f, 0.08f, 0.72f);
-        public static readonly Color GlassStrong = new Color(0.12f, 0.10f, 0.08f, 0.94f);
-        public static readonly Color Cream = new Color(0.98f, 0.95f, 0.89f);
-        public static readonly Color Soft = new Color(0.72f, 0.64f, 0.56f);
-        public static readonly Color Sage = new Color(0.45f, 0.58f, 0.43f);
-        public static readonly Color Brass = new Color(0.82f, 0.65f, 0.32f);
-        public static readonly Color Terracotta = new Color(0.78f, 0.45f, 0.29f);
-        public static readonly Color Ink = new Color(0.16f, 0.13f, 0.10f);
-        public static readonly Color Tile = new Color(1f, 1f, 1f, 0.07f);
-        public static readonly Color TileOn = new Color(1f, 1f, 1f, 0.16f);
-        public static readonly Color RingIdle = new Color(1, 1, 1, 0.16f);
+        /// Repère des Canvas : 1440 × 810 (tout ×1,33 par rapport à 1920 × 1080) = tailles du design system
+        /// (boutons du HUD 112, texte courant ≥ 28, tiroirs ≈ 800) sans refaire chaque mise en page.
+        public static readonly Vector2 Reference = new Vector2(1440, 810);
+
+        public static readonly Color Glass = ThemeVerre.SurfaceGlass;
+        public static readonly Color GlassStrong = ThemeVerre.SurfaceGlassStrong;
+        public static readonly Color Cream = ThemeVerre.TextPrimary;
+        public static readonly Color Soft = ThemeVerre.TextSecondary;
+        public static readonly Color Sage = ThemeVerre.ActionCommerce;
+        public static readonly Color Brass = ThemeVerre.ActionPrimary;
+        public static readonly Color Price = ThemeVerre.Price;
+        public static readonly Color Terracotta = ThemeVerre.ActionAccent;
+        public static readonly Color Brand = DecoPalette.Terracotta500;
+        public static readonly Color Ink = ThemeVerre.ActionOnPrimary;
+        public static readonly Color Tile = ThemeVerre.SurfaceTile;
+        public static readonly Color TileOn = ThemeVerre.SurfaceTileActive;
+        public static readonly Color RingIdle = ThemeVerre.BorderHairline;
+        public static readonly Color Badge = ThemeVerre.BadgeBg;
+        public static readonly Color Success = ThemeVerre.FeedbackSuccess;
+        public static readonly Color Error = ThemeVerre.FeedbackError;
+
+        /// Symbole « Maison AR » (sans ombre), pour l'interface.
+        public static Sprite Logo => logo ? logo : logo = Resources.Load<Sprite>("DecoAR/Brand/decoar-symbole-sans-ombre-256");
+        static Sprite logo;
 
         static Sprite rounded, circle, pill, ring, shadow;
         public static Sprite Rounded => rounded ? rounded : rounded = MakeSprite(64, 22, true);
@@ -40,11 +55,26 @@ namespace DecoAR.UI
             canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = order;
             var scaler = cgo.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080); scaler.matchWidthOrHeight = 0.5f;
+            scaler.referenceResolution = Reference; scaler.matchWidthOrHeight = 0.5f;
             var safe = new GameObject("ZoneSure", typeof(RectTransform), typeof(SafeArea)).GetComponent<RectTransform>();
             safe.SetParent(cgo.transform, false);
             safe.anchorMin = Vector2.zero; safe.anchorMax = Vector2.one; safe.offsetMin = safe.offsetMax = Vector2.zero;
             return safe;
+        }
+
+        /// Fondu de transition (lin 1000) avec le symbole DecoAR au centre. Alpha de départ = 1 : la scène apparaît en fondu.
+        public static CanvasGroup Fade(RectTransform root)
+        {
+            var fade = Box("Fondu", root, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, DecoPalette.Lin1000);
+            fade.offsetMin = fade.offsetMax = new Vector2(-300, -300);
+            var img = fade.GetComponent<Image>(); img.sprite = null; img.raycastTarget = false;
+            var logo = new GameObject("Symbole", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            logo.transform.SetParent(fade, false);
+            logo.sprite = Logo; logo.preserveAspect = true; logo.raycastTarget = false;
+            logo.rectTransform.anchorMin = logo.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            logo.rectTransform.sizeDelta = Vector2.one * 150f;
+            var g = fade.gameObject.AddComponent<CanvasGroup>(); g.alpha = 1f; g.blocksRaycasts = false;
+            return g;
         }
 
         public static void EnsureEventSystem()
@@ -355,7 +385,7 @@ namespace DecoAR.UI
             text.text = msg;
             var pref = text.GetPreferredValues(msg, 860f, 0f);
             chip.sizeDelta = new Vector2(Mathf.Min(pref.x, 860f) + 94f, Mathf.Max(64f, pref.y + 30f));
-            dot.color = success ? new Color(0.62f, 0.80f, 0.58f) : DecoUI.Brass;
+            dot.color = success ? DecoUI.Success : DecoUI.Brass;
             until = Time.unscaledTime + duration;
         }
 

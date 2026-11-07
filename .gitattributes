@@ -17,3 +17,8 @@ Assets/Checkout/**/*.png filter=lfs diff=lfs merge=lfs -text
 Assets/Checkout/**/*.jpg filter=lfs diff=lfs merge=lfs -text
 Assets/Checkout/**/*.wav filter=lfs diff=lfs merge=lfs -text
 Assets/Checkout/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
+# Git LFS pour le design system (logos, icônes, images, polices)
+DesignSystem/**/*.png filter=lfs diff=lfs merge=lfs -text
+DesignSystem/**/*.ttf filter=lfs diff=lfs merge=lfs -text
+Assets/DecoAR/**/*.ttf filter=lfs diff=lfs merge=lfs -text
+docs/**/*.png filter=lfs diff=lfs merge=lfs -text

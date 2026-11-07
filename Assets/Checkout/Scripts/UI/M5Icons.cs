@@ -3,11 +3,27 @@ using UnityEngine;
 
 namespace DecoAR.M5
 {
-    /// Icônes du HUD dessinées par code (champs de distance signée) : nettes, sans fichier image, teintables.
+    /// Icônes du HUD : celles du design system DecoAR (sprites blancs, teintables) ; à défaut, dessinées par code.
     public static class M5Icons
     {
         public enum Kind { Catalogue, Panier, Reglages, Profil, Fermer, Plus, Moins, Position, Chevron, Recentrer, Idee, Oeil, Personnage,
-            Loupe, Micro, Cube, Photo, Variante, Taille, Retour, Deplacer, Pivoter, Pincer, Toucher, Cadenas }
+            Loupe, Micro, Cube, Photo, Variante, Taille, Retour, Deplacer, Pivoter, Pincer, Toucher, Cadenas,
+            Aide, Secouer, PoseSol, PoseMur, PoseTable, Valide, TailleReelle, Admin, Galerie, Generer3D, Boutique, MicroActif }
+
+        // Icônes du design system (Resources/DecoAR/Icons/dc-icon-*), dessinées sur la grille 24 de DecoAR
+        static readonly Dictionary<Kind, string> DesignIcons = new Dictionary<Kind, string>
+        {
+            { Kind.Catalogue, "catalogue" }, { Kind.Panier, "panier" }, { Kind.Reglages, "reglages" }, { Kind.Profil, "profil" },
+            { Kind.Fermer, "fermer" }, { Kind.Plus, "plus" }, { Kind.Moins, "moins" }, { Kind.Position, "position" },
+            { Kind.Chevron, "chevron" }, { Kind.Recentrer, "recentrer" }, { Kind.Idee, "suggestions" }, { Kind.Oeil, "vue-1re" },
+            { Kind.Personnage, "vue-3e" }, { Kind.Loupe, "loupe" }, { Kind.Micro, "micro" }, { Kind.Cube, "ar" },
+            { Kind.Photo, "photo" }, { Kind.Variante, "coloris" }, { Kind.Taille, "taille" }, { Kind.Retour, "retour" },
+            { Kind.Deplacer, "geste-deplacer" }, { Kind.Pivoter, "geste-tourner" }, { Kind.Pincer, "geste-pincer" },
+            { Kind.Toucher, "geste-toucher" }, { Kind.Cadenas, "cadenas" }, { Kind.Aide, "aide" }, { Kind.Secouer, "geste-secouer" },
+            { Kind.PoseSol, "pose-sol" }, { Kind.PoseMur, "pose-mur" }, { Kind.PoseTable, "pose-table" }, { Kind.Valide, "valide" },
+            { Kind.TailleReelle, "taille-reelle" }, { Kind.Admin, "admin" }, { Kind.Galerie, "galerie" }, { Kind.Generer3D, "generer-3d" },
+            { Kind.Boutique, "boutique" }, { Kind.MicroActif, "micro-actif" },
+        };
 
         const int Size = 128;
         static readonly Dictionary<Kind, Sprite> cache = new Dictionary<Kind, Sprite>();
@@ -15,6 +31,11 @@ namespace DecoAR.M5
         public static Sprite Get(Kind k)
         {
             if (cache.TryGetValue(k, out var s) && s) return s;
+            if (DesignIcons.TryGetValue(k, out var dc))
+            {
+                s = Resources.Load<Sprite>("DecoAR/Icons/dc-icon-" + dc);
+                if (s) { cache[k] = s; return s; }
+            }
             var tex = new Texture2D(Size, Size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
             var px = new Color32[Size * Size];
             for (int y = 0; y < Size; y++)
