@@ -7,7 +7,7 @@ namespace DecoAR.M5
     public static class M5Icons
     {
         public enum Kind { Catalogue, Panier, Reglages, Profil, Fermer, Plus, Moins, Position, Chevron, Recentrer, Idee, Oeil, Personnage,
-            Loupe, Micro, Cube, Photo, Variante, Taille, Retour, Deplacer, Pivoter, Pincer, Toucher }
+            Loupe, Micro, Cube, Photo, Variante, Taille, Retour, Deplacer, Pivoter, Pincer, Toucher, Cadenas }
 
         const int Size = 128;
         static readonly Dictionary<Kind, Sprite> cache = new Dictionary<Kind, Sprite>();
@@ -126,6 +126,12 @@ namespace DecoAR.M5
                     return Min(Circle(p, new Vector2(0.4f, 0.4f), 0.085f), Circle(p, new Vector2(0.6f, 0.6f), 0.085f),
                                Seg(p, new Vector2(0.29f, 0.29f), new Vector2(0.14f, 0.14f), 0.035f), Seg(p, new Vector2(0.14f, 0.14f), new Vector2(0.28f, 0.14f), 0.035f), Seg(p, new Vector2(0.14f, 0.14f), new Vector2(0.14f, 0.28f), 0.035f),
                                Seg(p, new Vector2(0.71f, 0.71f), new Vector2(0.86f, 0.86f), 0.035f), Seg(p, new Vector2(0.86f, 0.86f), new Vector2(0.72f, 0.86f), 0.035f), Seg(p, new Vector2(0.86f, 0.86f), new Vector2(0.86f, 0.72f), 0.035f));
+                case Kind.Cadenas:
+                {
+                    float body = Mathf.Max(Box(p, new Vector2(0.5f, 0.36f), new Vector2(0.27f, 0.21f), 0.06f), -Circle(p, new Vector2(0.5f, 0.38f), 0.055f));
+                    float arc = Mathf.Max(Ring(p, new Vector2(0.5f, 0.6f), 0.16f, 0.065f), 0.6f - p.y);
+                    return Min(body, arc, Seg(p, new Vector2(0.34f, 0.6f), new Vector2(0.34f, 0.52f), 0.0325f), Seg(p, new Vector2(0.66f, 0.6f), new Vector2(0.66f, 0.52f), 0.0325f));
+                }
                 case Kind.Toucher: // doigt + onde
                     return Mathf.Min(Circle(p, V(0.5f), 0.13f), Ring(p, V(0.5f), 0.3f, 0.045f));
             }

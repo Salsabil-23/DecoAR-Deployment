@@ -7,7 +7,7 @@ namespace DecoAR.M6
 {
     // Liaison du module M6 (generation 3D d'un produit a partir d'une photo) avec le reste de l'application,
     // sans toucher aux scenes : les boutons manquants sont ajoutes au chargement.
-    //  Connexion (Auth) -> "Espace administration (catalogue 3D)" -> AdminScene (retour : "‹ Connexion")
+    //  Boutique (caisse) : PC derrière le comptoir, avec mot de passe (M5AdminTerminal) -> AdminScene
     //  Profil (Auth) -> "Espace administration (3D)" -> AdminScene
     //  AdminScene / M6_Generator : interface et retours construits par M6AdminUI
     public static class M6Navigation
@@ -15,9 +15,6 @@ namespace DecoAR.M6
         public const string AdminScene = "AdminScene";
         public const string GeneratorScene = "M6_Generator";
         const string ProfileScene = "Profile";
-        const string AuthScene = "Auth";
-        /// Espace admin ouvert depuis l'écran de connexion (pas encore connecté) : retour « ‹ Connexion ».
-        public static bool FromLogin { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Init()
@@ -28,21 +25,8 @@ namespace DecoAR.M6
 
         static void Hook(string scene)
         {
-            if (scene == AuthScene) HookLogin();
-            else if (scene == ProfileScene) HookProfile();
+            if (scene == ProfileScene) HookProfile();
             // AdminScene et M6_Generator : navigation fournie par M6AdminUI
-        }
-
-        // Connexion : un lien sous "Pas encore de compte ? S'inscrire"
-        static void HookLogin()
-        {
-            var screen = Object.FindAnyObjectByType<DecoAR.Auth.AuthScreen>();
-            var field = typeof(DecoAR.Auth.AuthScreen).GetField("goToRegisterButton", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var template = screen != null && field != null ? field.GetValue(screen) as Button : null;
-            if (template == null) { Debug.LogWarning("[M6] Lien d'inscription introuvable : bouton admin non ajouté"); return; }
-            var button = Clone(template, template.transform.parent, "Bouton Espace administration (connexion)", "<b><color=#C8734A>Espace administration</color></b>  (catalogue 3D) ›");
-            button.transform.SetSiblingIndex(template.transform.GetSiblingIndex() + 1);
-            button.onClick.AddListener(() => { FromLogin = true; SceneManager.LoadScene(AdminScene); });
         }
 
         // Profil : une entree de plus sous "Changer le mot de passe"
@@ -52,7 +36,7 @@ namespace DecoAR.M6
             if (template == null) return;
             var button = Clone(template, template.transform.parent, "Bouton Espace administration", "Espace administration (3D)");
             button.transform.SetSiblingIndex(template.transform.GetSiblingIndex() + 1);
-            button.onClick.AddListener(() => { FromLogin = false; SceneManager.LoadScene(AdminScene); });
+            button.onClick.AddListener(() => SceneManager.LoadScene(AdminScene));
         }
 
         static Button Find(string name)

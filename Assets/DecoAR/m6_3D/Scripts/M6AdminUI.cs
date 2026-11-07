@@ -88,12 +88,11 @@ namespace DecoAR.M6
         void BuildTopBar()
         {
             topBar = Rect("Barre", root, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -60), new Vector2(0, 120));
-            bool fromLogin = M6Navigation.FromLogin;
-            string back = generator ? "‹ Administration" : fromLogin ? "‹ Connexion" : "‹ Boutique";
+            string back = generator ? "‹ Administration" : "‹ Boutique";
             var b = Pill(topBar, back, Card, Ink, () =>
             {
                 if (generator) SceneManager.LoadScene(M6Navigation.AdminScene);
-                else SceneManager.LoadScene(fromLogin ? "Auth" : DecoAR.Core.SceneNames.Shop);
+                else SceneManager.LoadScene(DecoAR.Core.SceneNames.Shop); // retour devant le PC de la caisse
             }, 300, 76, 28);
             Place(b, new Vector2(0, 0.5f), new Vector2(36, 0), new Vector2(0, 0.5f));
             var logo = Box("Logo", topBar, circle, Accent, new Vector2(0, 0.5f), new Vector2(395, 0), new Vector2(70, 70));
