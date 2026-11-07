@@ -44,3 +44,19 @@ services:
       # Meme valeur que FACE_SERVICE_KEY de decoar-api
       - key: FACE_SERVICE_KEY
         sync: false
+
+  # Module M6 : Generation de modeles 3D (.glb) depuis une image via Hugging Face TRELLIS
+  - type: web
+    name: decoar-m6
+    runtime: python
+    plan: free
+    rootDir: Backend_M6
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 1 --threads 4 --timeout 120 -b 0.0.0.0:$PORT app:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.1"
+      # Token Hugging Face requis pour appeler l'espace trellis-community/TRELLIS
+      - key: HF_TOKEN
+        sync: false

@@ -1,0 +1,8 @@
+# Environnement Python, secrets et fichiers produits au lancement : jamais dans Git
+.venv/
+__pycache__/
+__pycache__.meta
+*.pyc
+.env
+uploads/
+uploads.meta
