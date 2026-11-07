@@ -52,7 +52,10 @@ namespace DecoAR.M3
         public const string Chambre = "Chambre";
         public const string Cuisine = "Cuisine";
         public const string SalleDeBain = "Salle de bain";
-        public static readonly string[] All = { Tableaux, Luminaires, ObjetsDeco, Salon, Chambre, Cuisine, SalleDeBain };
+        public const string Plantes = "Plantes";
+        public const string Multimedia = "Multimédia";
+        public const string BureauLoisirs = "Bureau & loisirs";
+        public static readonly string[] All = { Salon, Chambre, Cuisine, SalleDeBain, Luminaires, Tableaux, Plantes, ObjetsDeco, Multimedia, BureauLoisirs };
     }
 
     [CreateAssetMenu(fileName = "M3_ProductCatalog", menuName = "DecoAR/M3/Product Catalog")]

@@ -11,6 +11,9 @@ namespace DecoAR.AR
 
         bool busy;
 
+        /// Interface à masquer pendant la capture (M4Hud remplace M4_Canvas).
+        public Canvas UiCanvas { get => uiCanvas; set => uiCanvas = value; }
+
         // Appelee par le bouton "Photo"
         public void TakePhoto()
         {

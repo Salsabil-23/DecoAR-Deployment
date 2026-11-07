@@ -45,6 +45,8 @@ namespace DecoAR.M5
         public bool GyroActive => useGyro && GyroAvailable;
         /// Vrai si le joueur a repris sa position d'avant (retour du catalogue / de l'AR).
         public bool RestoredPose { get; private set; }
+        /// Clé du GameManager pour le gyroscope (partagée avec le HUD de M1).
+        const string GyroPrefKey = "DecoAR.GyroEnabled";
 
         CharacterController cc;
         float yaw, pitch, vy, yawOffset, gyroSpeed;
@@ -78,6 +80,8 @@ namespace DecoAR.M5
                 gm.ClearShopPose();
                 RestoredPose = true;
             }
+            // Choix du joueur conservé entre les scènes (catalogue, AR...) ; jamais choisi = valeur de l'inspecteur
+            if (gm != null && PlayerPrefs.HasKey(GyroPrefKey)) useGyro = gm.GyroEnabled;
             yaw = transform.eulerAngles.y;
             if (cam) { pitch = cam.localEulerAngles.x; if (pitch > 180f) pitch -= 360f; }
             if (Application.isMobilePlatform)
@@ -115,9 +119,14 @@ namespace DecoAR.M5
         {
             useGyro = on;
             gyroCalibrated = false;
+            var gm = DecoAR.Core.GameManager.Instance;
+            if (gm != null)
+            {
+                gm.SetGyroEnabled(on);
+                PlayerPrefs.SetInt(GyroPrefKey, on ? 1 : 0); // SetGyroEnabled n'écrit rien si la valeur ne change pas
+            }
             if (!GyroAvailable) return;
             if (on) M5DeviceSensors.Enable(); else M5DeviceSensors.Disable();
-            if (DecoAR.Core.GameManager.Instance != null) DecoAR.Core.GameManager.Instance.SetGyroEnabled(on);
         }
 
         public void Teleport(Vector3 position, float yawDeg)

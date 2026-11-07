@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace DecoAR.M3
@@ -10,8 +11,13 @@ namespace DecoAR.M3
         [SerializeField] Transform[] slots;               // emplacements sur les planches (pivot = dessus de planche)
         [SerializeField] float slotSize = 0.32f;          // cote max d'un produit sur l'etagere (m)
         [SerializeField] Color highlightColor = new Color(1f, 0.78f, 0.3f);
+        [Header("Enseigne et étiquettes")]
+        [SerializeField] TMP_Text title;                  // nom du rayon sur l'enseigne DecoAR
+        [SerializeField] float tagDepth = 0.24f;          // distance de l'étiquette prix devant le produit (m)
+        [SerializeField] Material tagMaterial;
 
         readonly List<M3ShelfItem> items = new List<M3ShelfItem>();
+        readonly List<GameObject> tags = new List<GameObject>();
         public IReadOnlyList<M3ShelfItem> Items => items;
 
         public void Fill(List<ProductOption> products)
@@ -30,6 +36,7 @@ namespace DecoAR.M3
                 var product = products[i];
                 if (product == null || product.prefab == null) continue;
                 items.Add(Spawn(product, slots[i]));
+                tags.Add(PriceTag(product, slots[i]));
             }
             Debug.Log($"[M3] Etagere remplie : {items.Count} produits");
         }
@@ -39,6 +46,41 @@ namespace DecoAR.M3
             foreach (var item in items)
                 if (item != null) Destroy(item.gameObject);
             items.Clear();
+            foreach (var t in tags)
+                if (t != null) Destroy(t);
+            tags.Clear();
+        }
+
+        public void SetTitle(string text)
+        {
+            if (title != null) title.text = text;
+        }
+
+        // Étiquette de prix posée sur le bord de la planche, inclinée vers le client
+        GameObject PriceTag(ProductOption product, Transform slot)
+        {
+            var tag = new GameObject("Etiquette_" + product.id);
+            tag.transform.SetParent(slot, false);
+            tag.transform.localPosition = new Vector3(0f, 0.004f, -tagDepth);
+            tag.transform.localRotation = Quaternion.Euler(62f, 0f, 0f);
+
+            var card = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            card.name = "Carte";
+            Destroy(card.GetComponent<Collider>());
+            card.transform.SetParent(tag.transform, false);
+            card.transform.localScale = new Vector3(0.21f, 0.075f, 0.004f);
+            if (tagMaterial != null) card.GetComponent<Renderer>().sharedMaterial = tagMaterial;
+
+            var text = new GameObject("Prix", typeof(RectTransform)).AddComponent<TextMeshPro>();
+            text.transform.SetParent(tag.transform, false);
+            text.transform.localPosition = new Vector3(0f, 0f, -0.003f);
+            text.rectTransform.sizeDelta = new Vector2(0.21f, 0.075f);
+            text.text = product.PriceLabel;
+            text.fontSize = 0.5f;
+            text.fontStyle = FontStyles.Bold;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = new Color(0.2f, 0.16f, 0.12f);
+            return tag;
         }
 
         public M3ShelfItem Find(ProductOption product)

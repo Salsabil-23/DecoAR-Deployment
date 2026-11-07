@@ -44,6 +44,22 @@ namespace DecoAR.AR
         public int VariantIndex { get; private set; }
         public ProductVariant CurrentVariant => Product?.GetVariant(VariantIndex);
         public bool IsPlaced => placed != null;
+        /// Porte-produit posé (déplacé / agrandi / tourné par l'ARTransformer) ; null avant la pose.
+        public Transform Placed => placed != null ? placed.transform : null;
+        public PlacementType Placement => placementType;
+        public event System.Action ProductPlaced;
+
+        /// Branche une autre interface (M4Hud) sur les messages et boutons de la porte.
+        public void BindUI(TMP_Text message, GameObject background, GameObject reset, GameObject variant, TMP_Text label)
+        {
+            messageText = message;
+            messageBackground = background;
+            resetButton = reset;
+            variantButton = variant;
+            productLabel = label;
+            if (resetButton != null) resetButton.SetActive(placed != null);
+            RefreshProductUI();
+        }
 
         void Awake()
         {
@@ -217,6 +233,7 @@ namespace DecoAR.AR
             placed.transform.SetPositionAndRotation(position, rot);
 
             HapticManager.Vibrate(HapticIntensity.Moyenne);   // produit pose (F4.9)
+            ProductPlaced?.Invoke();
         }
 
         GameObject BuildProduct()

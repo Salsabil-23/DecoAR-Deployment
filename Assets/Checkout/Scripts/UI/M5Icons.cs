@@ -6,7 +6,8 @@ namespace DecoAR.M5
     /// Icônes du HUD dessinées par code (champs de distance signée) : nettes, sans fichier image, teintables.
     public static class M5Icons
     {
-        public enum Kind { Catalogue, Panier, Reglages, Profil, Fermer, Plus, Moins, Position, Chevron, Recentrer, Idee }
+        public enum Kind { Catalogue, Panier, Reglages, Profil, Fermer, Plus, Moins, Position, Chevron, Recentrer, Idee, Oeil, Personnage,
+            Loupe, Micro, Cube, Photo, Variante, Taille, Retour, Deplacer, Pivoter, Pincer, Toucher }
 
         const int Size = 128;
         static readonly Dictionary<Kind, Sprite> cache = new Dictionary<Kind, Sprite>();
@@ -70,6 +71,63 @@ namespace DecoAR.M5
                     return Min(Diamond(p, new Vector2(0.42f, 0.44f), 0.30f, 0.075f), Diamond(p, new Vector2(0.42f, 0.44f), 0.075f, 0.30f),
                                Diamond(p, new Vector2(0.76f, 0.78f), 0.13f, 0.035f), Diamond(p, new Vector2(0.76f, 0.78f), 0.035f, 0.13f),
                                Circle(p, new Vector2(0.78f, 0.22f), 0.05f));
+                case Kind.Oeil: // vue 1ère personne : contour d'œil + pupille
+                {
+                    float lens = Mathf.Max(Circle(p, new Vector2(0.5f, 0.16f), 0.47f), Circle(p, new Vector2(0.5f, 0.84f), 0.47f));
+                    return Mathf.Min(Mathf.Abs(lens) - 0.03f, Circle(p, V(0.5f), 0.11f));
+                }
+                case Kind.Personnage: // vue 3ème personne : silhouette en pied
+                    return Min(Circle(p, new Vector2(0.5f, 0.8f), 0.105f), Box(p, new Vector2(0.5f, 0.52f), new Vector2(0.15f, 0.15f), 0.07f),
+                               Seg(p, new Vector2(0.44f, 0.38f), new Vector2(0.43f, 0.1f), 0.055f), Seg(p, new Vector2(0.56f, 0.38f), new Vector2(0.57f, 0.1f), 0.055f));
+                case Kind.Loupe:
+                    return Mathf.Min(Ring(p, new Vector2(0.44f, 0.56f), 0.2f, 0.075f), Seg(p, new Vector2(0.59f, 0.41f), new Vector2(0.8f, 0.2f), 0.05f));
+                case Kind.Micro:
+                {
+                    float arc = Mathf.Max(Ring(p, new Vector2(0.5f, 0.56f), 0.23f, 0.055f), p.y - 0.56f);
+                    return Min(Seg(p, new Vector2(0.5f, 0.52f), new Vector2(0.5f, 0.7f), 0.12f), arc,
+                               Seg(p, new Vector2(0.5f, 0.33f), new Vector2(0.5f, 0.17f), 0.03f), Seg(p, new Vector2(0.36f, 0.16f), new Vector2(0.64f, 0.16f), 0.03f));
+                }
+                case Kind.Cube: // AR : cube en perspective
+                {
+                    Vector2 t = new Vector2(0.5f, 0.86f), ur = new Vector2(0.81f, 0.68f), lr = new Vector2(0.81f, 0.32f), b = new Vector2(0.5f, 0.14f),
+                            ll = new Vector2(0.19f, 0.32f), ul = new Vector2(0.19f, 0.68f), c = new Vector2(0.5f, 0.5f);
+                    const float w = 0.036f;
+                    return Min(Seg(p, t, ur, w), Seg(p, ur, lr, w), Seg(p, lr, b, w), Seg(p, b, ll, w), Seg(p, ll, ul, w), Seg(p, ul, t, w),
+                               Seg(p, c, ul, w), Seg(p, c, ur, w), Seg(p, c, b, w));
+                }
+                case Kind.Photo:
+                {
+                    float body = Mathf.Min(Box(p, new Vector2(0.5f, 0.44f), new Vector2(0.34f, 0.24f), 0.07f), Box(p, new Vector2(0.4f, 0.71f), new Vector2(0.11f, 0.06f), 0.03f));
+                    return Mathf.Min(Mathf.Max(body, -Circle(p, new Vector2(0.5f, 0.44f), 0.15f)), Circle(p, new Vector2(0.5f, 0.44f), 0.085f));
+                }
+                case Kind.Variante: // trois pastilles de couleur
+                    return Min(Circle(p, new Vector2(0.37f, 0.6f), 0.15f), Circle(p, new Vector2(0.63f, 0.6f), 0.15f), Circle(p, new Vector2(0.5f, 0.37f), 0.15f));
+                case Kind.Taille: // double flèche en diagonale
+                    return Min(Seg(p, new Vector2(0.27f, 0.27f), new Vector2(0.73f, 0.73f), 0.04f),
+                               Seg(p, new Vector2(0.76f, 0.76f), new Vector2(0.52f, 0.76f), 0.04f), Seg(p, new Vector2(0.76f, 0.76f), new Vector2(0.76f, 0.52f), 0.04f),
+                               Seg(p, new Vector2(0.24f, 0.24f), new Vector2(0.48f, 0.24f), 0.04f), Seg(p, new Vector2(0.24f, 0.24f), new Vector2(0.24f, 0.48f), 0.04f));
+                case Kind.Retour:
+                    return Mathf.Min(Seg(p, new Vector2(0.6f, 0.27f), new Vector2(0.37f, 0.5f), 0.055f), Seg(p, new Vector2(0.37f, 0.5f), new Vector2(0.6f, 0.73f), 0.055f));
+                case Kind.Deplacer: // croix fléchée
+                {
+                    const float w = 0.035f;
+                    return Min(Seg(p, new Vector2(0.15f, 0.5f), new Vector2(0.85f, 0.5f), w), Seg(p, new Vector2(0.5f, 0.15f), new Vector2(0.5f, 0.85f), w),
+                               Seg(p, new Vector2(0.15f, 0.5f), new Vector2(0.26f, 0.61f), w), Seg(p, new Vector2(0.15f, 0.5f), new Vector2(0.26f, 0.39f), w),
+                               Seg(p, new Vector2(0.85f, 0.5f), new Vector2(0.74f, 0.61f), w), Seg(p, new Vector2(0.85f, 0.5f), new Vector2(0.74f, 0.39f), w),
+                               Seg(p, new Vector2(0.5f, 0.85f), new Vector2(0.39f, 0.74f), w), Seg(p, new Vector2(0.5f, 0.85f), new Vector2(0.61f, 0.74f), w),
+                               Seg(p, new Vector2(0.5f, 0.15f), new Vector2(0.39f, 0.26f), w), Seg(p, new Vector2(0.5f, 0.15f), new Vector2(0.61f, 0.26f), w));
+                }
+                case Kind.Pivoter: // flèche circulaire
+                {
+                    float arc = Mathf.Max(Ring(p, V(0.5f), 0.27f, 0.06f), -Mathf.Max(0.5f - p.x, 0.5f - p.y)); // quart haut droit ouvert
+                    return Mathf.Min(arc, Triangle(p, new Vector2(0.66f, 0.5f), new Vector2(0.88f, 0.5f), new Vector2(0.77f, 0.67f)));
+                }
+                case Kind.Pincer: // deux doigts qui s'écartent
+                    return Min(Circle(p, new Vector2(0.4f, 0.4f), 0.085f), Circle(p, new Vector2(0.6f, 0.6f), 0.085f),
+                               Seg(p, new Vector2(0.29f, 0.29f), new Vector2(0.14f, 0.14f), 0.035f), Seg(p, new Vector2(0.14f, 0.14f), new Vector2(0.28f, 0.14f), 0.035f), Seg(p, new Vector2(0.14f, 0.14f), new Vector2(0.14f, 0.28f), 0.035f),
+                               Seg(p, new Vector2(0.71f, 0.71f), new Vector2(0.86f, 0.86f), 0.035f), Seg(p, new Vector2(0.86f, 0.86f), new Vector2(0.72f, 0.86f), 0.035f), Seg(p, new Vector2(0.86f, 0.86f), new Vector2(0.86f, 0.72f), 0.035f));
+                case Kind.Toucher: // doigt + onde
+                    return Mathf.Min(Circle(p, V(0.5f), 0.13f), Ring(p, V(0.5f), 0.3f, 0.045f));
             }
             return 1f;
         }

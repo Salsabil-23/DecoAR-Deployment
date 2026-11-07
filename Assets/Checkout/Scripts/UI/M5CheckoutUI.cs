@@ -90,7 +90,8 @@ namespace DecoAR.M5
         TextMeshProUGUI drawerTitle, chipText, ctaText, badgeText, totalText, confirmText, addressStatus, gpsLabel, payStatus, gyroSub, profileAddress;
         Image chipDot;
         RectTransform badge, gyroKnob, musicKnob, cartButton;
-        Image gyroTrack, musicTrack;
+        Image gyroTrack, musicTrack, viewIcon;
+        M5ThirdPerson view;
         TextMeshProUGUI musicSub;
         bool cartBlinking;
         static readonly Color RingIdle = new Color(1, 1, 1, 0.16f), RingOn = new Color(1f, 0.88f, 0.6f, 0.9f);
@@ -629,6 +630,7 @@ namespace DecoAR.M5
             var left = Cluster(root, true);
             ProfilePill(left);
             FloatButton(left, M5Icons.Kind.Reglages, Page.Reglages);
+            ViewButton(left);
 
             // Droite : catalogue + panier
             var right = Cluster(root, false);
@@ -693,6 +695,38 @@ namespace DecoAR.M5
             icon.GetComponent<LayoutElement>().ignoreLayout = true;
             dockBg[(int)p] = bg; dockIcon[(int)p] = icon; dockRing[(int)p] = rg;
             return rt;
+        }
+
+        /// Vue 1ère / 3ème personne (l'icône montre la vue actuelle).
+        void ViewButton(Transform parent)
+        {
+            view = player ? player.GetComponent<M5ThirdPerson>() : null;
+            if (!view) return;
+            var rt = new GameObject("Bouton_Vue", typeof(RectTransform)).GetComponent<RectTransform>();
+            rt.SetParent(parent, false);
+            rt.sizeDelta = Vector2.one * DockHeight;
+            var bg = Glassy(rt, Glass, out _);
+            var b = rt.gameObject.AddComponent<Button>();
+            b.targetGraphic = bg;
+            var cb = b.colors; cb.pressedColor = new Color(0.75f, 0.75f, 0.75f); b.colors = cb;
+            viewIcon = Icon(rt, M5Icons.Kind.Oeil, DockHeight * 0.46f, Cream);
+            viewIcon.GetComponent<LayoutElement>().ignoreLayout = true;
+            b.onClick.AddListener(ToggleView);
+            RefreshView();
+        }
+
+        void ToggleView()
+        {
+            if (!view || !view.HasAvatar) { Toast("Personnage indisponible : créez-le d'abord dans la personnalisation"); return; }
+            bool third = view.Toggle();
+            M5Haptics.Light();
+            Toast(third ? "Vue 3ème personne" : "Vue 1ère personne", 1.6f);
+            RefreshView();
+        }
+
+        void RefreshView()
+        {
+            if (viewIcon) viewIcon.sprite = M5Icons.Get(view && view.ThirdPerson ? M5Icons.Kind.Personnage : M5Icons.Kind.Oeil);
         }
 
         /// Carte profil : avatar + nom (sera remplie par le module de connexion).

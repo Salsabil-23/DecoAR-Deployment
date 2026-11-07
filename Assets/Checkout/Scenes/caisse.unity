@@ -11792,6 +11792,7 @@ GameObject:
   - component: {fileID: 542235312}
   - component: {fileID: 542235313}
   - component: {fileID: 542235311}
+  - component: {fileID: 542235314}
   m_Layer: 0
   m_Name: M5_Player
   m_TagString: Player
@@ -11867,6 +11868,24 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.9, z: 0}
+--- !u!114 &542235314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 542235310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6dc82bb36eca46cb9a5af0f8968b7df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DecoAR.M5.M5ThirdPerson
+  profile: {fileID: 11400000, guid: 8834d9be2e28f5b488b3cbb3fa842383, type: 2}
+  distance: 2.6
+  pivotHeight: 1.5
+  shoulder: 0.35
+  collisionRadius: 0.2
+  blendTime: 0.35
 --- !u!1 &545527098
 GameObject:
   m_ObjectHideFlags: 0
