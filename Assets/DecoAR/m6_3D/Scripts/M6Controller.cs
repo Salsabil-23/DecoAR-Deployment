@@ -10,8 +10,8 @@ using UnityEngine.UI;
 
 public class M6Controller : MonoBehaviour
 {
-    [Header("Backend Flask : IP du PC")]
-    public string serverUrl = "http://10.146.205.215:5000";
+    [Header("Backend M6 (Render : decoar-m6, ou IP du PC en local)")]
+    public string serverUrl = "https://decoar-m6.onrender.com";
 
     [Header("Interface")]
     public RawImage photoPreview;
@@ -28,6 +28,29 @@ public class M6Controller : MonoBehaviour
 
         if (photoPreview != null)
             photoPreview.gameObject.SetActive(false);
+
+        // Render (offre gratuite) endort le serveur : on le réveille dès l'ouverture de l'écran
+        StartCoroutine(WakeServer(false));
+    }
+
+    bool awake;
+
+    /// GET /health jusqu'à ce que le serveur réponde (réveil Render : jusqu'à ~1 min).
+    private IEnumerator WakeServer(bool showStatus)
+    {
+        if (awake) yield break;
+        float deadline = Time.realtimeSinceStartup + 90f;
+        while (Time.realtimeSinceStartup < deadline)
+        {
+            using (UnityWebRequest ping = UnityWebRequest.Get(serverUrl.TrimEnd('/') + "/health"))
+            {
+                ping.timeout = 60;
+                yield return ping.SendWebRequest();
+                if (ping.result == UnityWebRequest.Result.Success) { awake = true; yield break; }
+            }
+            if (showStatus) SetStatus("Réveil du serveur… (jusqu'à 1 min)");
+            yield return new WaitForSecondsRealtime(3f);
+        }
     }
 
     public void OpenGallery()
@@ -126,6 +149,18 @@ public class M6Controller : MonoBehaviour
         if (generateButton != null)
             generateButton.interactable = false;
 
+        if (!awake)
+        {
+            SetStatus("Réveil du serveur… (jusqu'à 1 min)");
+            yield return WakeServer(true);
+            if (!awake)
+            {
+                SetStatus("Le serveur ne répond pas. Réessaie dans un instant.");
+                EndBusy();
+                yield break;
+            }
+        }
+
         SetStatus("Envoi de la photo…");
 
         WWWForm form = new WWWForm();
@@ -143,7 +178,7 @@ public class M6Controller : MonoBehaviour
                 form
             ))
         {
-            request.timeout = 60;
+            request.timeout = 120;
 
             yield return request.SendWebRequest();
 
@@ -173,6 +208,7 @@ public class M6Controller : MonoBehaviour
 
             float deadline =
                 Time.realtimeSinceStartup + 900f;
+            int failures = 0;
 
             while (Time.realtimeSinceStartup < deadline)
             {
@@ -191,12 +227,13 @@ public class M6Controller : MonoBehaviour
                     if (check.result !=
                         UnityWebRequest.Result.Success)
                     {
-                        SetStatus(
-                            "Erreur statut : " + check.error
-                        );
+                        // un raté réseau isolé ne doit pas arrêter une génération en cours
+                        if (++failures < 3) continue;
+                        SetStatus("Pas de connexion. Vérifie ton réseau puis réessaie.");
                         EndBusy();
                         yield break;
                     }
+                    failures = 0;
 
                     JobResponse state =
                         JsonUtility.FromJson<JobResponse>(

@@ -1644,6 +1644,7 @@ MonoBehaviour:
   zoomSpeed: 0.005
   minDistance: 1.5
   maxDistance: 8
+  turntableSpeed: 18
 --- !u!114 &1621222348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1656,7 +1657,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec636a83dfe03b846acd857a46d7ea15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::M6Controller
-  serverUrl: http://10.146.205.215:5000
+  serverUrl: https://decoar-m6.onrender.com
   photoPreview: {fileID: 1482002687}
   statusText: {fileID: 1511547696}
   generateButton: {fileID: 274798969}
