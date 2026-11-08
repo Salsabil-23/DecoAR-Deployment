@@ -18,7 +18,11 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
-      # Render gratuit bloque le SMTP (Gmail) : e-mails envoyes par l'API HTTP de Brevo
+      # Render gratuit bloque le SMTP (Gmail) : e-mails envoyes par l'API HTTP de Mailjet (ou Brevo)
+      - key: MAILJET_API_KEY
+        sync: false
+      - key: MAILJET_SECRET_KEY
+        sync: false
       - key: BREVO_API_KEY
         sync: false
       - key: MAIL_FROM

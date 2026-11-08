@@ -65,7 +65,8 @@ seul leur hash SHA-256 est stocke. Envoi selon le `.env` :
 | --- | --- | --- |
 | `console` | rien de configure | le code s'affiche dans le terminal : `[MAIL] ...` |
 | `smtp` (Gmail) | en local | `SMTP_USER` + `SMTP_PASS` (mot de passe d'application Google, validation en 2 etapes requise) |
-| `brevo` | en ligne | `BREVO_API_KEY` + `MAIL_FROM` (Render gratuit bloque le SMTP, Brevo passe par HTTPS) |
+| `mailjet` | en ligne | `MAILJET_API_KEY` + `MAILJET_SECRET_KEY` + `MAIL_FROM` (Render gratuit bloque le SMTP, Mailjet passe par HTTPS) |
+| `brevo` | en ligne (autre choix) | `BREVO_API_KEY` + `MAIL_FROM` |
 
 ## Mettre en ligne (Render, gratuit)
 

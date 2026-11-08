@@ -4,9 +4,11 @@ const nodemailer = require('nodemailer');
 // Envoi des e-mails. Fournisseur choisi par MAIL_PROVIDER (ou deduit du .env) :
 //   console : le code s'affiche dans le terminal (developpement, rien a configurer)
 //   smtp    : Gmail ou autre via SMTP (SMTP_USER + SMTP_PASS = mot de passe d'application)
-//   brevo   : API HTTP Brevo (BREVO_API_KEY). A utiliser en ligne : Render/Railway gratuits bloquent le SMTP.
+//   mailjet : API HTTP Mailjet (MAILJET_API_KEY + MAILJET_SECRET_KEY). En ligne : Render gratuit bloque le SMTP.
+//   brevo   : API HTTP Brevo (BREVO_API_KEY), autre choix possible en ligne.
 function provider() {
   if (process.env.MAIL_PROVIDER) return process.env.MAIL_PROVIDER;
+  if (process.env.MAILJET_API_KEY && process.env.MAILJET_SECRET_KEY) return 'mailjet';
   // Une vraie cle API Brevo commence par "xkeysib-" (une valeur provisoire comme "aucune" est ignoree)
   if (process.env.BREVO_API_KEY?.startsWith('xkeysib-')) return 'brevo';
   if (process.env.SMTP_USER && process.env.SMTP_PASS) return 'smtp';
@@ -35,6 +37,27 @@ async function smtp() {
   });
 }
 
+async function sendMailjet({ to, subject, text, html }) {
+  const auth = Buffer.from(`${process.env.MAILJET_API_KEY}:${process.env.MAILJET_SECRET_KEY}`).toString('base64');
+  const res = await fetch('https://api.mailjet.com/v3.1/send', {
+    method: 'POST',
+    headers: { authorization: `Basic ${auth}`, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      Messages: [{
+        From: { Email: from(), Name: 'DecoAR' },
+        To: [{ Email: to }],
+        Subject: subject,
+        TextPart: text,
+        HTMLPart: html,
+      }],
+    }),
+    signal: AbortSignal.timeout(20_000),
+  });
+  const body = await res.text();
+  // Mailjet peut repondre 200 avec un message en erreur (expediteur non valide...)
+  if (!res.ok || !body.includes('"Status":"success"')) throw new Error(`Mailjet ${res.status} : ${body.slice(0, 300)}`);
+}
+
 async function sendBrevo({ to, subject, text, html }) {
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
@@ -58,6 +81,9 @@ const mailer = {
     switch (provider()) {
       case 'smtp':
         await (await smtp()).sendMail({ from: `DecoAR <${from()}>`, ...message });
+        break;
+      case 'mailjet':
+        await sendMailjet(message);
         break;
       case 'brevo':
         await sendBrevo(message);
