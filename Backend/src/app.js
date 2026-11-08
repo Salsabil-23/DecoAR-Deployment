@@ -4,6 +4,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const { HttpError, errorHandler } = require('./utils/errors');
 const faceService = require('./services/faceService');
+const { router: m6Routes, m6Url } = require('./routes/m6');
 
 function createApp() {
   const app = express();
@@ -20,14 +21,20 @@ function createApp() {
     });
   }
 
+  // En ligne, les services visage et 3D s'endorment aussi : l'app appelle /api/health a l'ouverture,
+  // on les reveille en meme temps (au plus une fois par minute : Render appelle aussi /api/health toutes les 5 s)
+  let lastWake = 0;
   app.get('/api/health', (req, res) => {
-    // En ligne, le service visage s'endort aussi : l'app appelle /health a l'ouverture, on le reveille en meme temps
-    if (process.env.NODE_ENV !== 'test')
-      fetch(`${faceService.url()}/health`, { signal: AbortSignal.timeout(60_000) }).catch(() => {});
+    if (process.env.NODE_ENV !== 'test' && Date.now() - lastWake > 60_000) {
+      lastWake = Date.now();
+      for (const url of [`${faceService.url()}/health`, `${m6Url()}/health`])
+        fetch(url, { signal: AbortSignal.timeout(60_000) }).catch(() => {});
+    }
     res.json({ status: 'ok' });
   });
   app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
+  app.use('/api/m6', m6Routes); // generation 3D : transmis a decoar-m6
 
   app.use((req, res, next) => next(new HttpError(404, 'Route introuvable')));
   app.use(errorHandler);

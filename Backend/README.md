@@ -52,6 +52,13 @@ npm test
 | PUT | `/api/users/me/photo` (JWT) | `image` (JPEG/PNG base64, 300 Ko max) | `{ user }` |
 | GET | `/api/users/me/photo` (JWT) | - | l'image |
 | DELETE | `/api/users/me/photo` (JWT) | - | `{ user }` |
+| POST | `/api/m6/generate` | multipart `image` (JPG/PNG, 6 Mo max) | `202 { job_id, status }` (transmis a decoar-m6) |
+| GET | `/api/m6/status/:jobId` | - | `{ job_id, status: processing / completed / failed, error }` |
+| GET | `/api/m6/model/:jobId` | - | fichier `.glb` (`409` si pas pret) |
+| GET | `/api/m6/test-model` | - | fichier `.glb` de test (sans quota Hugging Face) |
+
+Routes `/api/m6/*` : passerelle vers le module 3D (`Backend_M6`, service `decoar-m6`, adresse `M6_SERVICE_URL`) :
+Unity n'utilise qu'une seule adresse, `https://decoar-api.onrender.com`.
 
 Routes "(JWT)" : en-tete `Authorization: Bearer <token>`.
 Erreurs : `{ message, field }` (`field` = champ du formulaire a surligner dans Unity, ex. `email`).

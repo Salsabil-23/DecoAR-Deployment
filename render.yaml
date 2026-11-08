@@ -32,6 +32,9 @@ services:
         sync: false
       - key: FACE_SERVICE_KEY
         sync: false
+      # Module M6 (generation 3D) : decoar-api transmet /api/m6/* a ce service
+      - key: M6_SERVICE_URL
+        value: https://decoar-m6.onrender.com
 
   # Reconnaissance faciale OpenCV (YuNet + SFace), appelee uniquement par decoar-api
   - type: web
