@@ -1,0 +1,6 @@
+flask>=3.0,<4
+gradio_client
+huggingface_hub
+python-dotenv
+pillow
+gunicorn>=23,<24
