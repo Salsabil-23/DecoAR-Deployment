@@ -20,11 +20,66 @@ namespace DecoAR.M5
 
         public bool Busy { get; private set; }
 
-        [Serializable] class NominatimAddress
+        [Serializable] internal class NominatimAddress
         {
             public string house_number, road, pedestrian, neighbourhood, suburb, village, town, city, municipality, county, state, postcode, country;
         }
-        [Serializable] class NominatimResult { public string display_name; public NominatimAddress address; }
+        [Serializable] internal class NominatimResult { public string display_name, lat, lon; public NominatimAddress address; }
+
+        /// Coordonnées GPS seules (centrage de la carte) : onDone(lat, lon, erreur).
+        public void FindCoordinates(Action<string> onStatus, Action<double, double, string> onDone)
+        {
+            if (Busy) return;
+            StartCoroutine(CoordinatesRoutine(onStatus, onDone));
+        }
+
+        IEnumerator CoordinatesRoutine(Action<string> onStatus, Action<double, double, string> onDone)
+        {
+            Busy = true;
+            double lat = 0, lon = 0; string error = null;
+            yield return Gps(onStatus, (a, b, e) => { lat = a; lon = b; error = e; });
+            Busy = false;
+            onDone?.Invoke(lat, lon, error);
+        }
+
+        /// Position du téléphone (autorisation, démarrage du GPS, attente) ; position de test dans l'éditeur.
+        IEnumerator Gps(Action<string> onStatus, Action<double, double, string> done)
+        {
+            if (Application.isEditor)
+            {
+                onStatus?.Invoke("Éditeur : position de test utilisée");
+                done(editorLatLon.x, editorLatLon.y, null);
+                yield break;
+            }
+#if UNITY_ANDROID
+            if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+            {
+                bool? granted = null;
+                var cb = new PermissionCallbacks();
+                cb.PermissionGranted += _ => granted = true;
+                cb.PermissionDenied += _ => granted = false;
+                Permission.RequestUserPermission(Permission.FineLocation, cb);
+                onStatus?.Invoke("Autorise l'accès à ta position…");
+                while (granted == null) yield return null;
+                if (granted == false) { done(0, 0, "Accès à la position refusé."); yield break; }
+            }
+            if (!Input.location.isEnabledByUser) { done(0, 0, "Active la localisation (GPS) du téléphone."); yield break; }
+#endif
+            onStatus?.Invoke("Recherche de ta position…");
+            Input.location.Start(10f, 5f);
+            float t = 0;
+            while (Input.location.status == LocationServiceStatus.Initializing && t < gpsTimeout) { t += Time.unscaledDeltaTime; yield return null; }
+            if (Input.location.status != LocationServiceStatus.Running)
+            {
+                string error = Input.location.status == LocationServiceStatus.Failed ? "Accès à la position refusé ou GPS indisponible." : "Position introuvable, réessaie près d'une fenêtre.";
+                Input.location.Stop();
+                done(0, 0, error);
+                yield break;
+            }
+            var d = Input.location.lastData;
+            Input.location.Stop();
+            done(d.latitude, d.longitude, null);
+        }
 
         /// onStatus : messages de progression, onDone : adresse (ou null + message d'erreur).
         public void FindAddress(Action<string> onStatus, Action<string, string> onDone)
@@ -39,41 +94,8 @@ namespace DecoAR.M5
             double lat = 0, lon = 0;
             string error = null;
 
-            if (Application.isEditor)
-            {
-                onStatus?.Invoke("Éditeur : position de test utilisée");
-                lat = editorLatLon.x; lon = editorLatLon.y;
-            }
-            else
-            {
-#if UNITY_ANDROID
-                if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
-                {
-                    bool? granted = null;
-                    var cb = new PermissionCallbacks();
-                    cb.PermissionGranted += _ => granted = true;
-                    cb.PermissionDenied += _ => granted = false;
-                    Permission.RequestUserPermission(Permission.FineLocation, cb);
-                    onStatus?.Invoke("Autorise l'accès à ta position…");
-                    while (granted == null) yield return null;
-                    if (granted == false) { Finish(onDone, null, "Accès à la position refusé."); yield break; }
-                }
-                if (!Input.location.isEnabledByUser) { Finish(onDone, null, "Activez la localisation (GPS) du téléphone."); yield break; }
-#endif
-                onStatus?.Invoke("Recherche de ta position…");
-                Input.location.Start(10f, 5f);
-                float t = 0;
-                while (Input.location.status == LocationServiceStatus.Initializing && t < gpsTimeout) { t += Time.unscaledDeltaTime; yield return null; }
-                if (Input.location.status != LocationServiceStatus.Running)
-                {
-                    error = Input.location.status == LocationServiceStatus.Failed ? "Accès à la position refusé ou GPS indisponible." : "Position introuvable, réessayez près d'une fenêtre.";
-                    Input.location.Stop();
-                    Finish(onDone, null, error); yield break;
-                }
-                var d = Input.location.lastData;
-                lat = d.latitude; lon = d.longitude;
-                Input.location.Stop();
-            }
+            yield return Gps(onStatus, (a, b, e) => { lat = a; lon = b; error = e; });
+            if (error != null) { Finish(onDone, null, error); yield break; }
 
             onStatus?.Invoke("Recherche de l'adresse…");
             var ci = CultureInfo.InvariantCulture;
@@ -105,7 +127,7 @@ namespace DecoAR.M5
             onDone?.Invoke(address, error);
         }
 
-        static string Format(NominatimResult r)
+        internal static string Format(NominatimResult r)
         {
             if (r == null) return null;
             var a = r.address;

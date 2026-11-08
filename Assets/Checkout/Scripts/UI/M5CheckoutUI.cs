@@ -54,6 +54,11 @@ namespace DecoAR.M5
         public int ItemCount { get { int n = 0; foreach (var l in lines) n += l.qty; return n; } }
         public string DeliveryAddress => addressField ? addressField.text.Trim() : "";
         public Page OpenPage => page;
+        /// Pour la discussion avec le vendeur (M5VendorChat)
+        public string PlayerName => UserName;
+        public bool PaymentOpen => payGroup && payGroup.blocksRaycasts;
+        public bool PayButtonVisible => ctaGroup && ctaGroup.alpha > 0.5f;
+        public string FormatMoney(float v) => Money(v);
 
         class Line { public Product p; public int qty; public readonly List<GameObject> items = new List<GameObject>(); }
         readonly List<Line> lines = new List<Line>();
@@ -323,6 +328,21 @@ namespace DecoAR.M5
                 gpsLabel.text = GpsText;
                 if (!string.IsNullOrEmpty(addr)) { addressField.text = addr; Toast("Adresse ajoutée depuis ta position", 2.5f, true); }
                 addressStatus.text = err ?? "<color=#A8C79E>Adresse trouvée, tu peux la modifier.</color>";
+            });
+        }
+
+        // ---------- Adresse (carte OpenStreetMap) ----------
+        /// Carte plein écran : n'importe quelle adresse (recherche, épingle) ou sa position.
+        public void OpenMap()
+        {
+            M5MapPicker.Open(DeliveryAddress, (addr, lat, lon) =>
+            {
+                if (addressField) addressField.text = addr;
+                PlayerPrefs.SetString(AddressKey, addr);
+                PlayerPrefs.Save();
+                if (addressStatus) addressStatus.text = "<color=#A8C79E>Adresse choisie sur la carte, tu peux la modifier.</color>";
+                Toast("Adresse de livraison enregistrée", 2.5f, true);
+                Refresh();
             });
         }
 
@@ -614,6 +634,7 @@ namespace DecoAR.M5
 
             BuildDrawer(root);
             BuildDock(root);
+            gameObject.AddComponent<M5VendorChat>().Init(this, root); // discuter avec le vendeur
             BuildChip(root);
             BuildCta(root);
             BuildPayment(root);
@@ -834,6 +855,12 @@ namespace DecoAR.M5
             Icon(gpsRow, M5Icons.Kind.Position, 34, Brass);
             gpsLabel = Label(gpsRow, GpsText, 24, Brass, TextAlignmentOptions.MidlineLeft);
             gpsLabel.GetComponent<LayoutElement>().flexibleWidth = 1;
+            var mapRow = Row(body, 52, 8, Color.clear);
+            var mapBtn = mapRow.gameObject.AddComponent<Button>();
+            mapBtn.onClick.AddListener(OpenMap);
+            mapBtn.targetGraphic = mapRow.GetComponent<Image>();
+            Icon(mapRow, M5Icons.Kind.Loupe, 34, Brass);
+            Label(mapRow, "Choisir sur la carte", 24, Brass, TextAlignmentOptions.MidlineLeft).GetComponent<LayoutElement>().flexibleWidth = 1;
             addressStatus = Label(body, "", 20, Soft, TextAlignmentOptions.MidlineLeft, 26);
 
             confirmBtn = Btn(pg, "", Sage, ConfirmOrder, 78, 28, TextAlignmentOptions.Center);
