@@ -16,6 +16,21 @@ namespace DecoAR.Auth
         // Dernier compte utilise sur ce telephone (prerempli pour la connexion par le visage)
         public static string LastEmail => PlayerPrefs.GetString(KeyLastEmail, "");
 
+        // Compte administrateur (role donne cote serveur) ; l'espace admin s'ouvre en plus avec le visage
+        public static bool IsAdmin => IsLoggedIn && User?.role == "admin";
+        // Jeton admin obtenu apres la confirmation par le visage : en memoire seulement, 30 min
+        public static string AdminToken { get; private set; }
+        static float adminTokenUntil;
+        public static bool HasAdminAccess => IsAdmin && !string.IsNullOrEmpty(AdminToken) && Time.realtimeSinceStartup < adminTokenUntil;
+
+        public static void SetAdminToken(string token, int expiresInSeconds)
+        {
+            AdminToken = token;
+            adminTokenUntil = Time.realtimeSinceStartup + Mathf.Max(0, expiresInSeconds - 30); // marge avant l'expiration serveur
+        }
+
+        public static void ClearAdminToken() => AdminToken = null;
+
         public static event Action<UserDto> Changed;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -48,6 +63,7 @@ namespace DecoAR.Auth
         {
             Token = null;
             User = null;
+            AdminToken = null;
             PlayerPrefs.DeleteKey(KeyToken);
             PlayerPrefs.DeleteKey(KeyUser);
             PlayerPrefs.Save();

@@ -209,7 +209,11 @@ namespace DecoAR.M6
                 nameField.text = item.name; category = item.category; RefreshChips();
                 added = true;
                 status.text = "Chargement du modèle…";
-                _ = modelViewer.LoadModel(item.Path);
+                StartCoroutine(M6Catalog.LoadModel(item, (path, error) =>
+                {
+                    if (error != null) { status.text = "Modèle indisponible : " + error; return; }
+                    _ = modelViewer.LoadModel(path);
+                }));
             }
         }
 
@@ -224,15 +228,20 @@ namespace DecoAR.M6
         {
             if (modelViewer == null || !modelViewer.HasModel) { Toast("Génère d'abord un modèle 3D"); return; }
             if (string.IsNullOrWhiteSpace(nameField.text)) { Toast("Donne un nom au produit"); nameField.Select(); return; }
-            try
+            addButton.interactable = false; addLabel.text = "Envoi au catalogue…";
+            StartCoroutine(M6Catalog.Add(modelViewer.CurrentPath, nameField.text, category, (item, error) =>
             {
-                var item = M6Catalog.Add(modelViewer.CurrentPath, nameField.text, category);
+                if (error != null)
+                {
+                    addButton.interactable = true; addLabel.text = "Ajouter au catalogue";
+                    Toast("Ajout impossible : " + error);
+                    return;
+                }
                 added = true;
-                addButton.interactable = false; addLabel.text = "Ajouté au catalogue";
+                addLabel.text = "Ajouté au catalogue";
                 viewerTitle.text = item.name;
                 Toast($"« {item.name} » ajouté au catalogue ({item.category})");
-            }
-            catch (Exception e) { Toast("Ajout impossible : " + e.Message); }
+            }));
         }
 
         void RefreshChips()
@@ -273,8 +282,20 @@ namespace DecoAR.M6
 
         void RefreshList()
         {
+            countLabel.text = "Chargement du catalogue…";
+            StartCoroutine(M6Catalog.All(ShowList));
+        }
+
+        void ShowList(List<M6Catalog.Item> items, string error)
+        {
             for (int i = listContent.childCount - 1; i >= 0; i--) Destroy(listContent.GetChild(i).gameObject);
-            var items = M6Catalog.All();
+            if (error != null)
+            {
+                countLabel.text = "Catalogue 3D";
+                var err = Label(listContent, $"<b>Catalogue indisponible</b>\n<size=80%><color=#6B5B4D>{error}</color></size>", 30, Ink, TextAlignmentOptions.Center);
+                err.gameObject.AddComponent<LayoutElement>().preferredHeight = 110;
+                return;
+            }
             countLabel.text = items.Count == 0 ? "Catalogue 3D" : $"{items.Count} produit{(items.Count > 1 ? "s" : "")} 3D";
             if (items.Count == 0)
             {
@@ -292,7 +313,7 @@ namespace DecoAR.M6
                 var it = item;
                 var row = HRow(listContent, 96, 16);
                 row.GetComponent<Image>().color = new Color(1, 1, 1, 1);
-                var n = Label(row, $"<b>{it.name}</b>\n<size=70%><color=#8C8073>{it.id}</color></size>", 26, Ink, TextAlignmentOptions.MidlineLeft);
+                var n = Label(row, $"<b>{it.name}</b>\n<size=70%><color=#8C8073>{Mathf.Max(1, it.modelSize / 1024)} Ko</color></size>", 26, Ink, TextAlignmentOptions.MidlineLeft);
                 n.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
                 var c = Label(row, it.category, 24, Accent, TextAlignmentOptions.MidlineLeft, FontStyles.Bold); c.gameObject.AddComponent<LayoutElement>().preferredWidth = 220;
                 var d = Label(row, it.Created.ToString("dd/MM/yyyy HH:mm"), 22, Muted, TextAlignmentOptions.MidlineLeft); d.gameObject.AddComponent<LayoutElement>().preferredWidth = 220;
@@ -301,7 +322,11 @@ namespace DecoAR.M6
                 var del = Pill(row, "Supprimer", Field, Ink, () =>
                 {
                     if (Time.unscaledTime - armed > 3f) { armed = Time.unscaledTime; delLabel.text = "Confirmer ?"; return; }
-                    M6Catalog.Remove(it); Toast($"« {it.name} » supprimé"); RefreshList();
+                    StartCoroutine(M6Catalog.Remove(it, error =>
+                    {
+                        if (error != null) { Toast("Suppression impossible : " + error); return; }
+                        Toast($"« {it.name} » supprimé"); RefreshList();
+                    }));
                 }, 160, 64, 22);
                 delLabel = del.GetComponentInChildren<TextMeshProUGUI>();
             }

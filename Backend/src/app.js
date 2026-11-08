@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const adminRoutes = require('./routes/admin');
+const catalogRoutes = require('./routes/catalog');
 const { HttpError, errorHandler } = require('./utils/errors');
 const faceService = require('./services/faceService');
 const { router: m6Routes, m6Url } = require('./routes/m6');
@@ -35,6 +37,8 @@ function createApp() {
   app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/m6', m6Routes); // generation 3D : transmis a decoar-m6
+  app.use('/api/admin', adminRoutes);
+  app.use('/api/catalog', catalogRoutes);
 
   app.use((req, res, next) => next(new HttpError(404, 'Route introuvable')));
   app.use(errorHandler);

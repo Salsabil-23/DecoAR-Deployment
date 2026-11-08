@@ -14,6 +14,7 @@ namespace DecoAR.Auth
         public string email;
         public string phone;
         public bool emailVerified;
+        public string role; // "user" ou "admin" (donne avec npm run make-admin)
         public bool faceEnrolled;
         public string faceEnrolledAt;
         public bool hasPhoto;
@@ -21,6 +22,7 @@ namespace DecoAR.Auth
     }
 
     [Serializable] public class AuthResponse { public string token; public UserDto user; }
+    [Serializable] public class AdminResponse { public string adminToken; public int expiresIn; public UserDto user; }
     [Serializable] public class UserResponse { public UserDto user; }
     [Serializable] public class MessageResponse { public string message; }
 
@@ -130,6 +132,17 @@ namespace DecoAR.Auth
         // email facultatif : avec, on compare au visage de ce compte ; sans, on cherche parmi tous les comptes
         public static IEnumerator FaceLogin(string email, FaceProof face, Action<ApiResult<AuthResponse>> done) =>
             Send("POST", "/api/auth/face/login", new FaceLoginRequest { email = email ?? "", face = face }, null, done);
+
+        // Espace admin : compte admin + defi de mouvements avec son visage -> jeton admin (30 min)
+        public static IEnumerator AdminConfirm(string token, FaceProof face, Action<ApiResult<AdminResponse>> done) =>
+            Send("POST", "/api/admin/confirm", new FaceRequest { face = face }, token, done);
+
+        // En-tetes d'une requete faite par un autre module (catalogue, M6) : session, et jeton admin si demande
+        public static void Authorize(UnityWebRequest req, bool admin = false)
+        {
+            if (AuthSession.IsLoggedIn) req.SetRequestHeader("Authorization", "Bearer " + AuthSession.Token);
+            if (admin && AuthSession.HasAdminAccess) req.SetRequestHeader("X-Admin-Token", AuthSession.AdminToken);
+        }
 
         public static IEnumerator UpdateFace(string token, FaceProof face, Action<ApiResult<UserResponse>> done) =>
             Send("PUT", "/api/users/me/face", new FaceRequest { face = face }, token, done);

@@ -1,5 +1,6 @@
 const express = require('express');
 const { Readable } = require('stream');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 // Passerelle vers le module M6 (generation de modeles 3D, service Python Backend_M6) :
 // Unity n'appelle que decoar-api, qui transmet tel quel a decoar-m6.
@@ -42,10 +43,13 @@ async function forward(req, res, path) {
 
 const id = (req) => encodeURIComponent(req.params.jobId);
 
+// La generation consomme le quota Hugging Face : reservee a l'espace admin (compte admin + visage confirme)
+const admin = [requireAuth, requireAdmin];
+
 router.get('/health', (req, res) => forward(req, res, '/health'));
-router.post('/generate', (req, res) => forward(req, res, '/generate'));
-router.get('/status/:jobId', (req, res) => forward(req, res, `/status/${id(req)}`));
-router.get('/model/:jobId', (req, res) => forward(req, res, `/model/${id(req)}`));
+router.post('/generate', admin, (req, res) => forward(req, res, '/generate'));
+router.get('/status/:jobId', admin, (req, res) => forward(req, res, `/status/${id(req)}`));
+router.get('/model/:jobId', admin, (req, res) => forward(req, res, `/model/${id(req)}`));
 router.get('/test-model', (req, res) => forward(req, res, '/test-model'));
 
 module.exports = { router, m6Url };

@@ -30,6 +30,13 @@ namespace DecoAR.Auth
         public string Purpose { get; set; } = "login";
         public string StartText { get; set; } = "Commencer";
 
+        // Texte du lien d'annulation (ex. "Retour", "Utiliser mon mot de passe", "Annuler")
+        public string CancelText
+        {
+            get => cancelButton.GetComponentInChildren<TMP_Text>()?.text ?? "";
+            set { var label = cancelButton.GetComponentInChildren<TMP_Text>(); if (label != null) label.text = value; }
+        }
+
         public event Action<FaceProof> Completed;
         public event Action Cancelled;
 

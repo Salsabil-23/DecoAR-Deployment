@@ -1,4 +1,5 @@
 using System.Collections;
+using DecoAR.Auth;
 using DecoAR.UI;
 using TMPro;
 using UnityEngine;
@@ -12,7 +13,9 @@ using ETouch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 namespace DecoAR.M5
 {
     /// Poste d'administration derrière la caisse : l'écran du PC affiche une veille DecoAR. Toucher le PC fait
-    /// voler la caméra jusqu'à l'écran, qui demande le mot de passe ; s'il est bon, on ouvre l'espace admin (M6).
+    /// voler la caméra jusqu'à l'écran, qui montre le compte connecté. Réservé aux comptes admin (rôle donné sur le
+    /// serveur) : l'admin confirme son identité avec le défi de reconnaissance faciale (AuthOverlay.ConfirmAdmin),
+    /// le serveur lui donne un jeton admin, puis l'espace admin (M6) s'ouvre.
     public class M5AdminTerminal : MonoBehaviour
     {
         [Tooltip("Centre de la dalle : forward sort de l'écran vers l'utilisateur, up = haut de l'écran.")]
@@ -21,7 +24,6 @@ namespace DecoAR.M5
         public Texture2D logo;
         [Tooltip("Symbole seul (sans fond), posé dans le rond de l'avatar.")]
         public Texture2D logoMark;
-        public string password = "decoar2026";
         public float maxTapDistance = 12f;
         public float hintDistance = 6.5f;
         public float flyDuration = 1.6f;
@@ -42,8 +44,8 @@ namespace DecoAR.M5
 
         RectTransform screenRoot, lockPanel, loginPanel, successPanel, fieldBox, hint, progress;
         CanvasGroup lockGroup, loginGroup, successGroup, hintGroup, fadeGroup, wakeGroup;
-        TextMeshProUGUI clock, date, errorText, tapText;
-        TMP_InputField field;
+        TextMeshProUGUI clock, date, errorText, tapText, accountText, unlockLabel;
+        bool confirming;
         Image checkCircle, checkIcon;
         float errorUntil, shake;
         Vector2 pressPos; float pressTime; bool pressing, pressOverUI;
@@ -136,8 +138,25 @@ namespace DecoAR.M5
             yield return Fly(cam.transform.position, cam.transform.rotation, camFov, pos, rot, 40f, flyDuration);
 
             state = State.Connexion;
-            field.text = "";
-            field.ActivateInputField();
+            RefreshAccount();
+        }
+
+        /// Compte connecté affiché sur l'écran du PC, et texte du bouton selon ses droits.
+        void RefreshAccount()
+        {
+            if (!AuthSession.IsLoggedIn)
+            {
+                accountText.text = "<color=#C9B8A6>Aucun compte connecté</color>";
+                unlockLabel.text = "<b>Réservé aux administrateurs</b>";
+            }
+            else
+            {
+                var u = AuthSession.User;
+                accountText.text = AuthSession.IsAdmin
+                    ? $"{u.firstName} {u.lastName}  ·  <color=#E0B867>admin</color>"
+                    : $"{u.firstName} {u.lastName}  ·  <color=#C9B8A6>client</color>";
+                unlockLabel.text = AuthSession.IsAdmin ? "<b>Confirmer avec mon visage</b>" : "<b>Réservé aux administrateurs</b>";
+            }
         }
 
         void Leave()
@@ -149,7 +168,6 @@ namespace DecoAR.M5
         IEnumerator Exit()
         {
             state = State.Retour;
-            field.DeactivateInputField();
             StartCoroutine(Sleep());
             var back = camParent != null ? camParent.TransformPoint(camLocalPos) : cam.transform.position;
             var backRot = camParent != null ? camParent.rotation * camLocalRot : cam.transform.rotation;
@@ -239,24 +257,32 @@ namespace DecoAR.M5
 
         void TryUnlock()
         {
-            if (state != State.Connexion) return;
-            if (field.text.Trim().ToLowerInvariant() == password.ToLowerInvariant())
+            if (state != State.Connexion || confirming) return;
+            if (!AuthSession.IsLoggedIn) { Refuse("Connecte-toi avec un compte administrateur"); return; }
+            if (!AuthSession.IsAdmin) { Refuse("Accès réservé aux administrateurs"); return; }
+            if (AuthOverlay.Instance == null) { Refuse("Confirmation indisponible, relance l'application"); return; }
+
+            // Défi de reconnaissance faciale par-dessus la boutique ; le serveur vérifie le visage du compte admin
+            confirming = true;
+            AuthOverlay.Instance.ConfirmAdmin(ok =>
             {
-                StartCoroutine(Unlock());
-                return;
-            }
+                confirming = false;
+                if (ok) StartCoroutine(Unlock());
+                else Refuse("Identité non confirmée");
+            });
+        }
+
+        void Refuse(string message)
+        {
             shake = 1f;
             errorUntil = Time.unscaledTime + 2.5f;
-            errorText.text = string.IsNullOrEmpty(field.text) ? "Saisis le mot de passe" : "Mot de passe incorrect";
-            field.text = "";
-            field.ActivateInputField();
+            errorText.text = message;
             M5Haptics.Strong();
         }
 
         IEnumerator Unlock()
         {
             state = State.Ouverture;
-            field.DeactivateInputField();
             M5Haptics.Light();
             loginGroup.interactable = loginGroup.blocksRaycasts = false;
             StartCoroutine(FadeGroup(loginGroup, 0f, 0.25f));
@@ -363,25 +389,22 @@ namespace DecoAR.M5
             Text(card, "<b>Administrateur</b>", 40, DecoUI.Cream, new Vector2(0.5f, 1f), new Vector2(560, 56), new Vector2(0, -190));
             Text(card, "Catalogue 3D de la boutique DecoAR", 24, DecoUI.Soft, new Vector2(0.5f, 1f), new Vector2(560, 36), new Vector2(0, -232));
 
-            fieldBox = DecoUI.Box("Mot de passe", card, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -306), new Vector2(480, 74), new Color(1, 1, 1, 0.1f));
+            // Compte connecté (plus de mot de passe dans l'application : rôle admin vérifié par le serveur)
+            fieldBox = DecoUI.Box("Compte", card, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -306), new Vector2(480, 74), new Color(1, 1, 1, 0.1f));
             fieldBox.GetComponent<Image>().sprite = DecoUI.PillShape;
             DecoUI.Layer(fieldBox, "Liseré", DecoUI.RingSprite, new Color(1, 1, 1, 0.22f), false);
             var lockIcon = DecoUI.Icon(fieldBox, M5Icons.Kind.Cadenas, 32, DecoUI.Soft);
             lockIcon.rectTransform.anchorMin = lockIcon.rectTransform.anchorMax = new Vector2(0, 0.5f);
             lockIcon.rectTransform.anchoredPosition = new Vector2(40, 0);
-            field = DecoUI.InputField(fieldBox, "Mot de passe", 30);
-            var frt = (RectTransform)field.transform;
-            frt.anchorMin = Vector2.zero; frt.anchorMax = Vector2.one; frt.offsetMin = new Vector2(72, 6); frt.offsetMax = new Vector2(-84, -6);
-            field.contentType = TMP_InputField.ContentType.Password;
-            field.asteriskChar = '•';
-            field.onSubmit.AddListener(_ => TryUnlock());
-            var go2 = DecoUI.IconButton(fieldBox, M5Icons.Kind.Chevron, 58, DecoUI.Brass, DecoUI.Ink, TryUnlock);
-            var grt = (RectTransform)go2.transform;
-            grt.anchorMin = grt.anchorMax = new Vector2(1, 0.5f); grt.anchoredPosition = new Vector2(-38, 0);
+            accountText = DecoUI.Label(fieldBox, "", 26, DecoUI.Cream, TextAlignmentOptions.MidlineLeft);
+            accountText.rectTransform.offsetMin = new Vector2(72, 0); accountText.rectTransform.offsetMax = new Vector2(-24, 0);
+            accountText.textWrappingMode = TextWrappingModes.NoWrap;
+            accountText.overflowMode = TextOverflowModes.Ellipsis;
 
             errorText = Text(card, "", 24, Error, new Vector2(0.5f, 1f), new Vector2(560, 34), new Vector2(0, -376));
             errorText.alpha = 0;
-            var unlock = DecoUI.Pill(card, "<b>Déverrouiller</b>", DecoUI.Brass, DecoUI.Ink, TryUnlock, 70, 28);
+            var unlock = DecoUI.Pill(card, "<b>Confirmer avec mon visage</b>", DecoUI.Brass, DecoUI.Ink, TryUnlock, 70, 28);
+            unlockLabel = unlock.GetComponentInChildren<TextMeshProUGUI>();
             var urt = (RectTransform)unlock.transform;
             urt.anchorMin = urt.anchorMax = new Vector2(0.5f, 0f); urt.pivot = new Vector2(0.5f, 0f);
             urt.anchoredPosition = new Vector2(0, 34); urt.sizeDelta = new Vector2(480, 70);

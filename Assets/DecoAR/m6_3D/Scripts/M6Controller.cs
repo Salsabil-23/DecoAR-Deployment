@@ -10,8 +10,10 @@ using UnityEngine.UI;
 
 public class M6Controller : MonoBehaviour
 {
-    [Header("Backend M6 (Render : decoar-m6, ou IP du PC en local)")]
-    public string serverUrl = "https://decoar-m6.onrender.com";
+    // Backend M6 via la passerelle de decoar-api (meme adresse que les comptes, reglee dans DecoAR_AuthSettings) :
+    // /api/m6/generate, /status, /model demandent l'espace admin (compte admin + visage confirme).
+    static string Api => DecoAR.Auth.AuthApi.BaseUrl.TrimEnd('/') + "/api/m6";
+    const string AdminExpired = "Espace admin expiré : reviens à l'administration et confirme ton visage.";
 
     [Header("Interface")]
     public RawImage photoPreview;
@@ -42,7 +44,7 @@ public class M6Controller : MonoBehaviour
         float deadline = Time.realtimeSinceStartup + 90f;
         while (Time.realtimeSinceStartup < deadline)
         {
-            using (UnityWebRequest ping = UnityWebRequest.Get(serverUrl.TrimEnd('/') + "/health"))
+            using (UnityWebRequest ping = UnityWebRequest.Get(Api + "/health"))
             {
                 ping.timeout = 60;
                 yield return ping.SendWebRequest();
@@ -136,7 +138,7 @@ public class M6Controller : MonoBehaviour
         {
             StartCoroutine(
                 DownloadModel(
-                    serverUrl.TrimEnd('/') + "/test-model"
+                    Api + "/test-model"
                 )
             );
         }
@@ -174,17 +176,18 @@ public class M6Controller : MonoBehaviour
 
         using (UnityWebRequest request =
             UnityWebRequest.Post(
-                serverUrl.TrimEnd('/') + "/generate",
+                Api + "/generate",
                 form
             ))
         {
             request.timeout = 120;
+            DecoAR.Auth.AuthApi.Authorize(request, admin: true);
 
             yield return request.SendWebRequest();
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                SetStatus("Erreur envoi : " + request.error);
+                SetStatus(request.responseCode == 403 ? AdminExpired : "Erreur envoi : " + request.error);
                 EndBusy();
                 yield break;
             }
@@ -216,13 +219,21 @@ public class M6Controller : MonoBehaviour
 
                 using (UnityWebRequest check =
                     UnityWebRequest.Get(
-                        serverUrl.TrimEnd('/') +
+                        Api +
                         "/status/" + jobId
                     ))
                 {
                     check.timeout = 30;
+                    DecoAR.Auth.AuthApi.Authorize(check, admin: true);
 
                     yield return check.SendWebRequest();
+
+                    if (check.responseCode == 403)
+                    {
+                        SetStatus(AdminExpired);
+                        EndBusy();
+                        yield break;
+                    }
 
                     if (check.result !=
                         UnityWebRequest.Result.Success)
@@ -250,7 +261,7 @@ public class M6Controller : MonoBehaviour
                     if (state.status == "completed")
                     {
                         yield return DownloadModel(
-                            serverUrl.TrimEnd('/') +
+                            Api +
                             "/model/" + jobId
                         );
 
@@ -274,6 +285,7 @@ public class M6Controller : MonoBehaviour
             UnityWebRequest.Get(url))
         {
             request.timeout = 120;
+            DecoAR.Auth.AuthApi.Authorize(request, admin: true);
 
             yield return request.SendWebRequest();
 

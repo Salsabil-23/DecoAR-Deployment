@@ -19,6 +19,8 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, trim: true, default: '' },
     passwordHash: { type: String, required: true, select: false },
     emailVerified: { type: Boolean, default: false },
+    // "admin" : acces a l'espace admin (catalogue, generation 3D). Donne avec : npm run make-admin -- <email>
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
     verifyCode: { type: emailCodeSchema, select: false },
     resetCode: { type: emailCodeSchema, select: false },
     // Reconnaissance faciale (OpenCV SFace) : vecteur de 128 nombres calcule a l'inscription.
@@ -44,6 +46,7 @@ userSchema.methods.toPublic = function () {
     email: this.email,
     phone: this.phone,
     emailVerified: this.emailVerified,
+    role: this.role || 'user',
     faceEnrolled: Boolean(this.faceEnrolledAt),
     faceEnrolledAt: this.faceEnrolledAt,
     hasPhoto: Boolean(this.photoUpdatedAt),
