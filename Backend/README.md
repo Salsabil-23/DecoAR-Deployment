@@ -52,6 +52,13 @@ npm test
 | PUT | `/api/users/me/photo` (JWT) | `image` (JPEG/PNG base64, 300 Ko max) | `{ user }` |
 | GET | `/api/users/me/photo` (JWT) | - | l'image |
 | DELETE | `/api/users/me/photo` (JWT) | - | `{ user }` |
+| POST | `/api/m6/generate` | multipart `image` (JPG/PNG, 6 Mo max) | `202 { job_id, status }` (transmis a decoar-m6) |
+| GET | `/api/m6/status/:jobId` | - | `{ job_id, status: processing / completed / failed, error }` |
+| GET | `/api/m6/model/:jobId` | - | fichier `.glb` (`409` si pas pret) |
+| GET | `/api/m6/test-model` | - | fichier `.glb` de test (sans quota Hugging Face) |
+
+Routes `/api/m6/*` : passerelle vers le module 3D (`Backend_M6`, service `decoar-m6`, adresse `M6_SERVICE_URL`) :
+Unity n'utilise qu'une seule adresse, `https://decoar-api.onrender.com`.
 
 Routes "(JWT)" : en-tete `Authorization: Bearer <token>`.
 Erreurs : `{ message, field }` (`field` = champ du formulaire a surligner dans Unity, ex. `email`).
@@ -65,7 +72,8 @@ seul leur hash SHA-256 est stocke. Envoi selon le `.env` :
 | --- | --- | --- |
 | `console` | rien de configure | le code s'affiche dans le terminal : `[MAIL] ...` |
 | `smtp` (Gmail) | en local | `SMTP_USER` + `SMTP_PASS` (mot de passe d'application Google, validation en 2 etapes requise) |
-| `brevo` | en ligne | `BREVO_API_KEY` + `MAIL_FROM` (Render gratuit bloque le SMTP, Brevo passe par HTTPS) |
+| `mailjet` | en ligne | `MAILJET_API_KEY` + `MAILJET_SECRET_KEY` + `MAIL_FROM` (Render gratuit bloque le SMTP, Mailjet passe par HTTPS) |
+| `brevo` | en ligne (autre choix) | `BREVO_API_KEY` + `MAIL_FROM` |
 
 ## Mettre en ligne (Render, gratuit)
 

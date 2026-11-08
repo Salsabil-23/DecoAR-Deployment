@@ -18,7 +18,11 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
-      # Render gratuit bloque le SMTP (Gmail) : e-mails envoyes par l'API HTTP de Brevo
+      # Render gratuit bloque le SMTP (Gmail) : e-mails envoyes par l'API HTTP de Mailjet (ou Brevo)
+      - key: MAILJET_API_KEY
+        sync: false
+      - key: MAILJET_SECRET_KEY
+        sync: false
       - key: BREVO_API_KEY
         sync: false
       - key: MAIL_FROM
@@ -28,6 +32,9 @@ services:
         sync: false
       - key: FACE_SERVICE_KEY
         sync: false
+      # Module M6 (generation 3D) : decoar-api transmet /api/m6/* a ce service
+      - key: M6_SERVICE_URL
+        value: https://decoar-m6.onrender.com
 
   # Reconnaissance faciale OpenCV (YuNet + SFace), appelee uniquement par decoar-api
   - type: web
@@ -43,4 +50,20 @@ services:
         value: "3.13.1"
       # Meme valeur que FACE_SERVICE_KEY de decoar-api
       - key: FACE_SERVICE_KEY
+        sync: false
+
+  # Module M6 : Generation de modeles 3D (.glb) depuis une image via Hugging Face TRELLIS
+  - type: web
+    name: decoar-m6
+    runtime: python
+    plan: free
+    rootDir: Backend_M6
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 1 --threads 4 --timeout 120 -b 0.0.0.0:$PORT app:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.1"
+      # Token Hugging Face requis pour appeler l'espace trellis-community/TRELLIS
+      - key: HF_TOKEN
         sync: false
