@@ -9,3 +9,16 @@ Assets/DecoAR/**/*.tga filter=lfs diff=lfs merge=lfs -text
 Assets/DecoAR/**/*.psd filter=lfs diff=lfs merge=lfs -text
 Assets/DecoAR/**/*.wav filter=lfs diff=lfs merge=lfs -text
 Assets/DecoAR/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
+# Git LFS pour les modeles, textures et sons du module M5 (Checkout)
+Assets/Checkout/**/*.fbx filter=lfs diff=lfs merge=lfs -text
+Assets/Checkout/**/*.FBX filter=lfs diff=lfs merge=lfs -text
+Assets/Checkout/**/*.tga filter=lfs diff=lfs merge=lfs -text
+Assets/Checkout/**/*.png filter=lfs diff=lfs merge=lfs -text
+Assets/Checkout/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+Assets/Checkout/**/*.wav filter=lfs diff=lfs merge=lfs -text
+Assets/Checkout/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
+# Git LFS pour le design system (logos, icônes, images, polices)
+DesignSystem/**/*.png filter=lfs diff=lfs merge=lfs -text
+DesignSystem/**/*.ttf filter=lfs diff=lfs merge=lfs -text
+Assets/DecoAR/**/*.ttf filter=lfs diff=lfs merge=lfs -text
+docs/**/*.png filter=lfs diff=lfs merge=lfs -text

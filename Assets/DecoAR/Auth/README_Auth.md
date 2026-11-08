@@ -26,6 +26,16 @@ puis le serveur (service Python OpenCV) revérifie les mouvements et compare le 
 `SelfieCapture` sert seulement a la photo de profil.
 Avec un e-mail saisi, la connexion compare au visage de ce compte (1:1) ; sans, elle cherche parmi tous les comptes.
 
+## Espace admin
+
+- Compte admin : `npm run make-admin -- <email>` dans `Backend/` (voir son README). `AuthSession.IsAdmin`.
+- Ouverture : PC derriere la caisse (M5AdminTerminal) ou Profil > "Espace administration (3D)" (admins seulement)
+  -> `AuthOverlay.ConfirmAdmin` : defi de mouvements avec le visage du compte -> jeton admin 30 min
+  (`AuthSession.HasAdminAccess`, en-tete `X-Admin-Token` via `AuthApi.Authorize(req, admin: true)`).
+- Sans jeton valide, AdminScene et M6_Generator renvoient a la boutique ; apres le verrouillage automatique,
+  l'espace admin se reconfirme.
+- Catalogue 3D partage sur le serveur (`M6Catalog` -> `/api/catalog`), generation 3D par `/api/m6/*`.
+
 ## Pour les autres modules
 
 | Quoi | Comment |

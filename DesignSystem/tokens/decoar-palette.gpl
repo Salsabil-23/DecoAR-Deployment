@@ -1,0 +1,59 @@
+GIMP Palette
+Name: DecoAR
+Columns: 10
+#
+255 244 236	terracotta-50
+253 227 210	terracotta-100
+251 197 163	terracotta-200
+247 165 116	terracotta-300
+238 130  75	terracotta-400
+223  95  42	terracotta-500
+192  74  30	terracotta-600
+152  58  25	terracotta-700
+110  44  22	terracotta-800
+ 73  30  17	terracotta-900
+243 247 241	sauge-50
+226 236 222	sauge-100
+198 216 191	sauge-200
+168 194 159	sauge-300
+141 171 131	sauge-400
+115 148 110	sauge-500
+ 93 123  89	sauge-600
+ 72  97  70	sauge-700
+ 53  71  52	sauge-800
+ 35  47  34	sauge-900
+252 247 236	laiton-50
+247 236 211	laiton-100
+240 221 177	laiton-200
+231 203 140	laiton-300
+221 184 108	laiton-400
+209 166  82	laiton-500
+176 135  57	laiton-600
+138 104  44	laiton-700
+ 99  74  32	laiton-800
+ 63  47  21	laiton-900
+255 255 255	lin-0
+253 249 243	lin-50
+250 242 227	lin-100
+244 234 218	lin-150
+237 225 205	lin-200
+221 205 181	lin-300
+196 177 154	lin-400
+168 147 126	lin-500
+140 120 102	lin-600
+107  91  77	lin-700
+ 74  62  52	lin-800
+ 53  44  36	lin-850
+ 41  33  26	lin-900
+ 31  26  20	lin-950
+ 21  17  13	lin-1000
+242 160 143	brique-300
+209  92  69	brique-500
+185  74  53	brique-600
+158  63  45	brique-700
+157 183 203	ardoise-300
+ 95 126 150	ardoise-500
+ 63  87 106	ardoise-700
+158 204 148	succes-300
+ 94 154  88	succes-500
+ 63 110  59	succes-700

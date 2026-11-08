@@ -1,0 +1,6 @@
+{
+    "AutomatedSetup": true,
+    "PhotoLibraryUsageDescription": "DecoAR enregistre vos photos de la scène en réalité augmentée dans votre galerie.",
+    "PhotoLibraryAdditionsUsageDescription": "DecoAR enregistre vos photos de la scène en réalité augmentée dans votre galerie.",
+    "DontAskLimitedPhotosPermissionAutomaticallyOnIos14": true
+}

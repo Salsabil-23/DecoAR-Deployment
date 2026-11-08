@@ -75,8 +75,13 @@ namespace DecoAR.Auth
             preview.uvRect = aspect >= 1
                 ? new UnityEngine.Rect((1 - 1 / aspect) / 2, 0, 1 / aspect, 1)
                 : new UnityEngine.Rect(0, (1 - aspect) / 2, 1, aspect);
+            // L'echelle s'applique AVANT la rotation : avec un capteur tourne de 90/270 degres (telephone),
+            // le miroir gauche/droite de l'ecran correspond a l'axe Y de l'image, sinon l'apercu est a l'envers.
+            bool sideways = ((cam.videoRotationAngle / 90) % 2 + 2) % 2 == 1;
+            bool mirrorX = frontFacing && !sideways;
+            bool mirrorY = cam.videoVerticallyMirrored ^ (frontFacing && sideways);
             preview.rectTransform.localEulerAngles = new Vector3(0, 0, -cam.videoRotationAngle);
-            preview.rectTransform.localScale = new Vector3(frontFacing ? -1 : 1, cam.videoVerticallyMirrored ? -1 : 1, 1);
+            preview.rectTransform.localScale = new Vector3(mirrorX ? -1 : 1, mirrorY ? -1 : 1, 1);
         }
 
         // Affiche une image fixe (photo prise) a la place de la camera ; null = retour a la camera
@@ -110,9 +115,11 @@ namespace DecoAR.Auth
                 for (int x = 0; x < s; x++)
                     px[y * s + x] = src[(y + y0) * w + x + x0];
 
-            if (frontFacing) px = Mirror(px, s, horizontal: true);
+            // 1. image du capteur remise a l'endroit (retournement + rotation), 2. miroir de la camera frontale.
+            // Dans cet ordre, le miroir reste gauche/droite meme quand le capteur est tourne (telephone).
             if (cam.videoVerticallyMirrored) px = Mirror(px, s, horizontal: false);
             for (int i = 0; i < ((cam.videoRotationAngle / 90) % 4 + 4) % 4; i++) px = RotateClockwise(px, s);
+            if (frontFacing) px = Mirror(px, s, horizontal: true);
 
             var square = new Texture2D(s, s, TextureFormat.RGBA32, false);
             square.SetPixels32(px);

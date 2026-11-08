@@ -1,0 +1,2205 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2deeb71eb1645219a34ac759e6153b, type: 3}
+  m_Name: M3_ProductCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::DecoAR.M3.M3ProductCatalog
+  products:
+  - id: SAL-01
+    displayName: "Canap\xE9 Lounge 3 places"
+    category: Salon
+    price: 1890
+    sizeCm: {x: 221, y: 86, z: 76}
+    prefab: {fileID: 6738996137917839785, guid: aea230b5d7767ec4585e27e4158d5d34, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: canape sofa lounge trois places
+  - id: SAL-02
+    displayName: "Canap\xE9 Cosy 2 places"
+    category: Salon
+    price: 1390
+    sizeCm: {x: 160, y: 79, z: 76}
+    prefab: {fileID: 6568580088740262106, guid: fa656671c5f84c14e962d284446cdb9a, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: canape sofa cosy deux places
+  - id: SAL-03
+    displayName: "Canap\xE9 r\xE9tro"
+    category: Salon
+    price: 1190
+    sizeCm: {x: 150, y: 83, z: 71}
+    prefab: {fileID: 334569156917715922, guid: de151d25ee1633746bd7fc13798aa0e2, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: canape sofa retro vintage
+  - id: SAL-04
+    displayName: Fauteuil club
+    category: Salon
+    price: 690
+    sizeCm: {x: 100, y: 70, z: 76}
+    prefab: {fileID: 6253955288435565766, guid: 8878c202feaa3d549a699e287f054431, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: fauteuil club siege
+  - id: SAL-05
+    displayName: "Fauteuil berg\xE8re"
+    category: Salon
+    price: 790
+    sizeCm: {x: 101, y: 105, z: 94}
+    prefab: {fileID: 1315755215366512931, guid: 1a7ca4ae1867e824d852f488df629700, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: fauteuil bergere siege
+  - id: SAL-06
+    displayName: Fauteuil classique
+    category: Salon
+    price: 590
+    sizeCm: {x: 85, y: 73, z: 63}
+    prefab: {fileID: 1250258544513006647, guid: 5c29fca4d1829d74c8149e47f6978235, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: fauteuil classique siege
+  - id: SAL-07
+    displayName: "Fauteuil \xE0 oreilles"
+    category: Salon
+    price: 640
+    sizeCm: {x: 95, y: 81, z: 95}
+    prefab: {fileID: 5058723974872529637, guid: 2d85ee961aae85346be51a0927ebbd9f, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: fauteuil oreilles siege
+  - id: SAL-08
+    displayName: "Table basse carr\xE9e"
+    category: Salon
+    price: 390
+    sizeCm: {x: 80, y: 42, z: 80}
+    prefab: {fileID: 6988426106075308570, guid: b22049dea4e6c0940a9329bac4f37af7, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table basse carree
+  - id: SAL-09
+    displayName: Table basse nordique
+    category: Salon
+    price: 340
+    sizeCm: {x: 85, y: 79, z: 100}
+    prefab: {fileID: 8180459787196399639, guid: fe22164e25efd284eb86b57a032d9c50, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table basse nordique scandinave
+  - id: SAL-10
+    displayName: Table basse rectangulaire
+    category: Salon
+    price: 290
+    sizeCm: {x: 100, y: 91, z: 69}
+    prefab: {fileID: 2848180585528976407, guid: 4bbf6cc7b2221994585c02162b2499ec, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table basse rectangulaire
+  - id: SAL-11
+    displayName: "Table basse en ch\xEAne"
+    category: Salon
+    price: 320
+    sizeCm: {x: 100, y: 91, z: 69}
+    prefab: {fileID: 3593770935014063226, guid: 43e425a2af35b144d934eb3dc69b8bd7, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table basse chene bois
+  - id: SAL-12
+    displayName: Table basse ronde
+    category: Salon
+    price: 360
+    sizeCm: {x: 90, y: 51, z: 80}
+    prefab: {fileID: 2365577610374805147, guid: cc83f18515fa6544992e7f050510c5e4, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table basse ronde
+  - id: SAL-13
+    displayName: Table basse ovale
+    category: Salon
+    price: 380
+    sizeCm: {x: 95, y: 57, z: 110}
+    prefab: {fileID: 5763087755312010830, guid: 662d8de8ed905be40afdc8b5ad85915b, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table basse ovale
+  - id: SAL-14
+    displayName: "Console d'entr\xE9e"
+    category: Salon
+    price: 420
+    sizeCm: {x: 100, y: 75, z: 52}
+    prefab: {fileID: 4484947545465666163, guid: 440f261121b7d684aa8a225752c72d3e, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: console entree meuble
+  - id: SAL-15
+    displayName: Table de salon
+    category: Salon
+    price: 520
+    sizeCm: {x: 120, y: 40, z: 84}
+    prefab: {fileID: 5914605485070678643, guid: 3f22ef9c3a353ba4db0e2374df6e372d, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table salon
+  - id: SAL-16
+    displayName: Horloge comtoise
+    category: Salon
+    price: 480
+    sizeCm: {x: 83, y: 190, z: 47}
+    prefab: {fileID: 159809222931260317, guid: 585f379b507df1944adb8132189409c9, type: 3}
+    description: Pour un salon chaleureux et accueillant. Livraison et montage inclus.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: horloge comtoise pendule
+  - id: CHA-01
+    displayName: "Lit double \xE0 tiroirs"
+    category: Chambre
+    price: 1850
+    sizeCm: {x: 192, y: 120, z: 214}
+    prefab: {fileID: 3869633881674399100, guid: bfea4d366532a7743a5e9bd373db8435, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lit double chambre tiroirs couchage
+  - id: CHA-02
+    displayName: Lit enfant
+    category: Chambre
+    price: 1290
+    sizeCm: {x: 132, y: 110, z: 210}
+    prefab: {fileID: 3008206344697069299, guid: c85b34420ea19da4d8c5e1750ecb021d, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lit enfant chambre couchage
+  - id: CHA-03
+    displayName: Armoire 1 porte
+    category: Chambre
+    price: 990
+    sizeCm: {x: 106, y: 190, z: 58}
+    prefab: {fileID: 8325204157807476188, guid: bfa9f3c1fd740f5499cc7669471699d3, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: armoire penderie rangement
+  - id: CHA-04
+    displayName: Armoire 2 portes
+    category: Chambre
+    price: 1290
+    sizeCm: {x: 103, y: 200, z: 57}
+    prefab: {fileID: 7814557091581230971, guid: cde01ebd19656df4fae4a4c48528a32d, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: armoire penderie dressing rangement
+  - id: CHA-05
+    displayName: Table de chevet ronde
+    category: Chambre
+    price: 210
+    sizeCm: {x: 50, y: 57, z: 45}
+    prefab: {fileID: 2932639709048915655, guid: 413b689723d91cd4f96748b6b6a096ff, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: chevet table nuit
+  - id: CHA-06
+    displayName: "Chevet \xE0 tiroir"
+    category: Chambre
+    price: 190
+    sizeCm: {x: 50, y: 27, z: 32}
+    prefab: {fileID: 2895973418516596583, guid: d9d1cce15d5871046be9872af64cb6e5, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: chevet tiroir table nuit
+  - id: CHA-07
+    displayName: "Chevet carr\xE9"
+    category: Chambre
+    price: 170
+    sizeCm: {x: 45, y: 42, z: 43}
+    prefab: {fileID: 6930394391248928548, guid: 0e647bd22dbdef043a8f501e155838af, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: chevet carre table nuit
+  - id: CHA-08
+    displayName: Chevet deux tiroirs
+    category: Chambre
+    price: 230
+    sizeCm: {x: 46, y: 46, z: 55}
+    prefab: {fileID: 1383007128882708555, guid: 678bafb344c7d834a9c5c07735b1d7a0, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: chevet tiroirs table nuit
+  - id: CHA-09
+    displayName: Petite commode
+    category: Chambre
+    price: 390
+    sizeCm: {x: 80, y: 72, z: 58}
+    prefab: {fileID: 2084826257801685488, guid: bbcf1d3ffee9dde47bd7efabb1843491, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: commode tiroirs rangement
+  - id: CHA-10
+    displayName: Banc de lit
+    category: Chambre
+    price: 340
+    sizeCm: {x: 120, y: 34, z: 38}
+    prefab: {fileID: 4532068930989807466, guid: 48e72f2bee3be4f46bcdb830396654d3, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: banc bout de lit
+  - id: CHA-11
+    displayName: Commode basse
+    category: Chambre
+    price: 560
+    sizeCm: {x: 120, y: 50, z: 60}
+    prefab: {fileID: 5561601814122930026, guid: 343f12d4a49d97240b7972ec2aa3784d, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: commode basse rangement
+  - id: CHA-12
+    displayName: "Portant \xE0 v\xEAtements"
+    category: Chambre
+    price: 150
+    sizeCm: {x: 59, y: 170, z: 37}
+    prefab: {fileID: 6902676871047962594, guid: 5993a5c9451191748a98789d3171270a, type: 3}
+    description: "Une chambre douce et bien rang\xE9e. Bois issu de for\xEAts g\xE9r\xE9es durablement."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: portant vetements porte manteau
+  - id: CUI-01
+    displayName: "Meuble \xE9vier"
+    category: Cuisine
+    price: 890
+    sizeCm: {x: 92, y: 85, z: 68}
+    prefab: {fileID: 5482446738185141061, guid: 4373ebc88579312458126170bd6a8920, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: meuble evier cuisine
+  - id: CUI-02
+    displayName: Meuble d'angle
+    category: Cuisine
+    price: 760
+    sizeCm: {x: 87, y: 75, z: 87}
+    prefab: {fileID: 2521167287353400167, guid: a7817c42be824e54495ac8d67d022a01, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: meuble angle cuisine
+  - id: CUI-03
+    displayName: "\xC9l\xE9ment haut 1 porte"
+    category: Cuisine
+    price: 290
+    sizeCm: {x: 57, y: 60, z: 38}
+    prefab: {fileID: 8098775325797538296, guid: 30271cf1d37d2a346ab37c40e676b843, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: element haut placard cuisine
+  - id: CUI-04
+    displayName: "\xC9l\xE9ment haut 2 portes"
+    category: Cuisine
+    price: 390
+    sizeCm: {x: 90, y: 61, z: 38}
+    prefab: {fileID: 8145772997899336174, guid: 9a35927a5ba1a0047a5af732ba8c21ec, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: element haut placard cuisine
+  - id: CUI-05
+    displayName: "\xC9l\xE9ment haut double"
+    category: Cuisine
+    price: 420
+    sizeCm: {x: 90, y: 61, z: 38}
+    prefab: {fileID: 1408084300816616742, guid: 970a8285e4fff4b43a35538a0f158367, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: element haut placard cuisine
+  - id: CUI-06
+    displayName: "R\xE9frig\xE9rateur r\xE9tro"
+    category: Cuisine
+    price: 1490
+    sizeCm: {x: 83, y: 170, z: 85}
+    prefab: {fileID: 1399740318589316339, guid: 04ae2104958db354a97c66fc42049de6, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: refrigerateur frigo retro
+  - id: CUI-07
+    displayName: Four micro-ondes
+    category: Cuisine
+    price: 320
+    sizeCm: {x: 45, y: 34, z: 34}
+    prefab: {fileID: 1314555563341722084, guid: c7702e7dc5efbaa44bd52ba0a0f61076, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: micro ondes four
+  - id: CUI-08
+    displayName: "Table \xE0 manger"
+    category: Cuisine
+    price: 980
+    sizeCm: {x: 160, y: 75, z: 75}
+    prefab: {fileID: 6991615325031932100, guid: 8ab5b3c4d652c644bb5aa3206796eb38, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: table manger repas
+  - id: CUI-09
+    displayName: Chaise en bois
+    category: Cuisine
+    price: 180
+    sizeCm: {x: 64, y: 85, z: 64}
+    prefab: {fileID: 5166716410169907534, guid: 83b854de2af80bd4995e0a8955880207, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: chaise bois siege
+  - id: CUI-10
+    displayName: Tabouret bas
+    category: Cuisine
+    price: 120
+    sizeCm: {x: 35, y: 45, z: 34}
+    prefab: {fileID: 4222838239448582167, guid: da496ce0b32ae9b459688f5f9acd7957, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: tabouret bas
+  - id: CUI-11
+    displayName: Tabouret rond
+    category: Cuisine
+    price: 110
+    sizeCm: {x: 45, y: 38, z: 44}
+    prefab: {fileID: 3627867878744582231, guid: 097f7e9416b9c1e48a326247f07e4ab8, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: tabouret rond
+  - id: CUI-12
+    displayName: Tabouret de bar
+    category: Cuisine
+    price: 150
+    sizeCm: {x: 64, y: 75, z: 63}
+    prefab: {fileID: 462539526344506173, guid: 0132f63f6c675c34eacca7db1e9eac40, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: tabouret bar haut comptoir
+  - id: CUI-13
+    displayName: Banc de cuisine
+    category: Cuisine
+    price: 260
+    sizeCm: {x: 100, y: 58, z: 48}
+    prefab: {fileID: 7027852305265332264, guid: ddb964c7917092b40b32784587aa8181, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: banc cuisine
+  - id: CUI-14
+    displayName: "Planche \xE0 d\xE9couper"
+    category: Cuisine
+    price: 45
+    sizeCm: {x: 25, y: 4, z: 46}
+    prefab: {fileID: 1706659558276658478, guid: 5269d2cf94575844e86bcd3d13dd5a27, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: planche decouper bois
+  - id: CUI-15
+    displayName: Set d'ustensiles
+    category: Cuisine
+    price: 65
+    sizeCm: {x: 39, y: 11, z: 11}
+    prefab: {fileID: 7406040887766281601, guid: 015e0f79829aaff4b98daeaca64b81f5, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: ustensiles cuisine
+  - id: CUI-16
+    displayName: "Mug en c\xE9ramique"
+    category: Cuisine
+    price: 25
+    sizeCm: {x: 12, y: 7, z: 8}
+    prefab: {fileID: 2874803351628251934, guid: f5831f1b1619d5e46bb216da6a0372f0, type: 3}
+    description: "Pratique au quotidien, facile \xE0 entretenir."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: mug tasse ceramique
+  - id: SDB-01
+    displayName: Baignoire avec douche
+    category: Salle de bain
+    price: 2490
+    sizeCm: {x: 179, y: 214, z: 79}
+    prefab: {fileID: 5266032161873158710, guid: 1b2ca85d93392b64bb33aec52d222c65, type: 3}
+    description: "R\xE9siste \xE0 l'humidit\xE9, finitions soign\xE9es."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: baignoire bain douche
+  - id: SDB-02
+    displayName: Meuble vasque
+    category: Salle de bain
+    price: 890
+    sizeCm: {x: 60, y: 111, z: 47}
+    prefab: {fileID: 365409966559699820, guid: bec93768271d0ec4a998a41157eb095d, type: 3}
+    description: "R\xE9siste \xE0 l'humidit\xE9, finitions soign\xE9es."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: vasque lavabo meuble
+  - id: SDB-03
+    displayName: WC suspendu
+    category: Salle de bain
+    price: 690
+    sizeCm: {x: 42, y: 80, z: 63}
+    prefab: {fileID: 2628149232965705478, guid: 6d141597b2e7a9d41bdb225086414fb3, type: 3}
+    description: "R\xE9siste \xE0 l'humidit\xE9, finitions soign\xE9es."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: toilettes wc
+  - id: SDB-04
+    displayName: Robinet mitigeur
+    category: Salle de bain
+    price: 160
+    sizeCm: {x: 17, y: 22, z: 27}
+    prefab: {fileID: 4847204834028802853, guid: 35d80d771a5a81c43bc3f361deeca5ab, type: 3}
+    description: "R\xE9siste \xE0 l'humidit\xE9, finitions soign\xE9es."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: robinet mitigeur
+  - id: SDB-05
+    displayName: "Set brosse \xE0 dents"
+    category: Salle de bain
+    price: 25
+    sizeCm: {x: 26, y: 7, z: 22}
+    prefab: {fileID: 343857912389898785, guid: 78c2f3778c22f4500b29e61f9d2ad021, type: 3}
+    description: "R\xE9siste \xE0 l'humidit\xE9, finitions soign\xE9es."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: brosse dents dentifrice
+  - id: LUM-01
+    displayName: Lampadaire tissu
+    category: Luminaires
+    price: 260
+    sizeCm: {x: 62, y: 160, z: 65}
+    prefab: {fileID: 4320196896449263802, guid: e7354d579d419e74e8666273f63a7dd9, type: 3}
+    description: "Lumi\xE8re chaude et tamis\xE9e, ampoule LED fournie."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lampadaire lampe pied
+  - id: LUM-02
+    displayName: Lampadaire design
+    category: Luminaires
+    price: 340
+    sizeCm: {x: 50, y: 160, z: 50}
+    prefab: {fileID: 8956110632830419108, guid: c9516886c16020d48a2a84c8ea6fd8c7, type: 3}
+    description: "Lumi\xE8re chaude et tamis\xE9e, ampoule LED fournie."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lampadaire lampe design
+  - id: LUM-03
+    displayName: Lampe de chevet
+    category: Luminaires
+    price: 95
+    sizeCm: {x: 37, y: 45, z: 39}
+    prefab: {fileID: 2723410193202160753, guid: 064af187107892b4c98c6f0e19c359f1, type: 3}
+    description: "Lumi\xE8re chaude et tamis\xE9e, ampoule LED fournie."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lampe chevet
+  - id: LUM-04
+    displayName: Lampe champignon
+    category: Luminaires
+    price: 75
+    sizeCm: {x: 27, y: 35, z: 28}
+    prefab: {fileID: 7673502813373391571, guid: 9e12f1959f04c6b4dad1cf08237befd2, type: 3}
+    description: "Lumi\xE8re chaude et tamis\xE9e, ampoule LED fournie."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lampe champignon
+  - id: LUM-05
+    displayName: "Lampe \xE0 poser"
+    category: Luminaires
+    price: 110
+    sizeCm: {x: 36, y: 50, z: 37}
+    prefab: {fileID: 1116057304501967320, guid: 48ff92604c4cbba4da97373fafea525f, type: 3}
+    description: "Lumi\xE8re chaude et tamis\xE9e, ampoule LED fournie."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lampe poser table
+  - id: TAB-01
+    displayName: Toile abstraite
+    category: Tableaux
+    price: 180
+    sizeCm: {x: 90, y: 67, z: 7}
+    prefab: {fileID: 715314133326906719, guid: 270cf3db118d2694b8b51a46d379ca91, type: 3}
+    description: "Pr\xEAt \xE0 accrocher, fixations incluses."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: toile peinture abstrait art
+  - id: TAB-02
+    displayName: "Toile g\xE9om\xE9trique"
+    category: Tableaux
+    price: 160
+    sizeCm: {x: 78, y: 80, z: 6}
+    prefab: {fileID: 5517800430992854469, guid: 931f05bc13f27dc4db77f7c17cf3824d, type: 3}
+    description: "Pr\xEAt \xE0 accrocher, fixations incluses."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: toile peinture geometrique art
+  - id: TAB-03
+    displayName: Toile verticale
+    category: Tableaux
+    price: 150
+    sizeCm: {x: 46, y: 100, z: 6}
+    prefab: {fileID: 2326842370440741754, guid: 3e5219dae887d304abbfd7ebf8546874, type: 3}
+    description: "Pr\xEAt \xE0 accrocher, fixations incluses."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: toile peinture verticale art
+  - id: TAB-04
+    displayName: Affiche botanique
+    category: Tableaux
+    price: 85
+    sizeCm: {x: 57, y: 81, z: 6}
+    prefab: {fileID: 9194895701314959107, guid: 28d406d37e6d8064cb60f71cab309157, type: 3}
+    description: "Pr\xEAt \xE0 accrocher, fixations incluses."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: affiche poster plante
+  - id: TAB-05
+    displayName: Grand tableau paysage
+    category: Tableaux
+    price: 240
+    sizeCm: {x: 64, y: 110, z: 6}
+    prefab: {fileID: 3562544897262551006, guid: e6aab48ea5b2f5f4ca2dd54159db663b, type: 3}
+    description: "Pr\xEAt \xE0 accrocher, fixations incluses."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: tableau paysage grand
+  - id: TAB-06
+    displayName: "Cadre carr\xE9"
+    category: Tableaux
+    price: 70
+    sizeCm: {x: 47, y: 46, z: 6}
+    prefab: {fileID: 4228434065792105259, guid: 669c1fa1d656f47469dc8145b944f851, type: 3}
+    description: "Pr\xEAt \xE0 accrocher, fixations incluses."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: cadre carre photo
+  - id: TAB-07
+    displayName: Miroir mural
+    category: Tableaux
+    price: 140
+    sizeCm: {x: 68, y: 80, z: 9}
+    prefab: {fileID: 4825191075397291378, guid: d16fbe48364577c41bebc3a2c5528390, type: 3}
+    description: "Pr\xEAt \xE0 accrocher, fixations incluses."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: miroir glace mural
+  - id: TAB-08
+    displayName: Horloge murale
+    category: Tableaux
+    price: 65
+    sizeCm: {x: 40, y: 40, z: 4}
+    prefab: {fileID: 1828553533823636012, guid: 2f80b576a92323141b1af9fd88106b4c, type: 3}
+    description: "Pr\xEAt \xE0 accrocher, fixations incluses."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: horloge murale pendule
+  - id: PLA-01
+    displayName: Succulente en pot
+    category: Plantes
+    price: 35
+    sizeCm: {x: 22, y: 17, z: 25}
+    prefab: {fileID: 2741676030556807442, guid: 5ea36f3d277aec04e91627000369e5b4, type: 3}
+    description: "Plante d'int\xE9rieur facile, livr\xE9e avec son pot."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: succulente plante pot
+  - id: PLA-02
+    displayName: Cactus en pot
+    category: Plantes
+    price: 40
+    sizeCm: {x: 27, y: 22, z: 30}
+    prefab: {fileID: 3060716531212312957, guid: 590051e33029a5f4ab657dafbc1bd6d6, type: 3}
+    description: "Plante d'int\xE9rieur facile, livr\xE9e avec son pot."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: cactus plante pot
+  - id: PLA-03
+    displayName: "Petite foug\xE8re"
+    category: Plantes
+    price: 45
+    sizeCm: {x: 24, y: 35, z: 19}
+    prefab: {fileID: 3075281639662942719, guid: 64af665d39c85f04194d919c5ab4ee40, type: 3}
+    description: "Plante d'int\xE9rieur facile, livr\xE9e avec son pot."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: fougere plante pot
+  - id: PLA-04
+    displayName: Monstera
+    category: Plantes
+    price: 160
+    sizeCm: {x: 84, y: 110, z: 92}
+    prefab: {fileID: 3895689894335650834, guid: c8707c7b758b6b14c8ab381ade425023, type: 3}
+    description: "Plante d'int\xE9rieur facile, livr\xE9e avec son pot."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: monstera plante grande
+  - id: PLA-05
+    displayName: Ficus
+    category: Plantes
+    price: 140
+    sizeCm: {x: 66, y: 120, z: 59}
+    prefab: {fileID: 4226140136301090057, guid: 16f85e35943b5ea499e0203f749896d0, type: 3}
+    description: "Plante d'int\xE9rieur facile, livr\xE9e avec son pot."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: ficus plante grande
+  - id: PLA-06
+    displayName: "Palmier d'int\xE9rieur"
+    category: Plantes
+    price: 180
+    sizeCm: {x: 118, y: 120, z: 130}
+    prefab: {fileID: 6950799138662409641, guid: 2c54f9cb3a7bc4542bae55cef25da8b0, type: 3}
+    description: "Plante d'int\xE9rieur facile, livr\xE9e avec son pot."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: palmier plante grande
+  - id: PLA-07
+    displayName: Plante de table
+    category: Plantes
+    price: 30
+    sizeCm: {x: 13, y: 24, z: 12}
+    prefab: {fileID: 4650749756249174769, guid: e09b4b7143fc81c4c91145252eb4f8af, type: 3}
+    description: "Plante d'int\xE9rieur facile, livr\xE9e avec son pot."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: plante table petite
+  - id: PLA-08
+    displayName: Strelitzia
+    category: Plantes
+    price: 210
+    sizeCm: {x: 51, y: 116, z: 31}
+    prefab: {fileID: 2403496373118178391, guid: 968a55c757fae9e488517a19bbb9dda6, type: 3}
+    description: "Plante d'int\xE9rieur facile, livr\xE9e avec son pot."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: strelitzia oiseau paradis plante
+  - id: PLA-09
+    displayName: "Olivier d'int\xE9rieur"
+    category: Plantes
+    price: 390
+    sizeCm: {x: 86, y: 200, z: 67}
+    prefab: {fileID: 8672785594022755724, guid: f8a93f05c7580a0439bfdf3742f1697c, type: 3}
+    description: "Plante d'int\xE9rieur facile, livr\xE9e avec son pot."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: olivier arbre plante grande
+  - id: DEC-01
+    displayName: "Coupe en c\xE9ramique"
+    category: "Objets d\xE9co"
+    price: 35
+    sizeCm: {x: 25, y: 18, z: 25}
+    prefab: {fileID: 1033304976665771223, guid: c58f30033e861ae47827f2c02b2f16de, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: coupe ceramique bol
+  - id: DEC-02
+    displayName: Vase terracotta
+    category: "Objets d\xE9co"
+    price: 45
+    sizeCm: {x: 24, y: 35, z: 24}
+    prefab: {fileID: 954265685362150947, guid: fbd16487fa9dfa94e92f0e189892d658, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: vase terracotta fleur
+  - id: DEC-03
+    displayName: Vase boule
+    category: "Objets d\xE9co"
+    price: 50
+    sizeCm: {x: 27, y: 30, z: 28}
+    prefab: {fileID: 6349591516245653111, guid: 647691fdcf3b5b749abe7c57cfd99f20, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: vase boule fleur
+  - id: DEC-04
+    displayName: Coussin en lin
+    category: "Objets d\xE9co"
+    price: 60
+    sizeCm: {x: 40, y: 15, z: 45}
+    prefab: {fileID: 2457800457890391730, guid: 5e82eb33125b67d43832036ad4d7ae86, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: coussin lin canape
+  - id: DEC-05
+    displayName: Coussin rectangulaire
+    category: "Objets d\xE9co"
+    price: 65
+    sizeCm: {x: 55, y: 13, z: 36}
+    prefab: {fileID: 5350042031127024210, guid: 7554a86ec30dbb448b0db8e693bf2254, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: coussin rectangulaire canape
+  - id: DEC-06
+    displayName: "Tapis berb\xE8re"
+    category: "Objets d\xE9co"
+    price: 280
+    sizeCm: {x: 160, y: 3, z: 108}
+    prefab: {fileID: 4414843863964572891, guid: 040ae70d5c7969a43a7de392c6a9b956, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: tapis berbere laine
+  - id: DEC-07
+    displayName: Grand tapis
+    category: "Objets d\xE9co"
+    price: 420
+    sizeCm: {x: 240, y: 3, z: 129}
+    prefab: {fileID: 6292628128491147312, guid: 9be67f9e2f0a49c48b87273447efd8c1, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: tapis grand salon
+  - id: DEC-08
+    displayName: "Rang\xE9e de livres"
+    category: "Objets d\xE9co"
+    price: 90
+    sizeCm: {x: 45, y: 17, z: 13}
+    prefab: {fileID: 5160133898212400383, guid: f67b985e0b58349c2b2a9ad0a6f17f5a, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: livres bibliotheque rangee
+  - id: DEC-09
+    displayName: Pile de beaux livres
+    category: "Objets d\xE9co"
+    price: 75
+    sizeCm: {x: 70, y: 32, z: 23}
+    prefab: {fileID: 1374066556545141855, guid: 34cb1c74dfab02341a0f95d3b7c4144f, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: livres pile beaux
+  - id: DEC-10
+    displayName: "Livres empil\xE9s"
+    category: "Objets d\xE9co"
+    price: 55
+    sizeCm: {x: 25, y: 15, z: 34}
+    prefab: {fileID: 6716007423949332903, guid: 9e1b3f7d64053644c9b5621a91b8ad78, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: livres empiles
+  - id: DEC-11
+    displayName: "Bo\xEEte de rangement"
+    category: "Objets d\xE9co"
+    price: 45
+    sizeCm: {x: 35, y: 40, z: 40}
+    prefab: {fileID: 203720986700967546, guid: 94b03d6e8f0a7a3469424b7f0ad68357, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: boite rangement
+  - id: DEC-12
+    displayName: "Panier tress\xE9"
+    category: "Objets d\xE9co"
+    price: 55
+    sizeCm: {x: 31, y: 35, z: 35}
+    prefab: {fileID: 8082449234451370341, guid: 747b2662eba846d43953b3eef63a53c6, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: panier tresse rangement
+  - id: DEC-13
+    displayName: Caisse en bois
+    category: "Objets d\xE9co"
+    price: 60
+    sizeCm: {x: 38, y: 40, z: 34}
+    prefab: {fileID: 1767180789903589160, guid: deb37e236f9b3c04fa326dd2416a2fe6, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: caisse bois rangement
+  - id: DEC-14
+    displayName: "R\xE9veil r\xE9tro"
+    category: "Objets d\xE9co"
+    price: 40
+    sizeCm: {x: 20, y: 6, z: 8}
+    prefab: {fileID: 7332523258936348311, guid: 0e68ccce1c6ce2f46abc8b39bb63c470, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: reveil horloge retro
+  - id: DEC-15
+    displayName: Horloge de table
+    category: "Objets d\xE9co"
+    price: 55
+    sizeCm: {x: 25, y: 23, z: 11}
+    prefab: {fileID: 8144784494935811278, guid: 0a77eef02d8d3634f83144e2c9415849, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: horloge table pendule
+  - id: DEC-16
+    displayName: Lot de magazines
+    category: "Objets d\xE9co"
+    price: 30
+    sizeCm: {x: 36, y: 11, z: 36}
+    prefab: {fileID: 2554818425525351041, guid: 5f0c9f31b10ba4c8b9e875346a596d75, type: 3}
+    description: La petite touche qui change tout.
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: magazines journal papier
+  - id: MUL-01
+    displayName: "T\xE9l\xE9viseur 55 pouces"
+    category: "Multim\xE9dia"
+    price: 1990
+    sizeCm: {x: 123, y: 78, z: 7}
+    prefab: {fileID: 1910758544431960567, guid: 01be303ca24ad7a4f90da0b06e671f67, type: 3}
+    description: "Garantie 2 ans, installation possible \xE0 domicile."
+    thumbnail: {fileID: 0}
+    placement: 1
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: television tele tv ecran
+  - id: MUL-02
+    displayName: "T\xE9l\xE9viseur vintage"
+    category: "Multim\xE9dia"
+    price: 690
+    sizeCm: {x: 51, y: 60, z: 28}
+    prefab: {fileID: 6393484124639422824, guid: 835fc35b1beed9140a43e923578603cc, type: 3}
+    description: "Garantie 2 ans, installation possible \xE0 domicile."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: television tele tv vintage retro
+  - id: MUL-03
+    displayName: "Cha\xEEne hi-fi"
+    category: "Multim\xE9dia"
+    price: 590
+    sizeCm: {x: 25, y: 45, z: 44}
+    prefab: {fileID: 723638845666634896, guid: dfab47eb0717f3a4eadbf92fd10ba175, type: 3}
+    description: "Garantie 2 ans, installation possible \xE0 domicile."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: chaine hifi stereo musique
+  - id: MUL-04
+    displayName: "Enceinte biblioth\xE8que"
+    category: "Multim\xE9dia"
+    price: 290
+    sizeCm: {x: 18, y: 40, z: 27}
+    prefab: {fileID: 6881424030415938068, guid: 19a5baf1921c073409fbe44c8701bf0d, type: 3}
+    description: "Garantie 2 ans, installation possible \xE0 domicile."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: enceinte haut parleur
+  - id: MUL-05
+    displayName: Enceinte colonne
+    category: "Multim\xE9dia"
+    price: 490
+    sizeCm: {x: 45, y: 100, z: 69}
+    prefab: {fileID: 4372206196653116072, guid: c744b67b32733304397be5f0ddac13c3, type: 3}
+    description: "Garantie 2 ans, installation possible \xE0 domicile."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: enceinte colonne haut parleur
+  - id: MUL-06
+    displayName: Barre de son
+    category: "Multim\xE9dia"
+    price: 390
+    sizeCm: {x: 90, y: 6, z: 6}
+    prefab: {fileID: 8084009751008396769, guid: 4949fa2a8f62a974d9a5eafbdcdde18f, type: 3}
+    description: "Garantie 2 ans, installation possible \xE0 domicile."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: barre son soundbar
+  - id: MUL-07
+    displayName: Lecteur Blu-ray
+    category: "Multim\xE9dia"
+    price: 220
+    sizeCm: {x: 43, y: 7, z: 33}
+    prefab: {fileID: 5246333942632668552, guid: d47fd7930d5dde64290ec3be8e22428e, type: 3}
+    description: "Garantie 2 ans, installation possible \xE0 domicile."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: lecteur bluray dvd
+  - id: MUL-08
+    displayName: Console de salon
+    category: "Multim\xE9dia"
+    price: 1290
+    sizeCm: {x: 16, y: 30, z: 30}
+    prefab: {fileID: 493085850573786862, guid: 445bcb105938bd7499d80e51e79d4589, type: 3}
+    description: "Garantie 2 ans, installation possible \xE0 domicile."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: console jeux video
+  - id: MUL-09
+    displayName: "T\xE9l\xE9commande universelle"
+    category: "Multim\xE9dia"
+    price: 45
+    sizeCm: {x: 20, y: 4, z: 9}
+    prefab: {fileID: 2869481128496695685, guid: 7614acfd37724644e886208938123853, type: 3}
+    description: "Garantie 2 ans, installation possible \xE0 domicile."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: telecommande
+  - id: BUR-01
+    displayName: "Bureau en ch\xEAne"
+    category: Bureau & loisirs
+    price: 690
+    sizeCm: {x: 131, y: 76, z: 74}
+    prefab: {fileID: 6170273324507501305, guid: 88f87e731e0a02345a14f5adc02732ce, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: bureau table travail chene
+  - id: BUR-02
+    displayName: Chaise de bureau
+    category: Bureau & loisirs
+    price: 390
+    sizeCm: {x: 75, y: 105, z: 74}
+    prefab: {fileID: 3752459871075876325, guid: 4205c8bfe011f4042a94a8cad75cc746, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Lin chin\xE9"
+      color: {r: 1, g: 0.93, b: 0.84, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Velours fonc\xE9"
+      color: {r: 0.62, g: 0.58, b: 0.6, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Anthracite
+      color: {r: 0.45, g: 0.46, b: 0.5, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: chaise bureau siege
+  - id: BUR-03
+    displayName: Ordinateur tout-en-un
+    category: Bureau & loisirs
+    price: 2490
+    sizeCm: {x: 81, y: 52, z: 48}
+    prefab: {fileID: 2532715698426240048, guid: 04f4ae40caf5fce43b7be4d0c84da028, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: ordinateur pc ecran
+  - id: BUR-04
+    displayName: Clavier et souris
+    category: Bureau & loisirs
+    price: 120
+    sizeCm: {x: 45, y: 6, z: 19}
+    prefab: {fileID: 9103721817238549754, guid: beb01fe860d844c359108f02b04deea7, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: clavier souris ordinateur
+  - id: BUR-05
+    displayName: Console portable
+    category: Bureau & loisirs
+    price: 890
+    sizeCm: {x: 21, y: 6, z: 13}
+    prefab: {fileID: 29302456837897202, guid: 26ed291fa17dd5e40b68f7adb7bdcbe3, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: console portable jeux
+  - id: BUR-06
+    displayName: Manette de jeu
+    category: Bureau & loisirs
+    price: 150
+    sizeCm: {x: 15, y: 3, z: 7}
+    prefab: {fileID: 3802440325024892399, guid: f91bd17a811ca1c448e54b7e0b367ef3, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: manette jeu gamepad
+  - id: BUR-07
+    displayName: Guitare acoustique
+    category: Bureau & loisirs
+    price: 450
+    sizeCm: {x: 50, y: 20, z: 100}
+    prefab: {fileID: 6093456521913328735, guid: 2bbce9741ba19a84ca5b3b8d7591d2ba, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Ch\xEAne clair"
+      color: {r: 1, g: 0.95, b: 0.86, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: "Weng\xE9"
+      color: {r: 0.55, g: 0.47, b: 0.42, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: guitare musique instrument
+  - id: BUR-08
+    displayName: "V\xE9lo d'appartement"
+    category: Bureau & loisirs
+    price: 1290
+    sizeCm: {x: 94, y: 141, z: 59}
+    prefab: {fileID: 114470185571205976, guid: 0e1632eb5707b5f4e802b9c0d9ff86a0, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 0
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: velo appartement sport
+  - id: BUR-09
+    displayName: Voiture en bois
+    category: Bureau & loisirs
+    price: 45
+    sizeCm: {x: 24, y: 12, z: 15}
+    prefab: {fileID: 99033065415051577, guid: b3a999724602a5b4f9ae701f9425ca0d, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: voiture jouet enfant
+  - id: BUR-10
+    displayName: Peluche ourson
+    category: Bureau & loisirs
+    price: 55
+    sizeCm: {x: 29, y: 28, z: 27}
+    prefab: {fileID: 43580590544826533, guid: da39908e19de305449a4ddcb953bcd6e, type: 3}
+    description: "Pour travailler et se d\xE9tendre \xE0 la maison."
+    thumbnail: {fileID: 0}
+    placement: 2
+    variants:
+    - name: Original
+      color: {r: 1, g: 1, b: 1, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Sable
+      color: {r: 1, g: 0.93, b: 0.82, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    - name: Ardoise
+      color: {r: 0.6, g: 0.62, b: 0.66, a: 1}
+      material: {fileID: 0}
+      thumbnail: {fileID: 0}
+    keywords: peluche ourson jouet enfant

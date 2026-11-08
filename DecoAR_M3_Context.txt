@@ -1,0 +1,139 @@
+Projet : DecoAR
+Unity : 6000.6.6f1
+Type : AR mobile + UI + ScriptableObject + AR Foundation
+Langage : C#
+Modules : M1, M3, M4
+
+Contexte du besoin
+- Le projet DecoAR existait déjà avec M1 et M4.
+- Le module M3 manquait.
+- Le besoin était d’ajouter un catalogue produit dans M3, permettre la sélection du produit, puis transmettre la sélection au module M4 via GameManager.
+- M4 attend un prefab produit et une taille réelle de produit (sizeCm).
+- M3 est une couche de sélection, M4 est la couche d’AR placement.
+
+Architecture visée
+- M3_ProductCatalog : ScriptableObject avec une liste de produits.
+- M3CatalogSelector : lit le catalogue, instancie les boutons produits, et envoie la sélection au GameManager.
+- GameManager : stockage global de l’état partagé entre modules.
+- M4PlacementGate : lit le produit sélectionné dans GameManager et l’instancie sur une surface détectée.
+
+Fichiers importants
+- Assets/DecoAR/Core/Scripts/GameManager.cs
+- Assets/DecoAR/M3_ProductCatalog/Scripts/M3ProductCatalog.cs
+- Assets/DecoAR/M3_ProductCatalog/Scripts/M3CatalogSelector.cs
+- Assets/DecoAR/M3_ProductCatalog/Data/M3_ProductCatalog.asset
+- Assets/DecoAR/M4_AR/Scripts/M4PlacementGate.cs
+
+Etat attendu
+- Quand on clique sur un produit dans M3, il doit :
+  1. changer le texte M3_SelectedText
+  2. appeler GameManager.SelectProduct(productId, prefab, sizeCm)
+  3. stocker le produit sélectionné pour M4
+- Quand M4 démarre / lit le GameManager, il doit récupérer le prefab sélectionné et le placer sur une surface.
+
+Etat actuel du code
+- GameManager contient bien :
+  - SelectedProductId
+  - SelectedProductPrefab
+  - SelectedProductSizeCm
+  - HasSelectedProduct
+  - SelectProduct(...)
+- M3CatalogSelector contient bien :
+  - BuildCatalog()
+  - AddListener sur chaque clone de bouton
+  - SelectProduct(ProductOption product)
+- Les logs montrent que le catalogue contient 3 produits et que les listeners sont bien ajoutés pour :
+  - Vase en céramique
+  - Lampe en laiton
+  - Tableau abstrait
+
+Logs de validation confirmés
+Les logs suivants sont visibles :
+- [M3] Start -> BuildCatalog
+- [M3] Panel raycast disabled to allow button clicks
+- [M3] BuildCatalog start | catalog=True | root=True | prefab=True
+- [M3] Catalog count = 3
+- [M3] Listener ajouté pour Vase en céramique
+- [M3] Listener ajouté pour Lampe en laiton
+- [M3] Listener ajouté pour Tableau abstrait
+- [M3] BuildCatalog end | spawned=3
+
+Cela confirme :
+- le catalogue est bien chargé
+- le root est bien assigné
+- le prefab de bouton est bien assigné
+- les boutons sont instanciés
+- les listeners sont bien ajoutés
+
+Problème réel actuel
+Le problème n’est plus dans la logique C#.
+Le problème est visuel / UI / placement / raycast.
+
+Les boutons existent et ont des listeners, mais ils sont placés hors du champ visible / hors du panel, ou le panel parent capte les clics.
+
+M3_ProductPanel est probablement :
+- mal positionné
+- mal dimensionné
+- mal aligné
+- ou l’image du panel bloque les raycasts
+
+Le bouton généré est probablement en dehors du panel visible, avec des coordonnées de RectTransform anormales (ex. left/top négatifs, ou hors des limites visibles).
+
+Le bouton prefab doit être correctement configuré :
+- Image.raycastTarget = true
+- Button.interactable = true
+- RectTransform normalisé / visible
+- le panel parent doit avoir raycastTarget = false pour ne pas bloquer les clics
+
+Le parent panel doit être un conteneur UI propre :
+- ajouter Vertical Layout Group
+- aligner les enfants
+- éviter que le panel absorbe les clics
+- garder les boutons visibles dans le viewport
+
+Le bug observé
+- On peut voir dans l’Inspector que les boutons sont présents.
+- On peut voir les logs de listeners ajoutés.
+- Mais aucun log [M3] Click reçu: ... ne s’affiche.
+- Donc aucun clic n’atteint réellement le bouton.
+
+Conclusion
+- Le code M3 est fonctionnel au niveau logique.
+- Le vrai bug restant est un problème de layout UI / raycast visuel.
+- La prochaine correction à faire est de régler le panel et le RectTransform du bouton généré :
+  - M3_ProductPanel = container, raycast false
+  - M3_ProductButton_Prefab = bouton cliquable, raycast true
+  - Vertical Layout Group sur le panel
+  - supprimer les anciens boutons de test
+  - relancer Play
+  - vérifier enfin le log [M3] Click reçu: ...
+
+Fichiers à corriger pour la validation finale
+- Assets/DecoAR/M3_ProductCatalog/Scripts/M3CatalogSelector.cs
+- Assets/DecoAR/M3_ProductCatalog/Prefabs/M3_ProductButton_Prefab
+- M3_ProductPanel dans la scène M3
+- éventuellement M3_CatalogCanvas si nécessaire
+
+Validation attendue
+Quand le layout est corrigé, le comportement attendu est :
+- Play
+- 3 boutons visibles dans le panel
+- clic sur un bouton
+- console affiche :
+  - [M3] Click reçu: ...
+  - [M3] Produit sélectionné: ...
+  - puis GameManager.SelectedProductPrefab != null
+
+Note complémentaire
+- Le warning sur M4PlacementGate concernant FindFirstObjectByType<T>() est mineur et n’est pas la cause du problème M3.
+- Il peut être remplacé par FindAnyObjectByType<ARPlaneManager>() pour nettoyer les warnings Unity.
+
+Résumé final
+- M3 est presque terminé fonctionnellement.
+- Le code C# est bon.
+- Les listeners sont bien ajoutés.
+- Le bug restant est visuel et layout/UI, pas logique.
+- Il faut corriger le placement du prefab bouton dans le panel et ses raycasts pour que le clic passe.
+
+Version courte de synthèse pour agent IA
+- M3 catalog works logically. The logs prove that BuildCatalog generates 3 buttons and attaches listeners. The issue is not in GameManager or in the catalog data. The remaining bug is UI layout/raycast: the generated buttons are outside the visible panel or the parent panel is absorbing click events. Fix M3_ProductPanel and M3_ProductButton_Prefab RectTransform / Vertical Layout Group / image raycast settings, then test for [M3] Click reçu logs. The M4 warning is unrelated.

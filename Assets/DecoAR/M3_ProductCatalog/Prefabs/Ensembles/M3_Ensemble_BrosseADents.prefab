@@ -1,0 +1,159 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &343857912389898785
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3981957989006789966}
+  m_Layer: 0
+  m_Name: M3_Ensemble_BrosseADents
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3981957989006789966
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343857912389898785}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8204925490275477776}
+  - {fileID: 8960251992186349354}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &3126506590521588591
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3981957989006789966}
+    m_Modifications:
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.008317431
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.98768836
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.15643448
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6661228709225449215, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+      propertyPath: m_Name
+      value: Toothbrush_01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+--- !u!4 &8960251992186349354 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6285512819671833669, guid: 30c71dce917b0e745b9c87225ad2db46, type: 3}
+  m_PrefabInstance: {fileID: 3126506590521588591}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &5651310952382304699
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3981957989006789966}
+    m_Modifications:
+    - target: {fileID: 3817765716554097169, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_Name
+      value: Toothpaste_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.0013661087
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.00090084225
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.00000023469329
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+--- !u!4 &8204925490275477776 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4589375954697025707, guid: 5a616e5af3419df4a80036d4cca0599d, type: 3}
+  m_PrefabInstance: {fileID: 5651310952382304699}
+  m_PrefabAsset: {fileID: 0}

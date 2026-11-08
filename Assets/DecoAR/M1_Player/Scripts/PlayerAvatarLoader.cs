@@ -3,24 +3,23 @@ using UnityEngine;
 
 namespace DecoAR.Player
 {
-    // Remplace la capsule provisoire par l'avatar choisi dans l'ecran de selection
+    // Remplace la capsule provisoire par le personnage, avec le look choisi a la personnalisation
     [RequireComponent(typeof(PlayerController))]
     public class PlayerAvatarLoader : MonoBehaviour
     {
-        [SerializeField] AvatarCatalog catalog;
+        [SerializeField] CharacterProfile profile;
         [SerializeField] Transform avatarMount;
         [SerializeField] GameObject placeholder;
 
         void Awake()
         {
             var gm = GameManager.Instance;
-            int index = gm != null ? gm.AvatarIndex : 0;
-            Color color = gm != null ? gm.OutfitColor : Color.white;
+            AvatarLook look = gm != null ? gm.Look : new AvatarLook();
 
-            Animator anim = AvatarAppearance.Spawn(catalog, index, color, avatarMount);
+            Animator anim = CharacterAppearance.Spawn(profile, look, avatarMount);
             if (anim == null)
             {
-                Debug.LogWarning("[M1] Aucun avatar dans le catalogue : la capsule reste affichee");
+                Debug.LogWarning("[M1] Aucun personnage dans le profil : la capsule reste affichee");
                 return;
             }
 

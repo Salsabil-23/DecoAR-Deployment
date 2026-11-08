@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f2201b9ad141c649b9976a29f97fe12, type: 3}
   m_Name: DecoAR_AuthSettings
   m_EditorClassIdentifier: Assembly-CSharp::DecoAR.Auth.AuthSettings
-  deviceApiUrl: http://localhost:3000
-  editorApiUrl: http://localhost:3000
+  deviceApiUrl: https://decoar-api.onrender.com
+  editorApiUrl: https://decoar-api.onrender.com
   lockAfterSeconds: 300
   authScene: Auth
   profileScene: Profile
-  firstSceneAfterLogin: M1_AvatarSelection
+  firstSceneAfterLogin: M1_Personnalisation

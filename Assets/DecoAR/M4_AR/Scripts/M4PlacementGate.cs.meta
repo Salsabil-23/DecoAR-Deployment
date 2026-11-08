@@ -1,2 +1,17 @@
 fileFormatVersion: 2
 guid: e42c96758d70d4182a865950c2f9ef54
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - holderFloorPrefab: {fileID: 8986328500875594450, guid: deefda4e2fcc54f76922670353061ee4, type: 3}
+  - holderWallPrefab: {fileID: 8986328500875594450, guid: ec269dac6294c495e95e7274275a7404, type: 3}
+  - productPrefab: {instanceID: 0}
+  - shadowCatcherMaterial: {fileID: 2100000, guid: 12609a1b6e4494281a026be4dccbfc3d, type: 2}
+  - messageText: {instanceID: 0}
+  - resetButton: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

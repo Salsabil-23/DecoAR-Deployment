@@ -1,0 +1,34 @@
+{
+  "panier-vide": {
+    "titre": "Ton panier est vide",
+    "texte": "Ajoute un coup de cœur depuis le catalogue."
+  },
+  "catalogue-3d-vide": {
+    "titre": "Aucun produit 3D pour l'instant",
+    "texte": "Génère ton premier modèle à partir d'une photo."
+  },
+  "modele-3d-attente": {
+    "titre": "Ton modèle 3D apparaîtra ici",
+    "texte": "Prends une photo du produit pour commencer."
+  },
+  "aucun-resultat": {
+    "titre": "Aucun résultat",
+    "texte": "Essaie un autre mot ou un autre rayon."
+  },
+  "camera-refusee": {
+    "titre": "La caméra est désactivée",
+    "texte": "Autorise-la dans les réglages pour essayer en AR."
+  },
+  "hors-ligne": {
+    "titre": "Pas de connexion",
+    "texte": "Vérifie ton réseau puis réessaie."
+  },
+  "paiement-confirme": {
+    "titre": "Merci pour ta commande !",
+    "texte": "Ton colis est en préparation."
+  },
+  "aucune-photo": {
+    "titre": "Aucune photo",
+    "texte": "Prends une photo nette du produit, sur un fond uni."
+  }
+}

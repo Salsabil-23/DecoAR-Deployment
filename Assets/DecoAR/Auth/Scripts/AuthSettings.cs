@@ -17,7 +17,7 @@ namespace DecoAR.Auth
 
         public string authScene = "Auth";
         public string profileScene = "Profile";
-        public string firstSceneAfterLogin = "M1_AvatarSelection";
+        public string firstSceneAfterLogin = "M1_Personnalisation";   // apres connexion : creer son personnage
 
         static AuthSettings instance;
 

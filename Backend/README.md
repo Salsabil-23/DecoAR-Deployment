@@ -56,6 +56,26 @@ npm test
 | GET | `/api/m6/status/:jobId` | - | `{ job_id, status: processing / completed / failed, error }` |
 | GET | `/api/m6/model/:jobId` | - | fichier `.glb` (`409` si pas pret) |
 | GET | `/api/m6/test-model` | - | fichier `.glb` de test (sans quota Hugging Face) |
+| POST | `/api/admin/confirm` (JWT) | `face: { challengeToken, frames }` | `{ adminToken, expiresIn }` (compte admin + son visage) |
+| GET | `/api/catalog` (JWT) | - | `{ categories, products: [{ id, name, category, modelSize, createdAt }] }` |
+| GET | `/api/catalog/:id/model` (JWT) | - | fichier `.glb` du produit |
+| POST | `/api/catalog?name=&category=` (admin) | fichier `.glb` (`application/octet-stream`, 15 Mo max) | `201 { product }` |
+| PATCH | `/api/catalog/:id` (admin) | `name?, category?` | `{ product }` |
+| DELETE | `/api/catalog/:id` (admin) | - | `{ message }` |
+
+Routes "(admin)" et `/api/m6/generate`, `/status`, `/model` : en plus du JWT, en-tete `X-Admin-Token` (jeton de
+`/api/admin/confirm`, 30 min). Le compte doit avoir `role: "admin"` dans MongoDB.
+
+## Comptes administrateurs
+
+Un compte devient admin uniquement depuis le PC (jamais depuis l'application), avec le `.env` qui pointe sur Atlas :
+
+```bash
+npm run make-admin -- prenom.nom@gmail.com
+```
+
+`npm run make-admin -- prenom.nom@gmail.com --remove` retire le role, `npm run make-admin -- --list` liste les admins.
+Le compte doit avoir un visage enregistre : l'espace admin s'ouvre avec le defi de reconnaissance faciale.
 
 Routes `/api/m6/*` : passerelle vers le module 3D (`Backend_M6`, service `decoar-m6`, adresse `M6_SERVICE_URL`) :
 Unity n'utilise qu'une seule adresse, `https://decoar-api.onrender.com`.
